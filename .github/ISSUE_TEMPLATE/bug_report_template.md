@@ -20,7 +20,7 @@ assignees:
 *A clear and concise description of what the bug is* 
 
 ## Intended Result ✅ 
-*The inteded result according to the test case.*
+*The intended result according to the test case.*
 
 ## Current Result ❌
 
