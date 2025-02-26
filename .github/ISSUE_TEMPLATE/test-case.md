@@ -1,9 +1,10 @@
 ---
-name: Bug Report
-about: Report a bug to improve or fix the program.
-title: "Test Case #*test case number*:*test case description*"
-labels: "test case"
-assignees: 
+name: Test Case
+about: Write a test case to test the code
+title: 'Test Case #*test case number*:*test case description*'
+labels: test case
+assignees: ''
+
 ---
 
 # Test case #[Number]:[Test case name]

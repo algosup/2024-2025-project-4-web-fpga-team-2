@@ -1,9 +1,10 @@
 ---
 name: Bug Report
 about: Report a bug to improve or fix the program.
-title: "Bug #<bug number>: <bug name>"
+title: 'Bug #<bug number>: <bug name>'
 labels: bug
-assignees: 
+assignees: ''
+
 ---
 
 # Bug Report #[bug number]
