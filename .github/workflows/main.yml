@@ -24,7 +24,7 @@ jobs:
 
       - name: Merge main into sub-branches
         run: |
-          for branch in functional technical quality-assurance management dev; do
+          for branch in origin/functional origin/technical origin/quality-assurance origin/management origin/dev; do
             if git show-ref --verify --quiet refs/heads/$branch; then
               git checkout $branch
               git merge --no-edit main || (echo "Merge conflict in $branch, please resolve manually." && exit 1)
