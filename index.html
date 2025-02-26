@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>FPGA Visualization Simulator</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="./static/css/main.2d52c055.css">
+</head>
+<body>
+    <div id="root"></div>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./service-worker.js')
+                .then(registration => {
+                    console.log('Service Worker registered with scope:', registration.scope);
+                })
+                .catch(error => {
+                    console.error('Service Worker registration failed:', error);
+                });
+        }
+    </script>
+    <script src="./static/js/main.8d270602.js"></script>
+</body>
+</html>
