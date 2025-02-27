@@ -28,11 +28,12 @@ This document describes the naming conventions used in the whole repository.
 
 ## Code Conventions
 
-## Node.js Conventions
+|Type|Convention|Example|
+|-|-|-|
+|Class|`PascalCase`|ClassOne|
+|Function/Methode|`snake_case`|the_best_function|
+|Variable|`camelCase`|numberCack|
+|Constants|`UPPERCASE`|CONST|
+|Slug URL|`kebab-case`|this-is-a-url|
 
-- Class
-- function and methode
-- Variables
-- Constants
 
-## React Code Convetions
