@@ -1,9 +1,9 @@
 ---
 name: Test Case
 about: Create a test to check if the code works
-title: "Test Case #*test case number*:*test case description*"
-labels: "test case"
-assignees: 
+title: 'Test Case #*test case number*:*test case description*'
+labels: test case
+assignees: ''
 ---
 
 # Test case #[Number]:[Test case name]
