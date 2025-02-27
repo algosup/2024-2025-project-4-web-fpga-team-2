@@ -1,6 +1,6 @@
 ---
-name: Bug Report
-about: Report a bug to improve or fix the program.
+name: Test Case
+about: Create a test to check if the code works
 title: "Test Case #*test case number*:*test case description*"
 labels: "test case"
 assignees: 

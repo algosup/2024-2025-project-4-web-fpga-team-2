@@ -10,9 +10,9 @@ assignees:
 
 
 
-|**Concerned test case**|**Bug discovery date**|**Bug severity**|
-|-----------------------|----------------------|---------------------|
-|                       |                      |
+| **Concerned test case** | **Bug discovery date** | **Bug severity** |
+| ----------------------- | ---------------------- | ---------------- |
+|                         |                        |                  |
 
 ---
 
