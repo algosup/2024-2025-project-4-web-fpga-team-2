@@ -1,10 +1,9 @@
 ---
 name: Test Case
-about: Write a test case to test the code
+about: Create a test to check if the code works
 title: 'Test Case #*test case number*:*test case description*'
 labels: test case
 assignees: ''
-
 ---
 
 # Test case #[Number]:[Test case name]
