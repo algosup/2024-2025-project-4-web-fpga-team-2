@@ -1,5 +1,5 @@
 ---
-name: Test Case
+name: General Issue
 about: Create a non-code related issue
 title: 'Issue #*Issue number*:*Issue name*'
 labels: ''
