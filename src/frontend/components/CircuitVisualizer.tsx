@@ -27,42 +27,20 @@ interface CircuitData {
 
 const CircuitVisualizer: React.FC = () => {
   const [circuitData, setCircuitData] = useState<CircuitData | null>(null);
-  const [isJsonAvailable, setIsJsonAvailable] = useState(false);
 
   useEffect(() => {
-    const interval = setInterval(async () => {
-      try {
-        const response = await fetch("http://localhost:5001/uploads/parsed_circuit.json", { method: "HEAD" });
-        if (response.ok) {
-          setIsJsonAvailable(true);
-          clearInterval(interval);
-        }
-      } catch (error) {
-        console.error("❌ Error checking JSON file existence:", error);
-      }
-    }, 3000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    if (!isJsonAvailable) return;
-
     fetch("http://localhost:5001/uploads/parsed_circuit.json")
       .then((response) => response.json())
-      .then((data) => {
-        console.log("✅ Loaded JSON Data:", data);
-        setCircuitData(data);
-      })
+      .then((data) => setCircuitData(data))
       .catch(error => console.error("❌ Error loading JSON:", error));
-  }, [isJsonAvailable]);
+  }, []);
 
   useEffect(() => {
     if (!circuitData) return;
 
     const svg = d3.select("#circuit-svg")
       .attr("width", "100%")
-      .attr("height", "100%") // ✅ Fixed height issue
+      .attr("height", "100%")
       .style("background", "#222");
 
     svg.selectAll("*").remove();
@@ -77,43 +55,61 @@ const CircuitVisualizer: React.FC = () => {
     const spacingX = 250;
     const spacingY = 200;
 
-    // ✅ Normalize component names for matching
-    const normalizeName = (name: string) => {
-      return name
-        .replace(/\\[$:.]/g, "") // Remove escape characters
-        .replace(/routing_segment_/g, "") // Remove routing segment prefix
-        .trim();
-    };
+    // ✅ Normalize names to match correctly
+    const normalizeName = (name: string) =>
+      name.replace(/\\[$:.~^]/g, "").replace(/^routing_segment_/, "").trim();
 
     // ✅ Create component nodes
     const nodes = circuitData.components.map((comp, i) => ({
       id: normalizeName(comp.name),
       type: comp.type,
-      x: i * spacingX + 200,
-      y: 300,
+      x: (i % 4) * spacingX + 200,
+      y: Math.floor(i / 4) * spacingY + 200,
     }));
 
-    console.log("🟢 Generated Nodes:", nodes);
+    // ✅ Add input nodes
+    circuitData.inputs.forEach((input, i) => {
+      nodes.push({
+        id: normalizeName(input),
+        type: "input",
+        x: 100,
+        y: i * spacingY + 200,
+      });
+    });
+
+    // ✅ Add output nodes
+    circuitData.outputs.forEach((output, i) => {
+      nodes.push({
+        id: normalizeName(output),
+        type: "output",
+        x: nodes.length * spacingX + 300,
+        y: i * spacingY + 200,
+      });
+    });
+
+    console.log("🟢 Nodes:", nodes);
 
     const nodeMap = new Map(nodes.map((node) => [node.id, node]));
 
     // ✅ Create interconnect links
-    const links = circuitData.interconnects.map((conn) => {
-      const nameParts = conn.name.replace(/\\[$:.]/g, "").split("_to_"); // Normalize names
-      const sourceNode = nodeMap.get(normalizeName(nameParts[0]));
-      const targetNode = nodeMap.get(normalizeName(nameParts[1]));
+    const links = circuitData.interconnects
+      .map((conn) => {
+        const [from, to] = conn.name.split("_to_").map(normalizeName);
+        const sourceNode = nodeMap.get(from);
+        const targetNode = nodeMap.get(to);
 
-      if (!sourceNode || !targetNode) {
-        console.warn(`⚠️ Missing source/target for interconnect: ${conn.name}`);
-        return null;
-      }
+        if (!sourceNode || !targetNode) {
+          console.warn(`⚠️ Missing source/target for interconnect: ${conn.name}`);
+          return null;
+        }
 
-      return { source: sourceNode, target: targetNode, delay: conn.delay };
-    }).filter((link) => link !== null);
+        return { source: sourceNode, target: targetNode, delay: conn.delay };
+      })
+      .filter((link) => link !== null);
 
-    console.log("🔴 Generated Links:", links);
+    console.log("🔴 Wires (Links):", links);
 
-    // ✅ Draw interconnects
+    // ✅ Draw interconnects (Wires) in WHITE
     g.selectAll(".link")
       .data(links)
       .enter()
@@ -123,10 +119,11 @@ const CircuitVisualizer: React.FC = () => {
       .attr("y1", (d) => d.source.y)
       .attr("x2", (d) => d.target.x)
       .attr("y2", (d) => d.target.y)
-      .attr("stroke", "red")
-      .attr("stroke-width", 3)
+      .attr("stroke", "white") // 👀 White wires
+      .attr("stroke-width", 2)
       .attr("marker-end", "url(#arrow)");
 
+    // ✅ Add arrow markers for direction (still in cyan)
     g.append("defs")
       .append("marker")
       .attr("id", "arrow")
@@ -138,7 +135,7 @@ const CircuitVisualizer: React.FC = () => {
       .attr("orient", "auto")
       .append("path")
       .attr("d", "M0,-5L10,0L0,5")
-      .attr("fill", "red");
+      .attr("fill", "cyan"); // ✅ Keep arrows cyan for contrast
 
     // ✅ Draw component nodes
     const nodeGroups = g.selectAll(".node")
@@ -151,7 +148,34 @@ const CircuitVisualizer: React.FC = () => {
     nodeGroups.each(function (d) {
       const group = d3.select(this);
 
-      if (d.type === "dff") {
+      if (d.type === "input") {
+        group.append("circle")
+          .attr("r", 20)
+          .attr("fill", "white")
+          .attr("stroke", "black");
+
+        group.append("text")
+          .text(d.id)
+          .attr("y", 5)
+          .attr("text-anchor", "middle")
+          .attr("fill", "black")
+          .style("font-size", "12px");
+      } else if (d.type === "output") {
+        group.append("rect")
+          .attr("width", 40)
+          .attr("height", 40)
+          .attr("x", -20)
+          .attr("y", -20)
+          .attr("fill", "yellow")
+          .attr("stroke", "black");
+
+        group.append("text")
+          .text(d.id)
+          .attr("y", 5)
+          .attr("text-anchor", "middle")
+          .attr("fill", "black")
+          .style("font-size", "12px");
+      } else {
         group.append("rect")
           .attr("width", 60)
           .attr("height", 90)
@@ -166,37 +190,10 @@ const CircuitVisualizer: React.FC = () => {
           .attr("text-anchor", "middle")
           .attr("fill", "black")
           .style("font-size", "14px");
-      } else if (d.type === "LUT_K") {
-        group.append("polygon")
-          .attr("points", "-30,-45 30,-45 20,45 -20,45")
-          .attr("fill", "lightgreen")
-          .attr("stroke", "black");
-
-        group.append("text")
-          .text("LUT")
-          .attr("y", 5)
-          .attr("text-anchor", "middle")
-          .attr("fill", "black")
-          .style("font-size", "14px");
-      } else if (d.type === "BRAM") {
-        group.append("rect")
-          .attr("width", 100)
-          .attr("height", 120)
-          .attr("x", -50)
-          .attr("y", -60)
-          .attr("fill", "orange")
-          .attr("stroke", "black");
-
-        group.append("text")
-          .text("BRAM")
-          .attr("y", 5)
-          .attr("text-anchor", "middle")
-          .attr("fill", "black")
-          .style("font-size", "14px");
       }
     });
 
-    // ✅ Display delay values
+    // ✅ Display delay values on wires
     g.selectAll(".delay-text")
       .data(links)
       .enter()
@@ -207,6 +204,7 @@ const CircuitVisualizer: React.FC = () => {
       .attr("fill", "yellow")
       .style("font-size", "12px")
       .text((d) => (d.delay ? `${d.delay.rise.split(":")[0]} ps` : ""));
+
   }, [circuitData]);
 
   return <svg id="circuit-svg" width="100%" height="100%"></svg>;
