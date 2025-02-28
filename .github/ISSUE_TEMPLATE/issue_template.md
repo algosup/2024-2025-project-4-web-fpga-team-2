@@ -1,6 +1,6 @@
 ---
 name: Test Case
-about: Create a test to check if the code works
+about: Create a non-code related issue
 title: 'Issue #*Issue number*:*Issue name*'
 labels: ''
 assignees: ''
