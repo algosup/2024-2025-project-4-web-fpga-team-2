@@ -28,16 +28,65 @@ This document describes the naming conventions used in the whole repository.
 
 ## Code Conventions
 
+### CSS
+#### Classes
+
+- `Kebab_case` is used for CSS class.
+
+Example :
+```css
+.This_is_a_block{
+    background-color: aquamarine;
+    width: 100px;
+    height: 100px;
+}
+```
+
+
+### JavaScript
+
+#### Classes
+- `PascalCase` is used for Class name.
+
+Example :
+```js
+class PersonIdentity {
+  constructor(name, age) {
+    this.name = name;
+    this.age = age;
+  }
+}
+```
+
+#### Function
+- `snake_case` is used for Function name.
+
+Example :
+```js
+function the_good_function(a, b) {
+  return a + b;
+}
+```
+
+
+#### Variable
+- `camelCase` is used for Variable name.
+
+Example :
+```js
+var numberCack = 20;
+```
+
+
+#### Constants
+- `UPPERCASE` is used for Constants name.
+
+Example :
+```js
+const BESTCONST = 42 ;
+```
 
 
 
-
-|Type|Convention|Example|
-|-|-|-|
-|Class|`PascalCase`|ClassOne|
-|Function/Methode|`snake_case`|the_best_function|
-|Variable|`camelCase`|numberCack|
-|Constants|`UPPERCASE`|CONST|
-|Slug URL|`kebab-case`|this-is-a-url|
 
 
