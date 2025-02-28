@@ -3,11 +3,11 @@ This document describes the naming conventions used in the whole repository.
 
 ## Writing Conventions
 
-- `snake_case` is used for file name.
+- `camelCase` is used for file name.
 
 |❌|✅|
 |-|-|
-|./Anotherfile|./another_file|
+|./Anotherfile|./anotherFile|
 |./File|./file|
 
 
@@ -27,6 +27,10 @@ This document describes the naming conventions used in the whole repository.
 |# Part one|# Part One|
 
 ## Code Conventions
+
+
+
+
 
 |Type|Convention|Example|
 |-|-|-|
