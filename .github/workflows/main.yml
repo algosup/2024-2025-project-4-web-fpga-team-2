@@ -28,7 +28,7 @@ jobs:
 
       - name: Merge main into sub-branches
         run: |
-          for branch in functional technical dev quality-assurance management; do
+          for branch in functional technical quality-assurance management; do
             echo "Checking branch: $branch"
 
             if git ls-remote --heads origin "$branch" | grep -q "refs/heads/$branch"; then
