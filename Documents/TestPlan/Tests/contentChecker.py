@@ -1,13 +1,20 @@
 import os
 import re
 
-# Common Flip-Flop patterns in Verilog
-FF_PATTERNS = [
-    r'\bDFF\b',           # Generic D Flip-Flop
-    r'\bFDRE\b',          # Xilinx FDRE Flip-Flop
-    r'\balways\s*@\s*\(\s*posedge\b',  # Always block with posedge clock
-    r'\bQ\s*<=\s*D\b',    # Basic FF behavior (Q <= D;)
-]
+# Define regex patterns for common Verilog components
+VERILOG_PATTERNS = {
+    "LUT": r'\bLUT\b',
+    "Flip-Flop": r'\bDFF\b|\bFDRE\b|\balways\s*@\s*\(\s*posedge\b|\bQ\s*<=\s*D\b',
+    "AND": r'\band\b',
+    "OR": r'\bor\b',
+    "XOR": r'\bxor\b',
+    "MUX": r'\bmux\b',
+    "NAND": r'\bnand\b',
+    "NOR": r'\bnor\b',
+    "NOT": r'\bnot\b',
+    "BUF": r'\bbuf\b',
+    "END": r'\bend\b'
+}
 
 # Improved regex to capture delay values in SDF
 SDF_DELAY_PATTERN = re.compile(r"IOPATH\s+\S+\s+\S+\s+\(\s*([\d\.]+)")
@@ -19,25 +26,23 @@ def extract_delays_from_sdf(sdf_path):
         with open(sdf_path, 'r', encoding='utf-8') as f:
             content = f.read()
             matches = SDF_DELAY_PATTERN.findall(content)
-            if matches:
-                delays = [float(m) for m in matches]
-            else:
-                print(f"No delay values found in {sdf_path}.")
+            delays = [float(m) for m in matches] if matches else []
     except Exception as e:
         print(f"Error reading {sdf_path}: {e}")
     return delays
 
 def check_keywords_in_file(file_path, patterns):
-    """Check if a file contains any keyword pattern (LUT or Flip-Flop)."""
+    """Check if a file contains any keyword pattern."""
+    found_components = set()
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             content = f.read()
-            for pattern in patterns:
+            for component, pattern in patterns.items():
                 if re.search(pattern, content, re.IGNORECASE):
-                    return True
+                    found_components.add(component)
     except Exception as e:
         print(f"Error reading {file_path}: {e}")
-    return False
+    return found_components
 
 def find_matching_files(directory):
     """Find .v and .sdf files with the same base name in a given directory."""
@@ -46,27 +51,49 @@ def find_matching_files(directory):
 
     for file in os.listdir(directory):
         if file.endswith(".v"):
-            verilog_files.add(os.path.splitext(file)[0])  
+            verilog_files.add(os.path.splitext(file)[0])
         elif file.endswith(".sdf"):
-            sdf_files.add(os.path.splitext(file)[0])  
+            sdf_files.add(os.path.splitext(file)[0])
 
     return verilog_files & sdf_files  # Return common base names
 
-def generate_schematic(base_name, delays, has_lut, has_ff):
-    """Generate a schematic-like representation of the circuit."""
-    d_delay = delays[0] if len(delays) > 0 else "Unknown"
-    clk_delay = delays[1] if len(delays) > 1 else "Unknown"
-    async_reset_delay = delays[2] if len(delays) > 2 else "Unknown"
-    propagation_delay = delays[3] if len(delays) > 3 else "Unknown"
+def generate_schematic(base_name, delays, components):
+    """Generate a schematic-like representation of the circuit with accurate delays."""
+    d_delay = f"{delays[0]} ps" if len(delays) > 0 else "Unknown"
+    clk_delay = f"{delays[1]} ps" if len(delays) > 1 else "Unknown"
+    async_reset_delay = f"{delays[2]} ps" if len(delays) > 2 else "Unknown"
+    lut_to_q_delay = f"{delays[3]} ps" if len(delays) > 3 else "Unknown"  # LUT → Q delay
 
-    print(f"\n Schematic Representation of {base_name}.v & {base_name}.sdf\n")
-    print(f"D --({d_delay} ps)--> {'LUT' if has_lut else 'Pass-through'} --(internal processing)--> {'Flip-Flop' if has_ff else 'Output'} --({propagation_delay} ps)--> Q (END)")
-    print(f"{' ' * 28}|")  # Vertical line
-    print(f"{' ' * 28}|")
-    print(f"clk --({clk_delay} ps)--> Flip-Flop --(output delay)--> Q (END)")
-    print(f"{' ' * 28}|")
-    print(f"{' ' * 28}|")
-    print(f"async_reset --({async_reset_delay} ps)--> Flip-Flop (Resets Q)")
+    has_ff = "Flip-Flop" in components
+    has_lut = "LUT" in components
+    main_component = "FLIP-FLOP" if has_ff else "LUT" if has_lut else "Pass-through"
+
+    # Create schematic lines with LUT → Q delay
+    first_line = f"D--({d_delay})-->{main_component}--({lut_to_q_delay})-->Q"
+    clk_line = f"Clk--({clk_delay})----|-------->end"
+    async_line = f"Async--({async_reset_delay})-|"
+
+    # Find max length for perfect alignment
+    max_length = max(len(first_line), len(clk_line), len(async_line))
+    
+    # Adjust spacing dynamically
+    first_line = first_line.ljust(max_length)
+    clk_line = clk_line.ljust(max_length)
+    async_line = async_line.ljust(max_length)
+    arrow_pos = first_line.index(">") + 1  # Position `^` under `>`
+
+    print(f"\nSchematic Representation of {base_name}.v & {base_name}.sdf\n")
+    print(first_line)
+    print(" " * arrow_pos + "^")
+    print(clk_line)
+    print(" " * arrow_pos + "^")
+    print(async_line)
+
+    # Display detected components
+    print("\nDetected Components:")
+    for comp in components:
+        print(f" {comp}")
+
 
 def analyze_folder(directory):
     """Analyze .v and .sdf files that share the same name in a folder."""
@@ -80,19 +107,19 @@ def analyze_folder(directory):
         verilog_path = os.path.join(directory, f"{base_name}.v")
         sdf_path = os.path.join(directory, f"{base_name}.sdf")
 
-        print(f"\n Analyzing pair: {base_name}.v & {base_name}.sdf")
+        print(f"\nAnalyzing pair: {base_name}.v & {base_name}.sdf")
 
-        v_contains_lut = check_keywords_in_file(verilog_path, [r'\bLUT\b'])
-        sdf_contains_lut = check_keywords_in_file(sdf_path, [r'\bLUT\b'])
+        # Check for components in both Verilog and SDF files
+        v_components = check_keywords_in_file(verilog_path, VERILOG_PATTERNS)
+        sdf_components = check_keywords_in_file(sdf_path, VERILOG_PATTERNS)
 
-        v_contains_ff = check_keywords_in_file(verilog_path, FF_PATTERNS)
-        sdf_contains_ff = check_keywords_in_file(sdf_path, FF_PATTERNS)
+        all_components = v_components | sdf_components  # Combine results from both files
 
         # Extract delays from SDF
         delays = extract_delays_from_sdf(sdf_path)
 
         # Print textual schematic
-        generate_schematic(base_name, delays, v_contains_lut or sdf_contains_lut, v_contains_ff or sdf_contains_ff)
+        generate_schematic(base_name, delays, all_components)
 
 if __name__ == "__main__":
     import sys
