@@ -73,8 +73,6 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
     setLoading(true);
     setError(null);
 
-    // Replace your URL construction logic with this:
-    // Update the URL construction logic
     const fullPath = (() => {
       // If no path provided
       if (!filePath) {
@@ -82,12 +80,10 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
         return "";
       }
 
-      // For development testing with absolute paths
       if (filePath.startsWith('http')) {
         return filePath;
       }
 
-      // Check if we're in development mode
       // @ts-ignore
       const isDevelopment = process.env.NODE_ENV === 'development' ||
         window.location.hostname === 'localhost' ||
@@ -117,7 +113,7 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
       headers: {
         'Accept': 'application/json',
       },
-      mode: 'cors' // Try with CORS mode
+      mode: 'cors'
     })
       .then(response => response.text())
       .then(text => {
@@ -136,13 +132,11 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
       .then((data: CircuitData) => {
         console.log("✅ Parsed JSON:", data);
 
-        // Add empty arrays for missing properties
         if (!data.interconnects) data.interconnects = [];
         if (!data.wires) data.wires = [];
         if (!data.ports) data.ports = {};
         if (!data.components) data.components = []; // Add this line
 
-        // Generate interconnects from wires if available
         if (data.interconnects.length === 0 && data.wires && data.wires.length > 0) {
           console.log("Generating interconnects from wires:", data.wires);
 
@@ -195,9 +189,6 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
               }
             }
           } else {
-            // Replace lines 198-204 with this corrected code:
-            // For other circuits, create some basic connections from wires
-            // For other circuits, create some basic connections from wires
             data.wires.forEach(wire => {
               if (wire.includes("_output_") || wire.includes("_input_")) {
                 const parts = wire.split("_");
@@ -355,10 +346,6 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
     // Map Components for Quick Lookup
     const componentMap = new Map(components.map((comp) => [comp.id, comp]));
 
-    // Parse Interconnects - handle both formats
-    // Update this section (around line 200) to add missing components automatically
-    // For other circuits, create some basic connections from wires
-    // Correct:
     let links: Link[] = [];
 
     if (circuitData.interconnects && circuitData.interconnects.length > 0) {
@@ -459,8 +446,6 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
       }
     });
 
-    // Add text labels
-    // Line 525: Fix the text label
     nodeGroups.append("text")
       .attr("y", 35)
       .attr("text-anchor", "middle")
@@ -474,7 +459,6 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
         return name;
       });
 
-    // Line 539: Fix the type label
     nodeGroups.append("text")
       .attr("y", 0)
       .attr("text-anchor", "middle")
@@ -482,7 +466,6 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
       .attr("font-weight", "bold")
       .text((d: ComponentNode) => d.type);
 
-    // Line 546: Fix line endpoints
     const linkLines = g.selectAll(".link")
       .data(links)
       .enter()
@@ -497,7 +480,6 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
 
     console.log("Created linkLines:", linkLines.size(), "elements");
 
-    // Add arrowheads for directionality
     svg.append("defs").selectAll("marker")
       .data(["end"])
       .enter().append("marker")
@@ -513,8 +495,6 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
 
     linkLines.attr("marker-end", "url(#end)");
 
-    // NOW add the drag behavior AFTER linkLines is defined
-    // Update your drag implementation:
     nodeGroups.call(
       d3.drag<SVGGElement, ComponentNode>()
         .on("start", function (this: SVGGElement, event: any, d: ComponentNode) {
@@ -549,8 +529,6 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
       });
 
     svg.call(zoom as any);
-    // Replace lines 318-324 with this code:
-    // Add error handling for centering the view
     const svgNode = svg.node();
     if (svgNode && svgNode instanceof SVGSVGElement) {
       try {
@@ -653,7 +631,6 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
       </div>
     );
   }
-  // Replace lines 569-587 with this corrected debug panel:
   return (
     <div style={{ width: "100%", height: "100%", position: "relative", border: "1px solid #ccc" }}>
       <svg id={svgId} style={{ width: "100%", height: "100%", minHeight: "400px" }}></svg>

@@ -11,14 +11,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Create HTTP Server
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
-// Create SQLite database for storing circuit data
 const db = new sqlite3.Database("circuit_data.db");
 
-// Initialize database tables
+
 db.serialize(() => {
     db.run(`
         CREATE TABLE IF NOT EXISTS circuits (
@@ -31,15 +29,12 @@ db.serialize(() => {
     `);
 });
 
-// Ensure "uploads" folder exists
 if (!fs.existsSync("uploads")) {
     fs.mkdirSync("uploads");
 }
 
-// Serve static files in the "uploads" directory
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// Configure file upload handling
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, "uploads/");
@@ -50,15 +45,12 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// Helper function to generate a unique ID without uuid dependency
 function generateUniqueId() {
     return Date.now().toString(36) + Math.random().toString(36).substring(2);
 }
 
-// Import the correct functions from parser.js
 const { analyzeCircuitFiles, generateJsonFile } = require("./parser");
 
-// WebSocket connection handling
 wss.on("connection", (ws) => {
     console.log("✅ New WebSocket client connected");
 
@@ -75,8 +67,6 @@ wss.on("connection", (ws) => {
     ws.on("close", () => console.log("❌ WebSocket client disconnected"));
 });
 
-
-// File upload and JSON processing endpoint
 app.post("/upload", upload.array("files", 2), async (req, res) => {
     console.log("[Backend] ✅ Serving JSON files from /uploads/");
 
@@ -94,12 +84,10 @@ app.post("/upload", upload.array("files", 2), async (req, res) => {
     const verilogPath = path.join("uploads", verilogFile.filename);
     const sdfPath = path.join("uploads", sdfFile.filename);
     
-    // Generate a unique ID for this circuit
     const circuitId = generateUniqueId();
     const circuitName = req.body.name || `Circuit-${new Date().toISOString().slice(0, 10)}`;
     const description = req.body.description || '';
 
-    // ✅ Corrected JSON filename conversion
     const jsonFilePath = sdfPath.replace(".sdf", ".json");
 
     console.log(`[Backend] 📄 Processing Verilog: ${verilogPath}`);
@@ -227,7 +215,6 @@ app.delete("/circuits/:id", (req, res) => {
             }
         } catch (fileErr) {
             console.error(`[Backend] ❌ Error deleting JSON file:`, fileErr);
-            // Continue even if file delete fails
         }
         
         // Remove from database

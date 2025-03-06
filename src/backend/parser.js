@@ -14,11 +14,7 @@ function parseVerilog(verilogContent) {
     const wireRegex = /wire\s+(\\?[A-Za-z0-9_]+)/;
     const moduleRegex = /module\s+([A-Za-z0-9_]+)\s*\(/;
     const portRegex = /(input|output)\s+(\\?[A-Za-z0-9_]+)/;
-    // In your component detection code
-    // Update your component detection code
     for (const block of componentBlocks) {
-        // Check if this block contains a component declaration with a hash
-        // Use the 's' flag for multiline matching
         const componentMatch = block.match(/\s*([A-Za-z0-9_]+)\s*#\s*\(/s);
 
         if (componentMatch) {
@@ -27,12 +23,11 @@ function parseVerilog(verilogContent) {
 
 
             const instanceMatch = block.match(/\)\s*(\\?[A-Za-z0-9_$~^\-\.:]+)\s*\(/s);
-            if (!instanceMatch) continue; // Skip if no instance name found
+            if (!instanceMatch) continue; 
 
             const instance = instanceMatch[1];
             let componentType = "Unknown";
 
-            // Classify component by type
             if (/^(DFF|FF|FLIPFLOP|SDFF|SDFFR|NX_DFF|QDFF|TDFF|SYNC_DFF|ASYNC_DFF|DFLIPFLOP|RISINGEDGE_DFLIPFLOP)$/i.test(type)) {
                 componentType = "DFF";
             } else if (/^(LUT|LUT_K|FULLLUT|LOOKUP|O\d*)$/i.test(type)) {
@@ -45,10 +40,9 @@ function parseVerilog(verilogContent) {
                 componentType = "Other";
             }
 
-            // Add component
             components.push({
                 type: componentType,
-                name: instance.replace(/^\\/, '') // Remove leading backslash if present
+                name: instance.replace(/^\\/, '')
             });
 
             console.log(`🔍 Debug - Found Component: ${type}, Classified as: ${componentType}, Instance: ${instance}`);
@@ -90,32 +84,6 @@ function parseVerilog(verilogContent) {
         }
     };
 }
-
-// let instances = [];
-// let interconnects = [];
-// const instanceRegex = /([A-Za-z0-9_]+)\s*#?\(.*\)\s*(\\?[A-Za-z0-9_]+)\s*\(/;
-// const interconnectRegex = /fpga_interconnect\s+(\\?[A-Za-z0-9_]+)\s*\(.*\.datain\((\\?[A-Za-z0-9_]+)\),\s*.*\.dataout\((\\?[A-Za-z0-9_]+)\)\s*\)/;
-// instances: instances,
-// interconnects: interconnects,
-// let instanceMatch = line.match(instanceRegex);
-// if (instanceMatch) {
-//     instances.push({
-//         type: instanceMatch[1],
-//         name: instanceMatch[2],
-//         connections: []
-//     });
-//     continue;
-// }
-// let interconnectMatch = line.match(interconnectRegex);
-// if (interconnectMatch) {
-//     interconnects.push({
-//         source: interconnectMatch[2],
-//         destination: interconnectMatch[3]
-//     });
-//     continue;
-// }
-
-
 
 function parseSDF(sdfContent) {
     const delays = [];

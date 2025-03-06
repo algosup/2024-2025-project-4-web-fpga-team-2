@@ -54,7 +54,6 @@ function TeacherPage() {
     });
   };
 
-  // Add this function with your other functions
   const deleteSelectedCircuits = async () => {
     if (selectedCircuits.size === 0) {
       alert("No circuits selected for deletion.");
