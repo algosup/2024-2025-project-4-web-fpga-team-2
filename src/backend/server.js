@@ -6,7 +6,6 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 const sqlite3 = require("sqlite3").verbose();
-const { extractVerilogInfo, extractSdfInfo, generateJson } = require("./parser");
 
 const app = express();
 app.use(cors());
@@ -18,6 +17,19 @@ const wss = new WebSocket.Server({ server });
 
 // Create SQLite database for storing circuit data
 const db = new sqlite3.Database("circuit_data.db");
+
+// Initialize database tables
+db.serialize(() => {
+    db.run(`
+        CREATE TABLE IF NOT EXISTS circuits (
+            id TEXT PRIMARY KEY,
+            name TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            json_path TEXT,
+            description TEXT
+        )
+    `);
+});
 
 // Ensure "uploads" folder exists
 if (!fs.existsSync("uploads")) {
@@ -38,6 +50,14 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
+// Helper function to generate a unique ID without uuid dependency
+function generateUniqueId() {
+    return Date.now().toString(36) + Math.random().toString(36).substring(2);
+}
+
+// Import the correct functions from parser.js
+const { analyzeCircuitFiles, generateJsonFile } = require("./parser");
+
 // WebSocket connection handling
 wss.on("connection", (ws) => {
     console.log("✅ New WebSocket client connected");
@@ -54,6 +74,7 @@ wss.on("connection", (ws) => {
 
     ws.on("close", () => console.log("❌ WebSocket client disconnected"));
 });
+
 
 // File upload and JSON processing endpoint
 app.post("/upload", upload.array("files", 2), async (req, res) => {
@@ -72,38 +93,169 @@ app.post("/upload", upload.array("files", 2), async (req, res) => {
 
     const verilogPath = path.join("uploads", verilogFile.filename);
     const sdfPath = path.join("uploads", sdfFile.filename);
-    const outputJson = path.join("uploads", "parsed_circuit.json");
+    
+    // Generate a unique ID for this circuit
+    const circuitId = generateUniqueId();
+    const circuitName = req.body.name || `Circuit-${new Date().toISOString().slice(0, 10)}`;
+    const description = req.body.description || '';
+
+    // ✅ Corrected JSON filename conversion
+    const jsonFilePath = sdfPath.replace(".sdf", ".json");
 
     console.log(`[Backend] 📄 Processing Verilog: ${verilogPath}`);
     console.log(`[Backend] 📄 Processing SDF: ${sdfPath}`);
 
     try {
-        // ✅ Generate JSON from Verilog and SDF
-        await generateJson(verilogPath, sdfPath, outputJson);
+        // ✅ Parse Verilog and SDF first
+        const parsedData = analyzeCircuitFiles(
+            fs.readFileSync(verilogPath, "utf8"), 
+            fs.readFileSync(sdfPath, "utf8")
+        );
 
-        // ✅ Ensure the file is updated before sending response
-        if (!fs.existsSync(outputJson)) {
-            throw new Error("JSON file not created.");
+        // ✅ Generate JSON file from parsed data
+        await generateJsonFile(parsedData, jsonFilePath);
+
+        // ✅ Ensure the JSON file was created before responding
+        if (!fs.existsSync(jsonFilePath)) {
+            console.error("❌ Error: JSON file not created.");
+            return res.status(500).json({ error: "JSON file not created." });
         }
 
         console.log("[Backend] ✅ JSON file successfully generated!");
 
+        // ✅ Store circuit metadata in the database
+        db.run(
+            "INSERT INTO circuits (id, name, json_path, description) VALUES (?, ?, ?, ?)",
+            [circuitId, circuitName, jsonFilePath, description],
+            function(err) {
+                if (err) {
+                    console.error("[Backend] ❌ Error saving circuit to database:", err);
+                } else {
+                    console.log(`[Backend] ✅ Circuit saved to database with ID: ${circuitId}`);
+                }
+            }
+        );
+
+        // ✅ Delete the input files after processing
+        fs.unlinkSync(verilogPath);
+        fs.unlinkSync(sdfPath);
+        console.log("[Backend] 🗑️ Input files deleted after processing");
+
         // ✅ Notify WebSocket clients about the update
         wss.clients.forEach((client) => {
             if (client.readyState === WebSocket.OPEN) {
-                client.send(JSON.stringify({ message: "Circuit updated", jsonFile: `/uploads/parsed_circuit.json` }));
+                client.send(JSON.stringify({ 
+                    message: "Circuit uploaded", 
+                    id: circuitId,
+                    name: circuitName,
+                    jsonFile: `/uploads/${path.basename(jsonFilePath)}` 
+                }));
             }
         });
 
-        res.json({ message: "Files processed successfully", jsonFile: `/uploads/parsed_circuit.json` });
+        res.json({ 
+            message: "Files processed successfully", 
+            id: circuitId,
+            name: circuitName,
+            jsonFile: `/uploads/${path.basename(jsonFilePath)}` 
+        });
+
     } catch (error) {
         console.error("[Backend] ❌ Error processing files:", error);
         res.status(500).json({ error: "Failed to process files.", details: error.message });
     }
 });
+// Get all available circuits
+app.get("/circuits", (req, res) => {
+    db.all("SELECT id, name, created_at, json_path, description FROM circuits ORDER BY created_at DESC", [], (err, rows) => {
+        if (err) {
+            console.error("[Backend] ❌ Error retrieving circuits:", err);
+            return res.status(500).json({ error: "Failed to retrieve circuits" });
+        }
+
+        // Map rows to include proper URL paths
+        const circuits = rows.map(row => ({
+            id: row.id,
+            name: row.name,
+            createdAt: row.created_at,
+            description: row.description,
+            jsonFile: `/uploads/${path.basename(row.json_path)}`
+        }));
+
+        res.json(circuits);
+    });
+});
+
+// Get a specific circuit by ID
+app.get("/circuits/:id", (req, res) => {
+    const { id } = req.params;
+    
+    db.get("SELECT id, name, created_at, json_path, description FROM circuits WHERE id = ?", [id], (err, row) => {
+        if (err) {
+            console.error(`[Backend] ❌ Error retrieving circuit ${id}:`, err);
+            return res.status(500).json({ error: "Failed to retrieve circuit" });
+        }
+        
+        if (!row) {
+            return res.status(404).json({ error: "Circuit not found" });
+        }
+
+        res.json({
+            id: row.id,
+            name: row.name,
+            createdAt: row.created_at,
+            description: row.description,
+            jsonFile: `/uploads/${path.basename(row.json_path)}`
+        });
+    });
+});
+
+app.delete("/circuits/:id", (req, res) => {
+    const { id } = req.params;
+    
+    db.get("SELECT json_path FROM circuits WHERE id = ?", [id], (err, row) => {
+        if (err || !row) {
+            console.error(`[Backend] ❌ Error finding circuit ${id}:`, err);
+            return res.status(err ? 500 : 404).json({ error: err ? "Database error" : "Circuit not found" });
+        }
+        
+        // Delete the JSON file
+        try {
+            if (fs.existsSync(row.json_path)) {
+                fs.unlinkSync(row.json_path);
+                console.log(`[Backend] 🗑️ JSON file deleted: ${row.json_path}`);
+            }
+        } catch (fileErr) {
+            console.error(`[Backend] ❌ Error deleting JSON file:`, fileErr);
+            // Continue even if file delete fails
+        }
+        
+        // Remove from database
+        db.run("DELETE FROM circuits WHERE id = ?", [id], function(delErr) {
+            if (delErr) {
+                console.error(`[Backend] ❌ Error deleting circuit ${id} from database:`, delErr);
+                return res.status(500).json({ error: "Failed to delete circuit" });
+            }
+            
+            // Notify WebSocket clients about the deletion
+            wss.clients.forEach((client) => {
+                if (client.readyState === WebSocket.OPEN) {
+                    client.send(JSON.stringify({ 
+                        message: "Circuit deleted", 
+                        id: id
+                    }));
+                }
+            });
+            
+            res.json({ message: "Circuit deleted successfully", id: id });
+        });
+    });
+});
+
 
 // Health check endpoint
 app.get("/ping", (req, res) => res.send("✅ Server is running"));
+
 
 // Start server
 const PORT = process.env.PORT || 5001;
