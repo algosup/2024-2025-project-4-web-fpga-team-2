@@ -13,10 +13,12 @@
 
 ## Changelog
 
-|Version|Date|Author|Description|
-|-------|----|---|--|
-|1.0|02/26/2025|Mattéo LEFIN| - Create documents template based on everything that doesn't includes functional and technical specifications.|
+|Version|Release Date|Author|Description|
+|-------|------------|------|-----------|
+|1.0|02/26/2025|Mattéo LEFIN| - Create documents template based on everything that doesn't include functional and technical specifications.|
 |1.1|02/28/2025|Mattéo LEFIN| - Completing Introduction and Document Reviewing. <br> - Improve Testing Strategy and Testing execution. <br> - Enhance Test Deliverables|
+|1.2| 03/10/25 | Mattéo LEFIN | - Add Manual and Python testing sections <br> - Enhance testing field|
+|1.3| 03/11/25| Mattéo LEFIN | - Add pull request strategy section <br> - add GitHub issue templates <br> - Enhance test deliverables
 </details>
 
 ----
@@ -28,7 +30,41 @@
 ## Table of content
 <br>
 
-[**Glossary**](#glossary)
+- [Test Plan](#test-plan)
+  - [Changelog](#changelog)
+  - [Table of content](#table-of-content)
+  - [Glossary](#glossary)
+  - [1. Introduction](#1-introduction)
+    - [1.1 Document purpose](#11-document-purpose)
+    - [1.2 Project purpose](#12-project-purpose)
+    - [1.3 Customers](#13-customers)
+  - [2. Documentation reviewing](#2-documentation-reviewing)
+    - [2.1 Document criteria](#21-document-criteria)
+    - [2.2 Review process](#22-review-process)
+  - [3. Testing strategy](#3-testing-strategy)
+    - [3.1 Tests' main goal](#31-tests-main-goal)
+    - [3.2 Testing field](#32-testing-field)
+      - [Web platforms](#web-platforms)
+      - [Software used](#software-used)
+    - [3.3 Testing environment](#33-testing-environment)
+    - [3.4 Test scope](#34-test-scope)
+    - [3.5 Testing types](#35-testing-types)
+    - [3.6 Pull request strategy](#36-pull-request-strategy)
+  - [4. Execution strategy](#4-execution-strategy)
+    - [4.1 Testing criteria](#41-testing-criteria)
+    - [4.2 GitHub issues](#42-github-issues)
+    - [4.3 GitHub issue templates](#43-github-issue-templates)
+    - [4.4 Test cases](#44-test-cases)
+    - [4.5 Bug tracking schema](#45-bug-tracking-schema)
+    - [4.6 Python testing](#46-python-testing)
+    - [4.7 Manual testing](#47-manual-testing)
+  - [5. Test management](#5-test-management)
+    - [5.1 Tools](#51-tools)
+    - [5.2 Test design](#52-test-design)
+    - [5.3 Test deliverables](#53-test-deliverables)
+
+
+<!-- [**Glossary**](#glossary)
 
 [**1. Introduction**](#1-introduction)
  - [**1.1 Document purpose**](#11-document-purpose)
@@ -48,14 +84,17 @@
 
 [**4. Execution strategy**](#4-execution-strategy)
  - [**4.1 Testing criterias**](#41-testing-criterias)
- - [**4.2 GitHub issues**](#42-github-issues)
+ - [**4.2 GitHub issues**](#42-GitHub-issues)
  - [**4.3 Test cases**](#43-test-cases)
  - [**4.4 Bug tracking schema**](#44-bug-tracking-schema)
+ - [**4.5 Python testing**](#45-python-testing)
+ - [**4.6 Manual testing**](#46-manual-testing)
 
 [**5. Testing management**](#5-test-management)
  - [**5.1 Tools**](#51-tools)
  - [**5.2 Test design**](#52-test-design)
- - [**5.3 Test deliverables**](#54-test-deliverables)
+ - [**5.3 Test deliverables**](#54-test-deliverables) -->
+
 
 
 
@@ -127,11 +166,11 @@ The common criteria are:
 - Documents must stay **as simple as possible**, making them **short and not too technical**. If technical terms are necessary to implement, a **glossary must be implemented**.
 - All the documents are written in **English**.
 
-Files and folder naming criterias can be found in the [conventions document]().
+Files and folder naming criteria's can be found in the [conventions document]().
 
 ### 2.2 Review process
 
-To review the documents we use **GitHub issues** to track any problems like typos or criterias that haven't been addressed.
+To review the documents we use **GitHub issues** to track any problems like typos or criteria that haven't been addressed.
 
 A GitHub issue template will be initiated.
 
@@ -151,22 +190,46 @@ A GitHub issue template will be initiated.
 
 ### 3.1 Tests' main goal
 
-The main goal behind doing tests is to **ensure that all project criterias are checked**, and possibly enhance the quality of the project for a better user experience.
+The main goal behind doing tests is to **ensure that all project criteria's are checked**, and possibly enhance the quality of the project for a better user experience.
 
 ### 3.2 Testing field
 
+#### Web platforms
 
+Our project must work at least on Chromium since this platform is the most common web platform.
 
+Other platform will be tested only if Chromium version has been validated.
+
+#### Software used
+
+For this project we are using multiple software :
+
+- For the program :
+  - HTML
+  - JavaScript and JSON
+  - CSS
+  - 
+- For Testing :
+  - Python
 
 ### 3.3 Testing environment
-For testing we are using 3 MAC's and 1 Windows computer using Firefox, chrome and Opera to ensure the compatibility on all platform an navigators.
+For testing we are using 3 MAC's and 1 Windows computer to ensure the compatibility between the two platform.
 
 
 ### 3.4 Test scope
 
 **In scope**
+  
+- Chromium Testing.
+- Schema analysis.
+- Time calculation.
+- Teacher side features.
 
 **Out of Scope**
+
+- Mobile connectivity.
+- Other web platform testing.
+- Student side features
 
 ### 3.5 Testing types
 
@@ -174,11 +237,20 @@ There are different types of testing :
 
 **Functional testing**
 
-Functional testing is a type of software testing that evaluates the functionality of the program based on specified requirements that have been written in the [Functional Specification](). The program needs to perform as expected, focusing on user-facing features and behaviors. this type of testing includes integration testing, system testing, and user acceptance testing.
+Functional testing is a type of software testing that evaluates the functionality of the program based on specified requirements that have been written in the [Functional Specification](). The program needs to perform as expected, focusing on user-facing features and behaviors. This type of testing includes integration testing, system testing, and user acceptance testing.
 
 **Unit testing**
 
 Unit testing is a type of software testing where we test a small and precise part of the program to see if it works properly.
+
+### 3.6 Pull request strategy
+
+To ensure pull request (or PR) correctness and without errors we placed securities on the main branch using GitHub rules system. 
+
+To validate a PR for the main branch it needs to be **verified by the quality assurance** except quality assurance's PR that has to be **verified by the technical leader**.
+
+![image]()
+*example of a pull request*
 
 </details>
 
@@ -190,9 +262,9 @@ Unit testing is a type of software testing where we test a small and precise par
 
 ## 4. Execution strategy
 
-### 4.1 Testing Criterias
+### 4.1 Testing criteria
 
-To ensure that our test  goes as smoothly as possible, we have some testing criteria that we have to fulfill in every test:
+To ensure that our test goes as smoothly as possible, we have some testing criteria that we have to fulfill in every test:
 
 - Are tested features in line with the specifications defined in the documents?
 <br>
@@ -200,13 +272,25 @@ To ensure that our test  goes as smoothly as possible, we have some testing crit
 <br>
 - Is this feature easy to use for the user?
 
-### 4.2 GitHub Issues
 
-GitHub issues are created to track any problems in the program or the documents as mentioned in "[**2. Document reviewing**](#2-documentation-reviewing)".
+
+### 4.2 GitHub issues
+
+GitHub's issues are created to track any problems in the program or the documents as mentioned in "[**2. Document reviewing**](#2-documentation-reviewing)".
 
 However, compared to documents GitHub issues, tests GitHub issues will be based on the corresponding **test cases**.
 
-### 4.3 Test cases
+### 4.3 GitHub issue templates
+
+GitHub allows creation of numerous templates for any kind of issues.
+
+For this project we have templates for :
+- Program's bug tracking
+- Test cases
+- Non code related issues
+
+This allows a better precision to resolves assignations issues and add clarity in the testing field.
+### 4.4 Test cases
 
 Test cases are specifications of the execution condition, testing procedure, and expected results that define a single test to be executed to achieve a particular software testing objective.
 
@@ -223,15 +307,30 @@ We also use a system of **labels** to identify the severity of the test cases:
 
 
 
-### 4.4 Bug tracking schema
+### 4.5 Bug tracking schema
 
 ![image]()
 
 
 *Bug tracking schema*
 
-### 4.5 Test Automation
+### 4.6 Python testing
 
+Some tests are being automated with [Python]() programs. For example, we have a program that analyze given FPGA programs and create a schema of used systems in it. Allowing us to verify if our program shows a correct schema.
+
+![image]()
+
+*example of a schema made with a python program*
+
+### 4.7 Manual testing
+
+Because it's a web page most of the test has to be done manually, testing all features related to non calculation aspect of this project.
+
+For example, we have to test if we can upload files.
+
+![image]()
+
+*Schema representing upload process*
 
 </details>
 
@@ -247,11 +346,9 @@ We also use a system of **labels** to identify the severity of the test cases:
 
 To manage our test we are using specific tools :
 
-- We use GitHub for test management. Test cases and GitHub issues are updated in the [GitHub Issue section](https://github.com/algosup/2024-2025-project-4-web-fpga-team-2/issues).
+- We use GitHub for test management. Test cases and GitHub issues are updated in the [GitHub Issue section](https://GitHub.com/algosup/2024-2025-project-4-web-fpga-team-2/issues).
 <br>
-- Every failed test case caused by a bug will be reported in a GitHub issue with the associated test cases
-<br>
-- After the developer does the bug fix, the Quality Assurance will test it again in the same way he did last time.
+- We have python scripts to enhance testing properly.
 
 ### 5.2 Test design
 
@@ -265,9 +362,11 @@ We have a conforming plan of how we create and process our tests.
 
 - **Test Plan:** it documents our approach and methodology for testing, explaining how tests will be managed and performed.
   
-- **Test Cases:** It represent a set of tests created to ensure that our application works as intended.
+- **Test Cases:** It represents a set of tests created to ensure that our application works as intended.
+  
+- **Test Scripts:** programs that help enhance some test in terms of efficiency and speed.
 
-- **GitHub issue:** This section documents any identified issues encountered during the testing phase.
+- **GitHub's issue:** This section documents any identified issues encountered during the testing phase.
 
 
 </details>
