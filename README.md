@@ -3,8 +3,10 @@
 We develop a web interface for an FPGA Simulator. This web interface will be used to teach people how the signals propagate inside an FPGA.
 
 <br>
-<detail>
+<details>
+
 <summary><b> 👤💡 Contributor </b></summary>
+<br>
 
 |Photo|Role|Name|Contact|
 |-|-|-|-|
@@ -17,10 +19,21 @@ We develop a web interface for an FPGA Simulator. This web interface will be use
 
 
 
-</detail>
+</details>
+ 
+## What's a FPGA ? 🛠️🧑‍💻
+An FPGA is a reprogrammable electronic chip that allows users to create custom circuits. Unlike traditional processors (CPUs) that execute instructions, an FPGA can be configured to function as a specialized circuit optimized for a specific task. It is widely used in fields like aerospace, automotive, and telecommunications because it offers high flexibility and speed.
 
-## What's a FPGA ?
 
 
+## Project Document 📂
 
+📄 [**Functional Specifications**]() <br>
+⚙️ [**Technical Specifications** ]() <br>
+🧪 [**Test Plan** ]() <br>
+✅ [**Test Cases**]() <br>
+📜 [ **Code Of Conduct**]() <br>
+📑 [ **Project Charter**]() <br>
+📆 [ **Weekly Reports** ]() <br>
+📌 [ **Post Mortem** ]() <br>    
 
