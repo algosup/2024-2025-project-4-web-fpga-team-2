@@ -38,3 +38,5 @@
 
 [^react] : React is a library for web and native user interfaces. [Source](https://react.dev/)
 
+[^TypeScript] : TypeScript is a syntactic superset of JavaScript which adds static typing. [Source](https://www.typescriptlang.org/)
+
