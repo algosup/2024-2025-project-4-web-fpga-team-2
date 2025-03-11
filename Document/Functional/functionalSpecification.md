@@ -39,10 +39,10 @@ Team 2: The group dedicated to the project.
 ### 2.2 Product Functions
 Summarize the major functions the product will perform.
 The product will:
-- Live the webpage from the teacher.
-- The student can load the website via an URL.
-- The student can simulate an FPGA.
-- The student can import their .v and .sdf file directly on the webpage.
+- Simulate an FPGA.
+- Load a .v and .sdf file.
+- Output a blueprint of the fpga.
+- Download or share the blueprint as a .png file.
 
 
 
@@ -82,10 +82,10 @@ Describe the user interface requirements.
 #### 4.1.1 Mockups
 
 ##### Home Page
-![Home Page](./img/page-1.png)
+![Home Page](../Images/Functional/page-1.png)
 
 ##### Blueprint Page
-![blueprint](./img/page-2.png)
+![blueprint](../Images/Functional/page-2.png)
 
 ### 4.2 Hardware Interfaces
 Detail the hardware interfaces required by the system.
