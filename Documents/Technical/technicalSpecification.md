@@ -23,7 +23,31 @@
 ## Project Folder Structure
 
 ```bash
-
+2024-2025-project-4-web-fpga-team-2-programs
+├── Documents   # folder that stores all the main files
+│  ├── Functional
+│  │  └──Images
+│  │  └──functionalSpecification.md
+│  │  
+│  ├── Management
+│  │  └──Images   
+│  │  └──ManagementArtifacts
+│  │  └──WeeklyReports
+│  │                     
+│  ├── QualityAssurance
+│  │  └──Images    
+│  │  └──TestCase  
+│  │  └──testPlan.md   
+│  │              
+│  ├── Technical                                
+│  │  └──Images
+│  │  └──technicalSpecification.md
+│  │  └──convention.md
+│
+├── src                                          
+├──.gitignore   # ignore the file mentioned inside                      
+├── README.md
+├──LICENSE
 ```
 ## Requirements
 
