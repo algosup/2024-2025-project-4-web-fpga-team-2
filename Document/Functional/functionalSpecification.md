@@ -1,5 +1,32 @@
 # Functional Specification
 
+## Table of Contents
+1. [Introduction](#1-introduction)
+   1. [Purpose](#11-purpose)
+   2. [Scope](#12-scope)
+	  1. [In Scope](#121-in-scope)
+	  2. [Out of Scope](#122-out-of-scope)
+   3. [Definitions, Acronyms, and Abbreviations](#13-definitions-acronyms-and-abbreviations)
+2. [Overall Description](#2-overall-description)
+   1. [Stackholder](#21-stackholder)
+   2. [Product Functions](#22-product-functions)
+   3. [User Characteristics](#23-user-characteristics)
+	  1. [The teacher](#231-the-teacher)
+	  2. [The student](#232-the-student)
+3. [Specific Requirements](#3-specific-requirements)
+   1. [Functional Requirements](#31-functional-requirements)
+	  1. [Use Case](#311-use-case)
+   2. [Non-Functional Requirements](#32-non-functional-requirements)
+	  1. [Quality Attributes](#321-quality-attributes)
+   3. [Interface Requirements](#33-interface-requirements)
+	  1. [User Interface](#331-user-interface)
+   4. [System Features](#34-system-features)
+	  1. [Input](#341-input)
+	  2. [Process](#342-process)
+	  3. [Output](#343-output)
+4. [Appendices](#4-appendices)
+   1. [References](#41-references)
+
 ## 1. Introduction
 ### 1.1 Purpose
 
@@ -11,12 +38,13 @@ The project consist to the creation of a webpage who simulate the behave of a fp
 The project include:
 - Webpage with a front end.
 - Load the .v and .sdf file and output the blueprint of the fpga.
+- The blueprint could be animated or a schema and have timelapse between each components.
 - The blueprint could be download or share as a .png file.
 
 #### 1.2.2 Out of Scope
 The project exclude:
 - An actual back end of the webpage.
-- The implementation of the .v and .sdf files directly from the webpage.
+- The implementation of the .v and .sdf files directly from the webpage like an IDE.
 
 
 ### 1.3 Definitions, Acronyms, and Abbreviations
@@ -27,6 +55,10 @@ The project exclude:
 | v | Verilog|A hardware description language (HDL) used to model, design, and simulate digital circuits. It enables engineers to describe the structure and behavior of electronic systems, making it essential for FPGA and ASIC development. Verilog supports design abstraction levels ranging from register-transfer level (RTL) to gate-level modeling.|
 | sdf | Standard Delay Format  |A file format used in electronic design automation (EDA) to specify timing delays for digital circuits. SDF files contain detailed delay information, including path delays, setup and hold times, and clock-to-output delays, enabling accurate timing analysis and simulation of ASIC and FPGA designs.|
 | PNG | Portable Network Graphics | A raster graphics file format that supports lossless data compression. PNG files are widely used on the web for images with transparent backgrounds, making them ideal for logos, icons, and other graphics that require crisp edges and smooth gradients.|
+|IDE|Integrated Development Environment|A software application that provides comprehensive tools for software development, including code editing, debugging, testing, and deployment. IDEs are designed to streamline the development process, improve code quality, and enhance developer productivity.|
+| Chromium | ... | An open-source web browser project that serves as the foundation for many popular browsers, including Google Chrome, Microsoft Edge, and Opera. Chromium provides a fast, secure, and stable browsing experience, with support for web standards and extensions.|
+| Call of tender | ... | A formal invitation to bid on a project or contract, typically issued by a company or organization seeking proposals from qualified vendors. The call of tender outlines the project requirements, evaluation criteria, and submission deadlines, enabling vendors to submit competitive bids for consideration.|
+
 
 ## 2. Overall Description
 ### 2.1 Stackholder
@@ -44,7 +76,7 @@ Summarize the major functions the product will perform.
 The product will:
 - Simulate an FPGA.
 - Load a .v and .sdf file.
-- Output a blueprint of the fpga.
+- Output a blueprint of the fpga components and their connextion between them.
 - Download or share the blueprint as a .png file.
 
 
@@ -52,12 +84,12 @@ The product will:
 ### 2.3 User Characteristics
 
 #### 2.3.1 The teacher
-The teacher will access the webpage , use this functinality and share to the student to explain how the FPGA work actually.
+The teacher will access the webpage , use this functinality and share to the student to explain how the FPGA work.
 
 #### 2.3.2 The student
 The student during the teacher course will see the webpage and the teacher will explain how the FPGA work and simulate it.
 
-### 2.4 Constraints
+
 
 ## 3. Specific Requirements
 ### 3.1 Functional Requirements
@@ -70,13 +102,14 @@ The student during the teacher course will see the webpage and the teacher will 
 | Output blueprint | The webpage will output the blueprint of the fpga. |
 | Download| The user will can download the blueprint generated |
 | Share | The user will can share the blueprint generated |
+| Change preview | The blueprint could be fix schema, animated and get timelapse between components according to the user choice via buttons |
 
 ### 3.2 Non-Functional Requirements
 #### 3.2.1 Quality Attributes
-- The webpage should be easy to use.
+- The webpage should be easy to use and intuitive to use.
 - The webpage has been used for educational purposes.
 - The webpage is mainly design for Chromium-based browser.
-- The webpage should be responsive.
+- The webpage should be responsive for a pc or laptop.
 
 ### 3.3 Interface Requirements
 
@@ -97,13 +130,13 @@ The student during the teacher course will see the webpage and the teacher will 
   - Run the process.
   - Download the blueprint.
   - Share the blueprint.
-  - Change the stance of the blueprint (animated, schema).
+  - Change the preview of the blueprint (animated, schema).
 
 #### 3.4.2 Process
-- The webpage will run the process to the blueprint generation.
+- The webpage will run the process to the blueprint generation after the run button was pressed.
 
 #### 3.4.3 Output
-- The webpage will output the blueprint of the fpga.
+- The webpage will output the blueprint of the fpga and this different preview and also the possibility to download or share the blueprint.
 
 ## 4. Appendices
 
@@ -115,5 +148,12 @@ The student during the teacher course will see the webpage and the teacher will 
 - [PNG](https://en.wikipedia.org/wiki/Portable_Network_Graphics)
 - [Chromium](https://www.chromium.org/Home)
 - [Call of tender](https://github.com/LeFl0w/ALGOSUP_POC)
+
+
+
+
+
+
+
 
 
