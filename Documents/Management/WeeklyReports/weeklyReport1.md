@@ -43,7 +43,7 @@ The templates were written such as these for the issues (for the Quality Assuran
 
 A Gantt Chart was started, to precisely indicate the amount of time that a task has to be done after consultations with the team. It also indicates all the deadlines (materialized by scares).
 
-![Gantt Chart](/Documents/Images/Management/ganttChart.png)
+![Gantt Chart](../Images/ganttChart.png)
 
 A specific part for the code (and all long tasks) will be done during the week.
 
@@ -53,7 +53,7 @@ You can access to the Gantt Chart through this [link](/Documents/Management/Mana
 
 All the time dedicated to the project is currently recorded in a Google Sheet to track the hours spent on the project. It includes the hours of project, the absence and overtime of the team members.
 
-![Screenshot of the Table](/Documents/Images/Management/projectHoursTrackingTable.png)
+![Screenshot of the Table](../Images/projectHoursTrackingTable.png)
 
 ## Key Goals for Week 2
 
