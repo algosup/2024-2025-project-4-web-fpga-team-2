@@ -18,7 +18,8 @@
 |1.0|02/26/2025|Mattéo LEFIN| - Create documents template based on everything that doesn't include functional and technical specifications.|
 |1.1|02/28/2025|Mattéo LEFIN| - Completing Introduction and Document Reviewing. <br> - Improve Testing Strategy and Testing execution. <br> - Enhance Test Deliverables|
 |1.2| 03/10/25 | Mattéo LEFIN | - Add Manual and Python testing sections <br> - Enhance testing field|
-|1.3| 03/11/25| Mattéo LEFIN | - Add pull request strategy section <br> - add GitHub issue templates <br> - Enhance test deliverables
+|1.3| 03/11/25| Mattéo LEFIN | - Add pull request strategy section <br> - add GitHub issue templates <br> - Enhance test deliverables|
+|1.4| 03/12/25| Mattéo LEFIN | -implement schemas and images|
 </details>
 
 ----
@@ -62,43 +63,6 @@
     - [5.1 Tools](#51-tools)
     - [5.2 Test design](#52-test-design)
     - [5.3 Test deliverables](#53-test-deliverables)
-
-
-<!-- [**Glossary**](#glossary)
-
-[**1. Introduction**](#1-introduction)
- - [**1.1 Document purpose**](#11-document-purpose)
- - [**1.2 Project purpose**](#12-project-purpose)
- - [**1.3 Customers**](#13-customers)
-
-[**2. Documentation Reviewing**](#2-documentation-reviewing)
- - [**2.1 Document criteria**](#21-document-criteria)
- - [**2.2 Review process**](#22-review-process)
-
-[**3. Testing strategy**](#3-testing-strategy)
- - [**3.1 Tests' main goal**](#31-tests-main-goal)
- - [**3.2 Testing field**](#32-testing-field)
- - [**3.3 Testing environment**](#33-testing-environment)
- - [**3.4 Test scope**](#34-test-scope)
- - [**3.5 Testing types**](#35-testing-types)
-
-[**4. Execution strategy**](#4-execution-strategy)
- - [**4.1 Testing criterias**](#41-testing-criterias)
- - [**4.2 GitHub issues**](#42-GitHub-issues)
- - [**4.3 Test cases**](#43-test-cases)
- - [**4.4 Bug tracking schema**](#44-bug-tracking-schema)
- - [**4.5 Python testing**](#45-python-testing)
- - [**4.6 Manual testing**](#46-manual-testing)
-
-[**5. Testing management**](#5-test-management)
- - [**5.1 Tools**](#51-tools)
- - [**5.2 Test design**](#52-test-design)
- - [**5.3 Test deliverables**](#54-test-deliverables) -->
-
-
-
-
-
 
 </details>
 
@@ -174,9 +138,9 @@ To review the documents we use **GitHub issues** to track any problems like typo
 
 A GitHub issue template will be initiated.
 
-![image]()
+![image](/Documents/TestPlan/Image/githuIssue.png)
 
-*GitHub issues for the Reviewed document*
+*GitHub issues for an error on two folder names*
 
 </details>
 
@@ -302,23 +266,21 @@ We also use a system of **labels** to identify the severity of the test cases:
 
 <br>
 
-![image]()
+![image](/Documents/TestPlan/Image/testCaseTemplate.png)
 *Demonstration on how the taste cases are created based on a template*
-
-
 
 ### 4.5 Bug tracking schema
 
-![image]()
+![image](/Documents/TestPlan/Image/bugTrackingSchema.png)
 
 
 *Bug tracking schema*
 
 ### 4.6 Python testing
 
-Some tests are being automated with [Python]() programs. For example, we have a program that analyze given FPGA programs and create a schema of used systems in it. Allowing us to verify if our program shows a correct schema.
+Some tests are being automated with [Python](#glossary) programs. For example, we have a program that analyze given FPGA programs and create a schema of used systems in it. Allowing us to verify if our program shows a correct schema.
 
-![image]()
+![image](/Documents/TestPlan/Image/pythonProgram.png)
 
 *example of a schema made with a python program*
 
@@ -328,7 +290,7 @@ Because it's a web page most of the test has to be done manually, testing all fe
 
 For example, we have to test if we can upload files.
 
-![image]()
+![image](/Documents/TestPlan/Image/fileUploadSchema.png)
 
 *Schema representing upload process*
 
@@ -354,7 +316,7 @@ To manage our test we are using specific tools :
 
 We have a conforming plan of how we create and process our tests.
 
-![image]()
+![image](/Documents/TestPlan/Image/testDesignSchema.png)
 
 *Test design schema*
 
