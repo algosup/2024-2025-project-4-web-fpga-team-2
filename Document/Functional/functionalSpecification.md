@@ -20,20 +20,23 @@ The project exclude:
 
 
 ### 1.3 Definitions, Acronyms, and Abbreviations
-Provide definitions for any terms, acronyms, and abbreviations used in the document.
-- FPGA: Field-Programmable Gate Array
-- .v: Verilog file
-- .sdf: Standard Delay Format file
 
-### 1.4 References
-List any references used in the creation of this document.
+| Term | Backronym   | Definition |
+| --- | --- | --- |
+| FPGA | Field-Programmable Gate Array | A reconfigurable integrated circuit that consists of an array of programmable logic blocks and interconnects. Unlike fixed-function ASICs, FPGAs can be reprogrammed after manufacturing to perform specific logic functions, making them ideal for applications requiring flexibility, parallel processing, and hardware acceleration. |
+| v | Verilog|A hardware description language (HDL) used to model, design, and simulate digital circuits. It enables engineers to describe the structure and behavior of electronic systems, making it essential for FPGA and ASIC development. Verilog supports design abstraction levels ranging from register-transfer level (RTL) to gate-level modeling.|
+| sdf | Standard Delay Format  |A file format used in electronic design automation (EDA) to specify timing delays for digital circuits. SDF files contain detailed delay information, including path delays, setup and hold times, and clock-to-output delays, enabling accurate timing analysis and simulation of ASIC and FPGA designs.|
+| PNG | Portable Network Graphics | A raster graphics file format that supports lossless data compression. PNG files are widely used on the web for images with transparent backgrounds, making them ideal for logos, icons, and other graphics that require crisp edges and smooth gradients.|
 
 ## 2. Overall Description
 ### 2.1 Stackholder
 
-Florent: The customer of the project.
-Algosup: The school supervise the project and the different teams.
-Team 2: The group dedicated to the project.
+| Stackholder | Description |
+| --- | --- |
+| Florent | The customer of the project. Give the call of tender. |
+| Algosup | The school supervise the project and the different teams. |
+| Team 2 | The group dedicated to the project. |
+
 
 
 ### 2.2 Product Functions
@@ -47,7 +50,7 @@ The product will:
 
 
 ### 2.3 User Characteristics
-Describe the characteristics of the intended users.
+
 #### 2.3.1 The teacher
 The teacher will access the webpage , use this functinality and share to the student to explain how the FPGA work actually.
 
@@ -74,8 +77,6 @@ The student during the teacher course will see the webpage and the teacher will 
 - The webpage has been used for educational purposes.
 - The webpage is mainly design for Chromium-based browser.
 - The webpage should be responsive.
-
-
 
 ### 3.3 Interface Requirements
 
@@ -104,6 +105,15 @@ The student during the teacher course will see the webpage and the teacher will 
 #### 3.4.3 Output
 - The webpage will output the blueprint of the fpga.
 
-
-
 ## 4. Appendices
+
+### 4.1 References
+
+- [FPGA](https://en.wikipedia.org/wiki/Field-programmable_gate_array)
+- [Verilog](https://en.wikipedia.org/wiki/Verilog)
+- [Standard Delay Format](https://en.wikipedia.org/wiki/Standard_Delay_Format)
+- [PNG](https://en.wikipedia.org/wiki/Portable_Network_Graphics)
+- [Chromium](https://www.chromium.org/Home)
+- [Call of tender](https://github.com/LeFl0w/ALGOSUP_POC)
+
+
