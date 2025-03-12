@@ -49,7 +49,7 @@ function generateUniqueId() {
     return Date.now().toString(36) + Math.random().toString(36).substring(2);
 }
 
-const { analyzeCircuitFiles, generateJsonFile } = require("./parser");
+const parser = require('./parser');
 
 wss.on("connection", (ws) => {
     console.log("✅ New WebSocket client connected");
@@ -94,14 +94,14 @@ app.post("/upload", upload.array("files", 2), async (req, res) => {
     console.log(`[Backend] 📄 Processing SDF: ${sdfPath}`);
 
     try {
-        // ✅ Parse Verilog and SDF first
-        const parsedData = analyzeCircuitFiles(
+        // Update this line to use parser.analyzeCircuitFiles
+        const parsedData = parser.analyzeCircuitFiles(
             fs.readFileSync(verilogPath, "utf8"), 
             fs.readFileSync(sdfPath, "utf8")
         );
-
-        // ✅ Generate JSON file from parsed data
-        await generateJsonFile(parsedData, jsonFilePath);
+    
+        // And update this to use parser.generateJsonFile
+        await parser.generateJsonFile(parsedData, jsonFilePath);    
 
         // ✅ Ensure the JSON file was created before responding
         if (!fs.existsSync(jsonFilePath)) {
