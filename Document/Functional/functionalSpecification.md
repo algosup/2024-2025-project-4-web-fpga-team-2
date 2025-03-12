@@ -55,62 +55,55 @@ The teacher will access the webpage , use this functinality and share to the stu
 The student during the teacher course will see the webpage and the teacher will explain how the FPGA work and simulate it.
 
 ### 2.4 Constraints
-List any constraints that will affect the design and implementation of the product.
-
-### 2.5 Assumptions and Dependencies
-List any assumptions and dependencies that the project relies on.
 
 ## 3. Specific Requirements
 ### 3.1 Functional Requirements
-Detail the specific functional requirements of the project.
 
-
+#### 3.1.1 Use Case
+| Use Case | Description |
+| --- | --- |
+| Load .v and .sdf file | The user will load the .v and .sdf file to the webpage. |
+|Run| The webpage run the process to the blueprint generation |
+| Output blueprint | The webpage will output the blueprint of the fpga. |
+| Download| The user will can download the blueprint generated |
+| Share | The user will can share the blueprint generated |
 
 ### 3.2 Non-Functional Requirements
-Detail the non-functional requirements, such as performance, security, and usability.
+#### 3.2.1 Quality Attributes
+- The webpage should be easy to use.
+- The webpage has been used for educational purposes.
+- The webpage is mainly design for Chromium-based browser.
+- The webpage should be responsive.
+
+
 
 ### 3.3 Interface Requirements
-Describe the interfaces between the product and other systems or components.
+
+#### 3.3.1 User Interface
+
+##### Home Page Mockup
+![Home Page](./Images/Functional/home-page.png)
+
+##### Blueprint Page Mockup
+![blueprint](./Images/Functional/blueprint-page.png)
 
 
 ### 3.4 System Features
-Detail the features of the system, including inputs, outputs, and processing requirements.
 
-## 4. External Interface Requirements
-### 4.1 User Interfaces
-Describe the user interface requirements.
-#### 4.1.1 Mockups
+#### 3.4.1 Input
+- The user has use some button to the following actions:
+  - Load the .v and .sdf file.
+  - Run the process.
+  - Download the blueprint.
+  - Share the blueprint.
+  - Change the stance of the blueprint (animated, schema).
 
-##### Home Page
-![Home Page](../Images/Functional/page-1.png)
+#### 3.4.2 Process
+- The webpage will run the process to the blueprint generation.
 
-##### Blueprint Page
-![blueprint](../Images/Functional/page-2.png)
+#### 3.4.3 Output
+- The webpage will output the blueprint of the fpga.
 
-### 4.2 Hardware Interfaces
-Detail the hardware interfaces required by the system.
 
-### 4.3 Software Interfaces
-Describe the software interfaces required by the system.
 
-### 4.4 Communication Interfaces
-Detail the communication interfaces required by the system.
-
-## 5. Other Requirements
-### 5.1 Performance Requirements
-Detail the performance requirements of the system.
-
-### 5.2 Safety Requirements
-Describe any safety requirements for the system.
-
-### 5.3 Security Requirements
-Detail the security requirements of the system.
-
-### 5.4 Software Quality Attributes
-Describe the quality attributes of the software, such as reliability, maintainability, and portability.
-
-### 5.5 Business Rules
-List any business rules that apply to the system.
-
-## 6. Appendices
-Include any additional information that is relevant to the document.
+## 4. Appendices
