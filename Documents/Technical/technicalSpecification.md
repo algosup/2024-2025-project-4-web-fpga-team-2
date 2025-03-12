@@ -19,7 +19,14 @@
 </details>
 
 ## Introduction
+The project consists of creating a webpage that simulates the behavior of an FPGA and generates, from a .v and .sdf file, a blueprint of the FPGA with its components and the connections between them. It is intended to be used to teach people how signals propagate inside an FPGA.
 ## Objectives
+
+- 
+- 
+- The teacher can share to the student to explain how the FPGA work actually.
+- Provide a user-friendly interface 
+
 ## Project Folder Structure
 
 ```bash
@@ -49,7 +56,17 @@
 ├── README.md
 ├──LICENSE
 ```
+## Conventions
+There are conventions to follow during the project.
+You can check them using this link:
+[Convention](https://github.com/algosup/2024-2025-project-4-web-fpga-team-2/blob/main/Documents/Technical/convention.md)
+
 ## Requirements
+
+## System Architecture
+### A. Overview
+### B. Components
+### C. Technologies
 
 
 ## Glossary
