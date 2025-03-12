@@ -36,7 +36,7 @@
 │  │                     
 │  ├── QualityAssurance
 │  │  └──Images    
-│  │  └──TestCase  
+│  │  └──TestCaseRules.md  
 │  │  └──testPlan.md   
 │  │              
 │  ├── Technical                                
