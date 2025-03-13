@@ -55,8 +55,6 @@ The project excludes:
 - An actual back end of the webpage.
 - Implementing the .v and .sdf files directly from the webpage like an IDE.
 
-
-
 ### 1.3 Definitions, Acronyms, and Abbreviations
 
 | Term | Backronym   | Definition |
@@ -69,8 +67,6 @@ The project excludes:
 | Chromium | N/A | An open-source web browser project that serves as the foundation for many popular browsers, including Google Chrome, Microsoft Edge, and Opera. Chromium provides a fast, secure, and stable browsing experience, with support for web standards and extensions.|
 | Call of tender | N/A | A formal invitation to bid on a project or contract, typically issued by a company or organization seeking proposals from qualified vendors. The call of tender outlines the project requirements, evaluation criteria, and submission deadlines, enabling vendors to submit competitive bids for consideration.|
 
-
-
 ## 2. Overall Description
 ### 2.1 Stakeholder
 
@@ -80,8 +76,6 @@ The project excludes:
 | Algosup | The school supervise the project and the different teams. |
 | Team 2 | The group dedicated to deliver the project. |
 
-
-
 ### 2.2 Product Functions
 Summarize the major functions the product will perform.
 The product will:
@@ -89,8 +83,6 @@ The product will:
 - Load a .v and .sdf file.
 - Output a blueprint of the FPGA components and their connection between them.
 - Download or share the blueprint as a .png file.
-
-
 
 ### 2.3 User Characteristics
 
@@ -131,7 +123,6 @@ The home page will contain the following elements:
 - A button to select the .v and .sdf file.
 - A button to run the process.
 
-
 ##### Blueprint Page Mockup
 ![blueprint](./Images/blueprint-page.png)
 ###### Description
@@ -140,7 +131,6 @@ The blueprint page will contain the following elements:
 - A button to download the blueprint as a .png file.
 - A button to share the blueprint.
 - A button to change the preview of the blueprint (animated, schema).
-
 
 ### 3.4 System Features
 
@@ -161,7 +151,6 @@ User can share the blueprint of the FPGA.
 
 ##### 3.4.1.5 Change preview
 User can change the preview of the blueprint (animated, schema).
-
 
 #### 3.4.2 Output
 
