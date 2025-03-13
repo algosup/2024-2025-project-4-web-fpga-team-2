@@ -128,9 +128,20 @@ The student during the teacher course will see the webpage and the teacher will 
 
 ##### Home Page Mockup
 ![Home Page](./Images/home-page.png)
+###### Description
+The home page will contain the following elements:
+- A button to select the .v and .sdf file.
+- A button to run the process.
+
 
 ##### Blueprint Page Mockup
 ![blueprint](./Images/blueprint-page.png)
+###### Description
+The blueprint page will contain the following elements:
+- The blueprint of the FPGA with its components and connections.
+- A button to download the blueprint as a .png file.
+- A button to share the blueprint.
+- A button to change the preview of the blueprint (animated, schema).
 
 
 ### 3.4 System Features
