@@ -158,7 +158,6 @@ The blueprint page will contain the following elements:
 ### 3.4 System Features
 
 #### 3.4.1 Input
-
 The user has used some button to perform the following actions:
 
 ##### 3.4.1.1 Select .v and .sdf file
