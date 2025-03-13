@@ -160,9 +160,6 @@ The webpage will output the blueprint of the FPGA with its components and connec
 ##### 3.4.2.2 The blueprint of the FPGA as a .png file
 The user can download or share the blueprint of the FPGA as a .png file.
 
-
-
-
 ## 4. Appendices
 
 ### 4.1 References
