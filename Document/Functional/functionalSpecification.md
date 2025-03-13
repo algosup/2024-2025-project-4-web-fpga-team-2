@@ -74,7 +74,7 @@ The project excludes:
 ## 2. Overall Description
 ### 2.1 Stakeholder
 
-| StakeHolder | Description |
+| Stakeholder | Description |
 | --- | --- |
 | Florent Manni | The customer of the project. Give the call of tender. |
 | Algosup | The school supervise the project and the different teams. |
