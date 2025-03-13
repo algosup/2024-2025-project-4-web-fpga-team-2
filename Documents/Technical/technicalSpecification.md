@@ -40,31 +40,31 @@ The project consists of creating a webpage that simulates the behavior of an FPG
 ## Project Folder Structure
 
 ```bash
-2024-2025-project-4-web-fpga-team-2-programs
-├── Documents   # folder that stores all the main files
-│  ├── Functional
-│  │  └──Images
-│  │  └──functionalSpecification.md
+📦2024-2025-project-4-web-fpga-team-2-programs
+├──📁Documents   # folder that stores all the main files
+│  ├──📁Functional
+│  │  └──📁Images
+│  │  └──📝functionalSpecification.md
 │  │  
-│  ├── Management
-│  │  └──Images   
-│  │  └──ManagementArtifacts
-│  │  └──WeeklyReports
+│  ├──📁Management
+│  │  └──📁Images   
+│  │  └──📁ManagementArtifacts
+│  │  └──📁WeeklyReports
 │  │                     
-│  ├── QualityAssurance
-│  │  └──Images    
-│  │  └──TestCaseRules.md  
-│  │  └──testPlan.md   
+│  ├──📁QualityAssurance
+│  │  └──📁Images    
+│  │  └──📝TestCaseRules.md  
+│  │  └──📝testPlan.md   
 │  │              
-│  ├── Technical                                
-│  │  └──Images
-│  │  └──technicalSpecification.md
-│  │  └──convention.md
+│  ├──📁Technical                                
+│  │  └──📁Images
+│  │  └──📝technicalSpecification.md
+│  │  └──📝convention.md
 │
-├── src                                          
-├──.gitignore   # ignore the file mentioned inside                      
-├── README.md
-├──LICENSE
+├──📁src                                          
+├──📄.gitignore   # ignore the file mentioned inside                      
+├──📝README.md
+├──📝LICENSE
 ```
 ## Conventions
 
