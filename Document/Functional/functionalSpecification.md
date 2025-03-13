@@ -131,17 +131,29 @@ The user has used some button to perform the following actions:
 ##### 3.4.1.1 Select .v and .sdf file
 User can either drag and drop the .v and .sdf file or click on the button to select the file.
 
-  - Load the .v and .sdf file.
-  - Run the process.
-  - Download the blueprint.
-  - Share the blueprint.
-  - Change the preview of the blueprint (animated, schema).
+##### 3.4.1.2 Run
+User can run the process to generate the blueprint of the FPGA.
 
-#### 3.4.2 Process
-- The webpage will run the process to the blueprint generation after the run button is pressed.
+##### 3.4.1.3 Download
+User can download the blueprint of the FPGA as a .png file.
 
-#### 3.4.3 Output
-- The webpage will output the blueprint of the FPGA and this different preview and also the possibility to download or share the blueprint.
+##### 3.4.1.4 Share
+User can share the blueprint of the FPGA.
+
+##### 3.4.1.5 Change preview
+User can change the preview of the blueprint (animated, schema).
+
+
+#### 3.4.2 Output
+
+##### 3.4.2.1 The blueprint of the FPGA
+The webpage will output the blueprint of the FPGA with its components and connections.
+
+##### 3.4.2.2 The blueprint of the FPGA as a .png file
+The user can download or share the blueprint of the FPGA as a .png file.
+
+
+
 
 ## 4. Appendices
 
