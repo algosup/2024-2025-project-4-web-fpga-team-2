@@ -5,7 +5,7 @@
 **Project Name:** Web FPGA
 **Team:** Team 2  
 **Document Edited by:** Léna<br>
-**Last Time Modified:** 02/28/2025
+**Last Time Modified:** 03/13/2025
 
 </div>
 
@@ -23,10 +23,19 @@ The project consists of creating a webpage that simulates the behavior of an FPG
 
 ## Objectives
 
-- 
-- 
-- The teacher can share to the student to explain how the FPGA work actually.
-- Provide a user-friendly interface 
+- Simulate an FPGA and generate a blueprint of its components and their connections.
+
+- Provide a user-friendly interface.
+
+- Load a .v and .sdf file.
+
+- Download or share the blueprint as a .png file.
+
+- The teacher will access the webpage, use this functionality, and share it with students to explain how an FPGA works.
+
+- Students will view the webpage while the teacher explains and simulates the FPGA's behavior.
+
+
 
 ## Project Folder Structure
 
@@ -65,9 +74,19 @@ You can check them using this link:
 
 ## Requirements
 
+To see all Requirements it is recommended to read the [functional specification](https://github.com/algosup/2024-2025-project-4-web-fpga-team-2/blob/main/Documents/Functional/functionalSpecification.md) document.
+
 ## System Architecture
 ### A. Overview
+
+| Input | Processing | Output |
+| ----- | ---------- | ------ |
+|A .v file or .sdf file.|Read the file.|Display a blueprint of FPGA components and their connections on the web page.|
+
+
+
 ### B. Components
+
 ### C. Technologies
 
 (parseur)
