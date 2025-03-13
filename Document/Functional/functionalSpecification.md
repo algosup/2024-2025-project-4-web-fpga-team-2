@@ -117,10 +117,10 @@ The student during the teacher course will see the webpage and the teacher will 
 #### 3.3.1 User Interface
 
 ##### Home Page Mockup
-![Home Page](./Images/Functional/home-page.png)
+![Home Page](./Images/home-page.png)
 
 ##### Blueprint Page Mockup
-![blueprint](./Images/Functional/blueprint-page.png)
+![blueprint](./Images/blueprint-page.png)
 
 
 ### 3.4 System Features
