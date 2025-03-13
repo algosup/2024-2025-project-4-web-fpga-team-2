@@ -72,11 +72,11 @@ The project excludes:
 
 
 ## 2. Overall Description
-### 2.1 Stackholder
+### 2.1 Stakeholder
 
-| Stackholder | Description |
+| StakeHolder | Description |
 | --- | --- |
-| Florent | The customer of the project. Give the call of tender. |
+| Florent Manni | The customer of the project. Give the call of tender. |
 | Algosup | The school supervise the project and the different teams. |
 | Team 2 | The group dedicated to deliver the project. |
 
@@ -99,8 +99,6 @@ The teacher will access the webpage, use this functionality, and share with the 
 
 #### 2.3.2 The student
 The student during the teacher course will see the webpage and the teacher will explain how the FPGA works and simulate it.
-
-
 
 ## 3. Specific Requirements
 ### 3.1 Functional Requirements
