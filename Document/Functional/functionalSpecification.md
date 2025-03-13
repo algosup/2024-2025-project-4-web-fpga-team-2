@@ -38,7 +38,7 @@
 ## 1. Introduction
 ### 1.1 Purpose
 
-The project consists of creating a webpage that simulates the behaviour of an FPGA and outputs a blueprint of the FPGA with its components and connections from a .v and .sdf file. The document will describe the project's requirements, including the functional and non-functional requirements, the interfaces, and the system features.
+The project consists of creating a webpage that simulates the behaviour of an FPGA and outputs a blueprint of the FPGA with its components and connections from a .v and .sdf file. The document will describe the project's requirements, including the functional and non-functional requirements, the interfaces, and the system features. The project aims to provide an educational tool for teachers and students to understand how FPGAs work and visualize their components and connections.
 
 ### 1.2 Scope
  
@@ -56,6 +56,7 @@ The project excludes:
 - Implementing the .v and .sdf files directly from the webpage like an IDE.
 
 
+
 ### 1.3 Definitions, Acronyms, and Abbreviations
 
 | Term | Backronym   | Definition |
@@ -69,6 +70,7 @@ The project excludes:
 | Call of tender | ... | A formal invitation to bid on a project or contract, typically issued by a company or organization seeking proposals from qualified vendors. The call of tender outlines the project requirements, evaluation criteria, and submission deadlines, enabling vendors to submit competitive bids for consideration.|
 
 
+
 ## 2. Overall Description
 ### 2.1 Stackholder
 
@@ -76,7 +78,7 @@ The project excludes:
 | --- | --- |
 | Florent | The customer of the project. Give the call of tender. |
 | Algosup | The school supervise the project and the different teams. |
-| Team 2 | The group dedicated to the project. |
+| Team 2 | The group dedicated to deliver the project. |
 
 
 
