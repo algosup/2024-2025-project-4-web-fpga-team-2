@@ -71,7 +71,7 @@ interface DagreNode {
   y: number;
 }
 
-/** We'll store the final layout in an array of "Positioned Components." */
+/** Positioned component includes position and size. */
 interface PositionedComponent extends ComponentNode {
   x: number;
   y: number;
@@ -97,10 +97,23 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
   const [circuitData, setCircuitData] = useState<CircuitData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  // State for node positions (updated by layout and drag)
+  const [nodePositions, setNodePositions] = useState<PositionedComponent[]>([]);
+  // State for custom port positions (can be preset or updated via dragging)
+  const [customPortPositions, setCustomPortPositions] = useState<Record<string, Position>>({
+    "\\clk": { x: 100, y: 100 },
+    "\\async_reset": { x: 100, y: 200 },
+    "\\D": { x: 100, y: 300 },
+    "\\Q": { x: 100, y: 400 }
+  });
+  // State for hovered node (for tooltip)
+  const [hoveredNode, setHoveredNode] = useState<PositionedComponent | null>(null);
 
   const svgRef = useRef<SVGSVGElement>(null);
   const svgId = useMemo(() => `circuit-svg-${Math.random().toString(36).substring(7)}`, []);
   const filePath = useMemo(() => jsonPath || jsonFile || '', [jsonPath, jsonFile]);
+  const svgWidth = 1200;
+  const svgHeight = 800;
 
   // 1) Load JSON data
   useEffect(() => {
@@ -110,7 +123,6 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
       return;
     }
     setLoading(true);
-
     const fullPath = (() => {
       if (filePath.startsWith('http')) return filePath;
       if (typeof window !== 'undefined') {
@@ -124,7 +136,6 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
       }
       return filePath;
     })();
-
     fetch(fullPath, { headers: { Accept: 'application/json' }, mode: 'cors' })
       .then(response => {
         if (!response.ok) throw new Error(`HTTP error ${response.status}: ${response.statusText}`);
@@ -169,12 +180,12 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
     setTimeout(() => {
       const bbox = g.node()?.getBBox();
       if (!bbox) return;
-      const svgWidth = svgRef.current?.clientWidth || +svg.attr('width');
-      const svgHeight = svgRef.current?.clientHeight || +svg.attr('height');
-      const scale = Math.min(0.9, 0.9 / Math.max(bbox.width / svgWidth, bbox.height / svgHeight));
+      const svgW = svgRef.current?.clientWidth || +svg.attr('width');
+      const svgH = svgRef.current?.clientHeight || +svg.attr('height');
+      const scale = Math.min(0.9, 0.9 / Math.max(bbox.width / svgW, bbox.height / svgH));
       const translate = [
-        svgWidth / 2 - scale * (bbox.x + bbox.width / 2),
-        svgHeight / 2 - scale * (bbox.y + bbox.height / 2),
+        svgW / 2 - scale * (bbox.x + bbox.width / 2),
+        svgH / 2 - scale * (bbox.y + bbox.height / 2),
       ];
       svg.call(zoomBehavior.transform as any, d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale));
     }, 100);
@@ -183,19 +194,18 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
   // 3) Merge components and interconnects into one array
   const allNodes = useMemo<ComponentNode[]>(() => {
     if (!circuitData) return [];
-    // For interconnects, assign pins using their datain and dataout.
     const interNodes = circuitData.interconnects.map(ic => ({
       name: ic.name,
-      type: ic.type, // e.g., "interconnect"
+      type: ic.type,
       inputs: [{ wire: ic.datain, pinIndex: 0 }],
       outputs: [{ wire: ic.dataout, pinIndex: 0 }]
     }));
     return [...circuitData.components, ...interNodes];
   }, [circuitData]);
 
-  // 4) Run Dagre Layout on all nodes (components and interconnects)
-  const positionedComponents = useMemo<PositionedComponent[]>(() => {
-    if (!circuitData) return [];
+  // 4) Run Dagre Layout on all nodes and update nodePositions state.
+  useEffect(() => {
+    if (!circuitData) return;
     try {
       const g = new dagre.graphlib.Graph();
       g.setGraph({
@@ -248,24 +258,23 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
           });
         }
       });
-      return finalNodes;
+      setNodePositions(finalNodes);
     } catch (error) {
       console.error('Error in dagre layout:', error);
-      return allNodes.map((node, i) => ({
+      setNodePositions(allNodes.map((node, i) => ({
         ...node,
         x: 200 + i * 200,
         y: 200,
         width: node.type.toLowerCase().includes('interconnect') ? 80 : 150,
         height: node.type.toLowerCase().includes('interconnect') ? 30 : 80
-      }));
+      })));
     }
   }, [circuitData, allNodes]);
 
-  // 5) Compute pin positions for each node.
-  // For nodes without defined pins (or interconnects), assign default center pin.
+  // 5) Compute pin positions based on nodePositions.
   const pinPositions = useMemo<Record<string, { inputs: Record<number, Position>, outputs: Record<number, Position> }>>(() => {
     const posMap: Record<string, { inputs: Record<number, Position>, outputs: Record<number, Position> }> = {};
-    positionedComponents.forEach(pc => {
+    nodePositions.forEach(pc => {
       if (pc.inputs.length === 0 && pc.outputs.length === 0) {
         posMap[pc.name] = {
           inputs: { 0: { x: pc.x, y: pc.y } },
@@ -290,37 +299,38 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
       }
     });
     return posMap;
-  }, [positionedComponents]);
+  }, [nodePositions]);
 
-  // 6) Manually position top-level ports (they remain outside of Dagre)
-  const svgWidth = 1200;
-  const lastComponentXPosition = positionedComponents.reduce((max, pc) => Math.max(max, pc.x), 0) + 200;
-  const firstComponentXPosition = positionedComponents.reduce((min, pc) => Math.min(min, pc.x), 0) - 200;
-  const portPositions = useMemo<Record<string, Position>>(() => {
-    // If there's no circuitData yet, return an empty object
+  // 6) Calculate default port positions.
+  const defaultPortPositions = useMemo<Record<string, Position>>(() => {
     if (!circuitData) return {};
-  
     let inputCount = 0;
     let outputCount = 0;
     const pos: Record<string, Position> = {};
-  
     Object.entries(circuitData.ports).forEach(([portName, direction]) => {
       const isInput = (direction === "input");
       if (isInput) {
-        pos[portName] = { x: firstComponentXPosition, y: 100 + inputCount * 80 };
+        pos[portName] = { x: 50, y: 100 + inputCount * 80 };
         inputCount++;
       } else {
-        pos[portName] = { x: lastComponentXPosition, y: 100 + outputCount * 80 };
+        pos[portName] = { x: svgWidth - 50, y: 100 + outputCount * 80 };
         outputCount++;
       }
     });
-  
     return pos;
   }, [circuitData, svgWidth]);
 
+  // Use custom port positions if defined; otherwise, fallback to defaults.
+  const portPositions = useMemo<Record<string, Position>>(() => {
+    if (!circuitData) return {};
+    const merged: Record<string, Position> = {};
+    Object.entries(circuitData.ports).forEach(([portName]) => {
+      merged[portName] = customPortPositions[portName] || defaultPortPositions[portName];
+    });
+    return merged;
+  }, [circuitData, customPortPositions, defaultPortPositions]);
+
   // 7) Infer port wire names based on naming conventions.
-  // For input ports, look for wires that contain the port name and "_output_".
-  // For output ports, look for wires that contain the port name and "_input_".
   const inferredPortWires = useMemo<Record<string, string>>(() => {
     if (!circuitData) return {};
     const map: Record<string, string> = {};
@@ -336,8 +346,7 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
     return map;
   }, [circuitData]);
 
-  // 8) Build connections from ports to internal nodes using inferred wires.
-  // For each port, we search all positioned nodes for a pin whose wire exactly matches the inferred wire.
+  // 8) Build connections from ports to nodes.
   const portConnectionsToDraw = useMemo<PortConnectionDraw[]>(() => {
     if (!circuitData) return [];
     const results: PortConnectionDraw[] = [];
@@ -346,23 +355,19 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
       if (!portPos) return;
       const wire = inferredPortWires[portName];
       if (!wire) return;
-      positionedComponents.forEach((node) => {
-        // Check node inputs
+      nodePositions.forEach((node) => {
         node.inputs.forEach((pin) => {
           if (pin.wire === wire) {
             const pinPos = pinPositions[node.name]?.inputs[pin.pinIndex];
             if (pinPos) {
-              // For an input port, draw a line from port -> pin.
               results.push({ portName, fromPos: portPos, toPos: pinPos, wire });
             }
           }
         });
-        // Check node outputs
         node.outputs.forEach((pin) => {
           if (pin.wire === wire) {
             const pinPos = pinPositions[node.name]?.outputs[pin.pinIndex];
             if (pinPos) {
-              // For an output port, draw a line from pin -> port.
               results.push({ portName, fromPos: pinPos, toPos: portPos, wire });
             }
           }
@@ -370,11 +375,11 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
       });
     });
     return results;
-  }, [circuitData, portPositions, positionedComponents, pinPositions, inferredPortWires]);
+  }, [circuitData, portPositions, nodePositions, pinPositions, inferredPortWires]);
 
-  // 9) Helper to get pin positions for drawing normal internal connections.
+  // 9) Helper to get pin positions for internal connections.
   const getPinPos = (end: { component: string; pinIndex: number; type: string; port?: string }): Position | undefined => {
-    const node = positionedComponents.find(c => c.name === end.component);
+    const node = nodePositions.find(c => c.name === end.component);
     if (!node) return undefined;
     const isOutput = (end.type.toLowerCase() === 'output' || (end.port && end.port.toLowerCase() === 'out'));
     const map = pinPositions[node.name];
@@ -383,15 +388,56 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
     return isOutput ? map.outputs[index] : map.inputs[index];
   };
 
-  // 10) Render everything
+  // 10) Attach drag behavior to nodes.
+  useEffect(() => {
+    d3.selectAll<SVGGElement, unknown>('.draggable')
+      .call(
+        d3.drag<SVGGElement, unknown>()
+          .on('start', function (event) {
+            d3.select(this).raise();
+          })
+          .on('drag', function (event) {
+            const nodeId = d3.select(this).attr('data-node-id');
+            d3.select(this).attr('transform', `translate(${event.x},${event.y})`);
+            setNodePositions(prev =>
+              prev.map(node =>
+                node.name === nodeId ? { ...node, x: event.x, y: event.y } : node
+              )
+            );
+            // If the dragged node is currently hovered, update its position in hoveredNode as well
+            setHoveredNode(prev => (prev && prev.name === nodeId ? { ...prev, x: event.x, y: event.y } : prev));
+          })
+      );
+  }, [nodePositions]);
+
+  // 11) Attach drag behavior to ports so that they are movable.
+  useEffect(() => {
+    d3.selectAll<SVGGElement, unknown>('.draggable-port')
+      .call(
+        d3.drag<SVGGElement, unknown>()
+          .on('start', function (event) {
+            d3.select(this).raise();
+          })
+          .on('drag', function (event) {
+            const portName = d3.select(this).attr('data-port-name');
+            d3.select(this).attr('transform', `translate(${event.x},${event.y})`);
+            setCustomPortPositions(prev => ({
+              ...prev,
+              [portName]: { x: event.x, y: event.y }
+            }));
+          })
+      );
+  }, [portPositions]);
+
+  // 12) Render everything.
   if (!filePath) return <div>No circuit file path provided.</div>;
   if (loading) return <div>Loading circuit data...</div>;
   if (error) return <div>Error: {error}</div>;
   if (!circuitData) return <div>No circuit data loaded.</div>;
 
   return (
-    <div style={{ color: '#fff'}}>
-      <svg id={svgId} ref={svgRef} style={{ backgroundColor: "#313131", backgroundImage: "radial-gradient(rgba(255, 255 255, 0.171) 2px, transparent 0)", backgroundSize: "30px 30px", backgroundPosition: "-5px -5px", width: '100%', height: '100vh' }}>
+    <div style={{ color: '#fff' }}>
+      <svg id={svgId} ref={svgRef} style={{ backgroundColor: "#313131", width: '100%', height: '100vh' }}>
         <defs>
           <marker id="arrowhead" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
             <path d="M 0 0 L 10 5 L 0 10 z" fill="#fff" />
@@ -399,21 +445,29 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
         </defs>
         <g className="main-content">
           {/* Render all nodes (components and interconnects) */}
-          {positionedComponents.map((node) => {
-            // For interconnects, use a different style
+          {nodePositions.map((node) => {
+            // Set up hover handlers for the tooltip
+            const handleMouseEnter = () => setHoveredNode(node);
+            const handleMouseLeave = () => setHoveredNode(null);
             if (node.type.toLowerCase().includes('interconnect')) {
               return (
-                <g key={`node-${node.name}`}>
-                  <rect x={node.x - node.width / 2} y={node.y - node.height / 2}
-                        width={node.width} height={node.height}
-                        fill="#ffffcc" stroke="#999" strokeDasharray="4" />
-                  <text x={node.x} y={node.y} textAnchor="middle" alignmentBaseline="middle" fontSize={10} fill="#000">
-                    {node.name.split(/[/\\]/).pop()}
+                <g
+                  key={`node-${node.name}`}
+                  className="draggable"
+                  data-node-id={node.name}
+                  transform={`translate(${node.x},${node.y})`}
+                  onMouseEnter={handleMouseEnter}
+                  onMouseLeave={handleMouseLeave}
+                >
+                  <rect x={-node.width / 2} y={-node.height / 2} width={node.width} height={node.height}
+                    fill="#ffffcc" stroke="#999" strokeDasharray="4" />
+                  <text x={0} y={0} textAnchor="middle" alignmentBaseline="middle" fontSize={10} fill="#000">
+                    {node.type}
                   </text>
                 </g>
               );
             }
-            // Otherwise, render as a regular component.
+            // For regular nodes, only display the type by default
             let fill = '#444', stroke = '#ccc', textFill = '#fff';
             const t = node.type.toUpperCase();
             if (t.includes('INPUT')) { fill = '#a8d5ff'; stroke = '#4285F4'; textFill = '#000'; }
@@ -421,28 +475,31 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
             else if (t.includes('DFF') || t.includes('FLIP')) { fill = '#c5e1a5'; stroke = '#34A853'; textFill = '#000'; }
             else if (t.includes('LUT')) { fill = '#fff176'; stroke = '#FBBC05'; textFill = '#000'; }
             return (
-              <g key={`node-${node.name}`}>
-                <rect x={node.x - node.width / 2} y={node.y - node.height / 2}
-                      width={node.width} height={node.height}
-                      fill={fill} stroke={stroke} strokeWidth={2} rx={8} ry={8} />
-                <text x={node.x} y={node.y} textAnchor="middle" alignmentBaseline="middle"
-                      fontSize={12} fill={textFill} fontWeight="bold">
-                  {node.name}
-                </text>
-                <text x={node.x} y={node.y + 14} textAnchor="middle" alignmentBaseline="middle"
-                      fontSize={9} fill={textFill}>
+              <g
+                key={`node-${node.name}`}
+                className="draggable"
+                data-node-id={node.name}
+                transform={`translate(${node.x},${node.y})`}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+              >
+                <rect x={-node.width / 2} y={-node.height / 2} width={node.width} height={node.height}
+                  fill={fill} stroke={stroke} strokeWidth={2} rx={8} ry={8} />
+                {/* Only display the type inside the node */}
+                <text x={0} y={0} textAnchor="middle" alignmentBaseline="middle"
+                  fontSize={12} fill={textFill} fontWeight="bold">
                   {node.type}
                 </text>
-                {/* Render pins for non-interconnect nodes */}
+                {/* Optionally remove the second text element if it's not needed */}
+                {/* Render pins as before */}
                 {node.inputs.sort((a, b) => a.pinIndex - b.pinIndex).map(pin => {
                   const pos = pinPositions[node.name]?.inputs[pin.pinIndex];
                   if (!pos) return null;
                   return (
                     <g key={`pin-in-${node.name}-${pin.pinIndex}`}>
-                      <circle cx={pos.x} cy={pos.y} r={4} fill="blue" />
-                      <text x={pos.x - 6} y={pos.y + 3} fontSize={8} fill="#fff" textAnchor="end">
-                        {pin.wire.replace(/.*[\\/]/,'').substring(0,10)}
-                        {pin.constant && (pin.value === 1 ? ' (1)' : ' (0)')}
+                      <circle cx={-node.width / 2} cy={pos.y - node.y} r={4} fill="blue" />
+                      <text x={-node.width / 2 - 6} y={pos.y - node.y + 3} fontSize={8} fill="#fff" textAnchor="end">
+                        {pin.wire.replace(/.*[\\/]/, '').substring(0, 10)}
                       </text>
                     </g>
                   );
@@ -452,9 +509,9 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
                   if (!pos) return null;
                   return (
                     <g key={`pin-out-${node.name}-${pin.pinIndex}`}>
-                      <circle cx={pos.x} cy={pos.y} r={4} fill="green" />
-                      <text x={pos.x + 6} y={pos.y + 3} fontSize={8} fill="#fff" textAnchor="start">
-                        {pin.wire.replace(/.*[\\/]/,'').substring(0,10)}
+                      <circle cx={node.width / 2} cy={pos.y - node.y} r={4} fill="green" />
+                      <text x={node.width / 2 + 6} y={pos.y - node.y + 3} fontSize={8} fill="#fff" textAnchor="start">
+                        {pin.wire.replace(/.*[\\/]/, '').substring(0, 10)}
                       </text>
                     </g>
                   );
@@ -463,7 +520,8 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
             );
           })}
 
-          {/* Render connections between internal nodes */}
+
+          {/* Render internal connections */}
           {circuitData.connections.map((conn, i) => {
             const fromPos = getPinPos(conn.from);
             const toPos = getPinPos(conn.to);
@@ -479,26 +537,29 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
             );
           })}
 
-          {/* Render top-level ports */}
+          {/* Render ports */}
           {Object.entries(circuitData.ports).map(([portName, dir]) => {
+            // Filtering standard ports if desired.
+            const standardPorts = ["\\D", "\\clk", "\\Q", "\\async_reset"];
+            if (!standardPorts.includes(portName)) return null;
             const pos = portPositions[portName];
             if (!pos) return null;
             const isInput = (dir === 'input');
             const fill = isInput ? '#a8d5ff' : '#ffb3b3';
             const stroke = isInput ? '#4285F4' : '#EA4335';
             return (
-              <g key={`port-${portName}`}>
-                <rect x={pos.x - 40} y={pos.y - 15} width={80} height={30}
-                      fill={fill} stroke={stroke} strokeWidth={2} rx={6} ry={6} />
-                <text x={pos.x} y={pos.y + 2} textAnchor="middle" alignmentBaseline="middle"
-                      fontSize={10} fill="#000" fontWeight="bold">
+              <g key={`port-${portName}`} className="draggable-port" data-port-name={portName} transform={`translate(${pos.x},${pos.y})`}>
+                <rect x={-40} y={-15} width={80} height={30}
+                  fill={fill} stroke={stroke} strokeWidth={2} rx={6} ry={6} />
+                <text x={0} y={2} textAnchor="middle" alignmentBaseline="middle"
+                  fontSize={10} fill="#000" fontWeight="bold">
                   {portName}
                 </text>
               </g>
             );
           })}
 
-          {/* Render connections from ports to internal nodes */}
+          {/* Render connections from ports to nodes */}
           {portConnectionsToDraw.map((pcd, i) => {
             const dx = pcd.toPos.x - pcd.fromPos.x;
             const controlOffset = Math.min(100, Math.abs(dx) / 2);
@@ -510,6 +571,52 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
               <path key={`portline-${i}`} d={path} fill="none" stroke="#fff" strokeWidth={1.5} markerEnd="url(#arrowhead)" />
             );
           })}
+
+          {/* Render tooltip if a node is hovered */}
+          {hoveredNode && (() => {
+            const inputLines = hoveredNode.inputs.length;
+            const outputLines = hoveredNode.outputs.length;
+            // Calculate tooltip height dynamically (20px for the title + 16px per line + some padding)
+            // Calculate tooltip dimensions based on content
+            const inputWireLength = Math.max(10, ...hoveredNode.inputs.map(pin => pin.wire.length));
+            const outputWireLength = Math.max(10, ...hoveredNode.outputs.map(pin => pin.wire.length));
+            const maxContentLength = Math.max(
+              hoveredNode.name.length,
+              inputWireLength + 8, // "Inputs: " + wire
+              outputWireLength + 9 // "Outputs: " + wire
+            );
+            
+            // Set minimum sizes with padding
+            const tooltipWidth = Math.max(200, maxContentLength * 7);
+            const tooltipHeight = 40 + 16 * (inputLines + outputLines + 2); // +2 for headers
+            return (
+              <g
+                className="tooltip"
+                transform={`translate(${hoveredNode.x + hoveredNode.width / 2 + 10}, ${hoveredNode.y - 20})`}
+              >
+                <rect x={0} y={0} width={tooltipWidth} height={tooltipHeight} fill="#fff" stroke="#000" rx={5} ry={5} />
+                <text x={10} y={16} fontSize="12" fill="#000" fontWeight="bold">
+                  {hoveredNode.name}
+                </text>
+                <text x={10} y={32} fontSize="10" fill="#000" fontWeight="bold">
+                  Inputs:
+                </text>
+                {hoveredNode.inputs.map((pin, index) => (
+                  <text key={`input-${index}`} x={20} y={32 + 16 * (index + 1)} fontSize="10" fill="#000">
+                    {pin.wire}
+                  </text>
+                ))}
+                <text x={10} y={32 + 16 * (inputLines + 1)} fontSize="10" fill="#000" fontWeight="bold">
+                  Outputs:
+                </text>
+                {hoveredNode.outputs.map((pin, index) => (
+                  <text key={`output-${index}`} x={20} y={32 + 16 * (inputLines + 2 + index)} fontSize="10" fill="#000">
+                    {pin.wire}
+                  </text>
+                ))}
+              </g>
+            );
+          })()}
         </g>
       </svg>
     </div>

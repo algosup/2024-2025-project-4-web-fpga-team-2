@@ -203,8 +203,8 @@ function TeacherPage() {
     }}>
       <h1 style={{
         textAlign: "left",
-        margin: "10px 0",
-        padding: "10px 0",
+        margin: "10px",
+        padding: "10px",
         position: "sticky",
         top: 0,
         zIndex: 100
