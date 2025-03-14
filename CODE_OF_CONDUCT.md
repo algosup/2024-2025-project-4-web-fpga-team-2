@@ -47,7 +47,7 @@ Inasmuch as a project manager, I think that a good behavior encourage a respectf
 
 ### 4. Accountability and Availability
 
-- Meet deadlines and commitments indicated in the [Gantt Chart](/Documents/Management/Documents/ganttChart.img).
+- Meet deadlines and commitments indicated in the [Gantt Chart](\Documents\Management\Images\ganttChart.png).
 - Communicate as soon as possible for a potential delay or absence.
 - Each member are responsible to his documents, its quality and its accuracy.
   - Note that it is advisable to seek help if you encounter any difficulties while performing your tasks.
