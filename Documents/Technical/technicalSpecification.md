@@ -85,13 +85,20 @@ To see all Requirements it is recommended to read the [functional specification]
 
 
 
-### B. Components
+## Frontend
 
-### C. Technologies
+The front end of the website will be made using HyperText Markup Language (HTML)[^html], Cascading Style Sheets (CSS)[^css] , and JavaScript (JS)[^js] .
 
-(parseur)
+HTML is used to build the structure of the website , which can then be interpreted by any browser on any hardware to display the website.<br>
+We then use CSS to modify the appearance of the website, making it more visually appealing, which results in a more attractive website and a better user experience. <br>
+Finally, JS is used to handle events and modify the webpage directly from the browser, such as 
+
+## Backend
+
+
 
 ## Glossary
+
 
 [^FPGA] : FPGA is an acronym for Field Programmable Gate Array. it is an integrated circuit with basic elements and preconfigured electrical signal routes between them.
 
@@ -99,7 +106,7 @@ To see all Requirements it is recommended to read the [functional specification]
 
 [^css] : CSS is an acronym for Cascading Style Sheets that is a style sheet language used for specifying the presentation and styling of a document written in a markup language. [Source](https://en.wikipedia.org/wiki/CSS)
 
-[^javascript] : is a programming language and core technology of the World Wide Web, alongside HTML and CSS.[Source](https://en.wikipedia.org/wiki/JavaScript)
+[^js] : is a programming language and core technology of the World Wide Web, alongside HTML and CSS.[Source](https://en.wikipedia.org/wiki/JavaScript)
 
 [^node.js] : Node.js an asynchronous event-driven JavaScript runtime that is designed to build scalable network applications. [Source](https://nodejs.org/en/about)
 

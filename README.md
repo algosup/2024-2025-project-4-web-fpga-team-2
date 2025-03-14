@@ -34,7 +34,7 @@ An FPGA is a reprogrammable electronic chip that allows users to create custom c
 
 ## 📂 Project Document
 
-📄 [**Functional Specifications**]() <br>
+📄 [**Functional Specifications**](https://github.com/algosup/2024-2025-project-4-web-fpga-team-2/blob/main/Document/Functional/functionalSpecification.md) <br>
 ⚙️ [**Technical Specifications** ]() <br>
 🧪 [**Test Plan** ]() <br>
 ✅ [**Test Cases**]() <br>
