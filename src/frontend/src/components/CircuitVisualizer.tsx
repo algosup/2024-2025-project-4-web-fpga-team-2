@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import * as d3 from 'd3';
-// Fix dagre import - this is likely the main issue
-import dagre from 'dagre';
+import * as dagreLib from 'dagre';
+
+const dagre = dagreLib;
 
 interface ComponentPin {
   wire: string;
@@ -16,6 +17,13 @@ interface ComponentNode {
   type: string;
   inputs: ComponentPin[];
   outputs: ComponentPin[];
+}
+
+interface Interconnect {
+  name: string;
+  type: string;
+  datain: string;
+  dataout: string;
 }
 
 interface Connection {
@@ -34,15 +42,8 @@ interface Connection {
   wire: string;
 }
 
-interface Interconnect {
-  name: string;
-  type: string;
-  datain: string;
-  dataout: string;
-}
-
 interface PortMap {
-  [key: string]: string;
+  [key: string]: string; // e.g. { "\\D": "input", "\\clk": "input", "\\Q": "output" }
 }
 
 interface CircuitData {
@@ -63,7 +64,7 @@ interface CircuitVisualizerProps {
 
 /** Node info stored by Dagre after layout. */
 interface DagreNode {
-  comp: ComponentNode;    // the actual component
+  comp: ComponentNode;
   width: number;
   height: number;
   x: number;
@@ -84,6 +85,14 @@ interface Position {
   y: number;
 }
 
+/** For drawing lines from ports to pins */
+interface PortConnectionDraw {
+  portName: string;
+  fromPos: Position;
+  toPos: Position;
+  wire: string;
+}
+
 const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFile }) => {
   const [circuitData, setCircuitData] = useState<CircuitData | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -93,7 +102,7 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
   const svgId = useMemo(() => `circuit-svg-${Math.random().toString(36).substring(7)}`, []);
   const filePath = useMemo(() => jsonPath || jsonFile || '', [jsonPath, jsonFile]);
 
-  // Fetch the JSON data
+  // 1) Load JSON data
   useEffect(() => {
     setError(null);
     if (!filePath) {
@@ -104,7 +113,6 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
 
     const fullPath = (() => {
       if (filePath.startsWith('http')) return filePath;
-      // Check if we're in a browser environment
       if (typeof window !== 'undefined') {
         const isDev =
           process.env.NODE_ENV === 'development' ||
@@ -118,13 +126,11 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
     })();
 
     fetch(fullPath, { headers: { Accept: 'application/json' }, mode: 'cors' })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`HTTP error ${response.status}: ${response.statusText}`);
-        }
+      .then(response => {
+        if (!response.ok) throw new Error(`HTTP error ${response.status}: ${response.statusText}`);
         return response.text();
       })
-      .then((text) => {
+      .then(text => {
         try {
           const parsed = JSON.parse(text);
           if (!parsed || typeof parsed !== 'object') throw new Error('Invalid JSON structure');
@@ -135,7 +141,6 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
         }
       })
       .then((data: CircuitData) => {
-        // Ensure all required arrays and objects exist
         data.interconnects = data.interconnects || [];
         data.wires = data.wires || [];
         data.ports = data.ports || {};
@@ -143,108 +148,98 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
         data.connections = data.connections || [];
         setCircuitData(data);
       })
-      .catch((err) => {
+      .catch(err => {
         console.error('Error loading circuit:', err);
         setError(err.message || 'Failed to load circuit data');
       })
       .finally(() => setLoading(false));
   }, [filePath]);
 
-  // D3 zoom & auto-fit
+  // 2) D3 Zoom & Pan
   useEffect(() => {
     if (!circuitData || !svgRef.current) return;
-    
     const svg = d3.select(svgRef.current);
     const g = svg.select<SVGGElement>('g.main-content');
-    
-    // Fix the zoom behavior implementation
     const zoomBehavior = d3.zoom<SVGSVGElement, unknown>()
       .scaleExtent([0.1, 10])
-      .on('zoom', (event) => {
+      .on('zoom', event => {
         g.attr('transform', event.transform);
       });
-    
-    // Apply zoom to SVG element - fixed type casting
-    svg.call(zoomBehavior);
-    
-    // Auto-center and fit to view
+    svg.call(zoomBehavior as any);
     setTimeout(() => {
       const bbox = g.node()?.getBBox();
       if (!bbox) return;
-      
-      // Get actual SVG dimensions
       const svgWidth = svgRef.current?.clientWidth || +svg.attr('width');
       const svgHeight = svgRef.current?.clientHeight || +svg.attr('height');
-      
-      // Calculate appropriate scale
-      const scale = 0.9 / Math.max(bbox.width / svgWidth, bbox.height / svgHeight);
-      
-      // Calculate translation to center
+      const scale = Math.min(0.9, 0.9 / Math.max(bbox.width / svgWidth, bbox.height / svgHeight));
       const translate = [
         svgWidth / 2 - scale * (bbox.x + bbox.width / 2),
         svgHeight / 2 - scale * (bbox.y + bbox.height / 2),
       ];
-      
-      // Apply transform
-      svg.call(
-        zoomBehavior.transform,
-        d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale)
-      );
-    }, 100); // Increased timeout for better browser rendering cycles
+      svg.call(zoomBehavior.transform as any, d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale));
+    }, 100);
   }, [circuitData]);
 
-  // Layout computation with dagre
+  // 3) Merge components and interconnects into one array
+  const allNodes = useMemo<ComponentNode[]>(() => {
+    if (!circuitData) return [];
+    // For interconnects, assign pins using their datain and dataout.
+    const interNodes = circuitData.interconnects.map(ic => ({
+      name: ic.name,
+      type: ic.type, // e.g., "interconnect"
+      inputs: [{ wire: ic.datain, pinIndex: 0 }],
+      outputs: [{ wire: ic.dataout, pinIndex: 0 }]
+    }));
+    return [...circuitData.components, ...interNodes];
+  }, [circuitData]);
+
+  // 4) Run Dagre Layout on all nodes (components and interconnects)
   const positionedComponents = useMemo<PositionedComponent[]>(() => {
     if (!circuitData) return [];
-
     try {
-      // Create a new dagre graph
       const g = new dagre.graphlib.Graph();
-      
-      // Set graph properties
       g.setGraph({
-        rankdir: 'LR',   // left-to-right dataflow
-        ranksep: 150,    // vertical separation
-        nodesep: 100,    // horizontal separation
-        edgesep: 50,     // separation between edges
-        marginx: 20,
-        marginy: 20
+        rankdir: 'LR',
+        ranksep: 50,
+        nodesep: 50,
+        edgesep: 25,
+        marginx: 25,
+        marginy: 25,
+        acyclicer: 'greedy',
+        ranker: 'longest-path'
       });
-      
-      // Set default edge label
       g.setDefaultEdgeLabel(() => ({}));
-
-      // Add each component as a node
-      circuitData.components.forEach((comp) => {
-        // Size depends on number of pins
-        const numPins = Math.max(comp.inputs.length, comp.outputs.length);
-        const height = Math.max(60, numPins * 20);
-        g.setNode(comp.name, { 
-          comp, 
-          width: 120, 
-          height: height,
-          label: comp.name // Label is required by dagre
+      allNodes.forEach(node => {
+        let width = 75;
+        let height = 40;
+        if (node.type.toLowerCase().includes('interconnect')) {
+          width = 40;
+          height = 40;
+        } else {
+          const numPins = Math.max(node.inputs.length, node.outputs.length);
+          height = Math.max(60, numPins * 18);
+        }
+        g.setNode(node.name, {
+          comp: node,
+          width,
+          height,
+          label: node.name,
         });
       });
-
-      // Add edges from connections
-      const compNames = new Set(circuitData.components.map(c => c.name));
-      
+      const nodeNames = new Set(allNodes.map(n => n.name));
       circuitData.connections.forEach(conn => {
-        if (compNames.has(conn.from.component) && compNames.has(conn.to.component)) {
-          g.setEdge(conn.from.component, conn.to.component);
+        const fromComp = conn.from.component;
+        const toComp = conn.to.component;
+        if (nodeNames.has(fromComp) && nodeNames.has(toComp)) {
+          g.setEdge(fromComp, toComp, { weight: 1, minlen: 3 });
         }
       });
-
-      // Run the layout
       dagre.layout(g);
-
-      // Extract positioned components
-      const finalComps: PositionedComponent[] = [];
+      const finalNodes: PositionedComponent[] = [];
       g.nodes().forEach(nodeId => {
         const nodeData = g.node(nodeId);
         if (nodeData && 'comp' in nodeData) {
-          finalComps.push({
+          finalNodes.push({
             ...(nodeData.comp as ComponentNode),
             x: nodeData.x,
             y: nodeData.y,
@@ -253,292 +248,270 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
           });
         }
       });
-      
-      return finalComps;
+      return finalNodes;
     } catch (error) {
-      console.error("Error in dagre layout:", error);
-      // Fallback to a simple layout if dagre fails
-      return circuitData.components.map((comp, i) => ({
-        ...comp,
-        x: 200 + (i % 5) * 200,
-        y: 100 + Math.floor(i / 5) * 150,
-        width: 120,
-        height: 60
+      console.error('Error in dagre layout:', error);
+      return allNodes.map((node, i) => ({
+        ...node,
+        x: 200 + i * 200,
+        y: 200,
+        width: node.type.toLowerCase().includes('interconnect') ? 80 : 150,
+        height: node.type.toLowerCase().includes('interconnect') ? 30 : 80
       }));
     }
-  }, [circuitData]);
+  }, [circuitData, allNodes]);
 
-  // Pin positions calculation
+  // 5) Compute pin positions for each node.
+  // For nodes without defined pins (or interconnects), assign default center pin.
   const pinPositions = useMemo<Record<string, { inputs: Record<number, Position>, outputs: Record<number, Position> }>>(() => {
     const posMap: Record<string, { inputs: Record<number, Position>, outputs: Record<number, Position> }> = {};
-    
     positionedComponents.forEach(pc => {
-      // Sort inputs & outputs by pin index
-      const compInputs = [...pc.inputs].sort((a, b) => a.pinIndex - b.pinIndex);
-      const compOutputs = [...pc.outputs].sort((a, b) => a.pinIndex - b.pinIndex);
-
-      // Calculate input pin positions
-      const inMap: Record<number, Position> = {};
-      compInputs.forEach((pin, i) => {
-        const yStep = pc.height / (compInputs.length + 1);
-        const pinY = pc.y - pc.height / 2 + (i + 1) * yStep;
-        inMap[pin.pinIndex] = { x: pc.x - pc.width / 2, y: pinY };
-      });
-
-      // Calculate output pin positions
-      const outMap: Record<number, Position> = {};
-      compOutputs.forEach((pin, i) => {
-        const yStep = pc.height / (compOutputs.length + 1);
-        const pinY = pc.y - pc.height / 2 + (i + 1) * yStep;
-        outMap[pin.pinIndex] = { x: pc.x + pc.width / 2, y: pinY };
-      });
-
-      posMap[pc.name] = { inputs: inMap, outputs: outMap };
+      if (pc.inputs.length === 0 && pc.outputs.length === 0) {
+        posMap[pc.name] = {
+          inputs: { 0: { x: pc.x, y: pc.y } },
+          outputs: { 0: { x: pc.x, y: pc.y } }
+        };
+      } else {
+        const compInputs = [...(pc.inputs || [])].sort((a, b) => a.pinIndex - b.pinIndex);
+        const compOutputs = [...(pc.outputs || [])].sort((a, b) => a.pinIndex - b.pinIndex);
+        const inMap: Record<number, Position> = {};
+        compInputs.forEach((pin, i) => {
+          const yStep = pc.height / (compInputs.length + 1);
+          const pinY = pc.y - pc.height / 2 + (i + 1) * yStep;
+          inMap[pin.pinIndex] = { x: pc.x - pc.width / 2, y: pinY };
+        });
+        const outMap: Record<number, Position> = {};
+        compOutputs.forEach((pin, i) => {
+          const yStep = pc.height / (compOutputs.length + 1);
+          const pinY = pc.y - pc.height / 2 + (i + 1) * yStep;
+          outMap[pin.pinIndex] = { x: pc.x + pc.width / 2, y: pinY };
+        });
+        posMap[pc.name] = { inputs: inMap, outputs: outMap };
+      }
     });
-    
     return posMap;
   }, [positionedComponents]);
 
-  // Interconnect positions calculation
-  const interPos = useMemo<Record<string, { x: number, y: number }>>(() => {
+  // 6) Manually position top-level ports (they remain outside of Dagre)
+  const svgWidth = 1200;
+  const lastComponentXPosition = positionedComponents.reduce((max, pc) => Math.max(max, pc.x), 0) + 200;
+  const firstComponentXPosition = positionedComponents.reduce((min, pc) => Math.min(min, pc.x), 0) - 200;
+  const portPositions = useMemo<Record<string, Position>>(() => {
+    // If there's no circuitData yet, return an empty object
     if (!circuitData) return {};
-    
-    const result: Record<string, { x: number, y: number }> = {};
-    
-    circuitData.interconnects.forEach(ic => {
-      let srcPos: Position | undefined;
-      let tgtPos: Position | undefined;
-      
-      // Find source and target positions
-      positionedComponents.forEach(pc => {
-        pc.outputs.forEach(op => {
-          if (op.wire === ic.datain) {
-            srcPos = pinPositions[pc.name]?.outputs[op.pinIndex];
+  
+    let inputCount = 0;
+    let outputCount = 0;
+    const pos: Record<string, Position> = {};
+  
+    Object.entries(circuitData.ports).forEach(([portName, direction]) => {
+      const isInput = (direction === "input");
+      if (isInput) {
+        pos[portName] = { x: firstComponentXPosition, y: 100 + inputCount * 80 };
+        inputCount++;
+      } else {
+        pos[portName] = { x: lastComponentXPosition, y: 100 + outputCount * 80 };
+        outputCount++;
+      }
+    });
+  
+    return pos;
+  }, [circuitData, svgWidth]);
+
+  // 7) Infer port wire names based on naming conventions.
+  // For input ports, look for wires that contain the port name and "_output_".
+  // For output ports, look for wires that contain the port name and "_input_".
+  const inferredPortWires = useMemo<Record<string, string>>(() => {
+    if (!circuitData) return {};
+    const map: Record<string, string> = {};
+    Object.entries(circuitData.ports).forEach(([portName, dir]) => {
+      let candidate = "";
+      if (dir === "input") {
+        candidate = circuitData.wires.find(w => w.indexOf(portName) !== -1 && w.includes("_output_")) || portName;
+      } else {
+        candidate = circuitData.wires.find(w => w.indexOf(portName) !== -1 && w.includes("_input_")) || portName;
+      }
+      map[portName] = candidate;
+    });
+    return map;
+  }, [circuitData]);
+
+  // 8) Build connections from ports to internal nodes using inferred wires.
+  // For each port, we search all positioned nodes for a pin whose wire exactly matches the inferred wire.
+  const portConnectionsToDraw = useMemo<PortConnectionDraw[]>(() => {
+    if (!circuitData) return [];
+    const results: PortConnectionDraw[] = [];
+    Object.entries(circuitData.ports).forEach(([portName, dir]) => {
+      const portPos = portPositions[portName];
+      if (!portPos) return;
+      const wire = inferredPortWires[portName];
+      if (!wire) return;
+      positionedComponents.forEach((node) => {
+        // Check node inputs
+        node.inputs.forEach((pin) => {
+          if (pin.wire === wire) {
+            const pinPos = pinPositions[node.name]?.inputs[pin.pinIndex];
+            if (pinPos) {
+              // For an input port, draw a line from port -> pin.
+              results.push({ portName, fromPos: portPos, toPos: pinPos, wire });
+            }
           }
         });
-        
-        pc.inputs.forEach(inp => {
-          if (inp.wire === ic.dataout) {
-            tgtPos = pinPositions[pc.name]?.inputs[inp.pinIndex];
+        // Check node outputs
+        node.outputs.forEach((pin) => {
+          if (pin.wire === wire) {
+            const pinPos = pinPositions[node.name]?.outputs[pin.pinIndex];
+            if (pinPos) {
+              // For an output port, draw a line from pin -> port.
+              results.push({ portName, fromPos: pinPos, toPos: portPos, wire });
+            }
           }
         });
       });
-
-      // Default positions if not found
-      if (!srcPos && !tgtPos) {
-        // Position it somewhere in the middle as fallback
-        result[ic.name] = { x: 400, y: 300 };
-      } else if (!srcPos) {
-        result[ic.name] = { x: (tgtPos!.x - 100), y: tgtPos!.y };
-      } else if (!tgtPos) {
-        result[ic.name] = { x: (srcPos.x + 100), y: srcPos.y };
-      } else {
-        // Average the positions
-        result[ic.name] = {
-          x: (srcPos.x + tgtPos.x) / 2,
-          y: (srcPos.y + tgtPos.y) / 2
-        };
-      }
     });
-    
-    return result;
-  }, [circuitData, positionedComponents, pinPositions]);
+    return results;
+  }, [circuitData, portPositions, positionedComponents, pinPositions, inferredPortWires]);
 
-  // Helper to get pin position
-  const getPinPos = (end: { component: string; pinIndex: number; port?: string }): Position | undefined => {
-    // Check for component
-    const pc = positionedComponents.find(c => c.name === end.component);
-    if (pc) {
-      const isOutput = end.port === 'out';
-      const pinPositionsForComponent = pinPositions[pc.name];
-      
-      if (!pinPositionsForComponent) return undefined;
-      
-      return isOutput
-        ? pinPositionsForComponent.outputs[end.pinIndex]
-        : pinPositionsForComponent.inputs[end.pinIndex];
-    }
-    
-    // Check for interconnect
-    return interPos[end.component];
+  // 9) Helper to get pin positions for drawing normal internal connections.
+  const getPinPos = (end: { component: string; pinIndex: number; type: string; port?: string }): Position | undefined => {
+    const node = positionedComponents.find(c => c.name === end.component);
+    if (!node) return undefined;
+    const isOutput = (end.type.toLowerCase() === 'output' || (end.port && end.port.toLowerCase() === 'out'));
+    const map = pinPositions[node.name];
+    if (!map) return undefined;
+    const index = end.pinIndex || 0;
+    return isOutput ? map.outputs[index] : map.inputs[index];
   };
 
-  // Render connections with bezier curves
-  function renderConnections() {
-    if (!circuitData) return null;
-    
-    return circuitData.connections.map((conn, i) => {
-      const source = getPinPos(conn.from);
-      const target = getPinPos(conn.to);
-      
-      if (!source || !target) return null;
-      
-      // Control points for bezier curve
-      const dx = target.x - source.x;
-      const controlPointOffset = Math.min(100, Math.abs(dx) * 0.5);
-      
-      // Create path with control points
-      const path = `M${source.x},${source.y} C${source.x + controlPointOffset},${source.y} ${target.x - controlPointOffset},${target.y} ${target.x},${target.y}`;
-      
-      return (
-        <path 
-          key={`conn-${i}`} 
-          d={path} 
-          fill="none" 
-          stroke="#fff" 
-          strokeWidth={1.5} 
-          markerEnd="url(#arrowhead)" 
-        />
-      );
-    });
-  }
-
+  // 10) Render everything
   if (!filePath) return <div>No circuit file path provided.</div>;
   if (loading) return <div>Loading circuit data...</div>;
   if (error) return <div>Error: {error}</div>;
   if (!circuitData) return <div>No circuit data loaded.</div>;
 
-  // Render
-  const width = 1200;
-  const height = 800;
-
   return (
-    <div style={{ color: '#fff' }}>
-      <h2>Circuit Visualizer – Module: {circuitData.module}</h2>
-      <svg
-        id={svgId}
-        ref={svgRef}
-        width={width}
-        height={height}
-        style={{ border: '1px solid gray', background: '#1E1E1E' }}
-      >
+    <div style={{ color: '#fff'}}>
+      <svg id={svgId} ref={svgRef} style={{ backgroundColor: "#313131", backgroundImage: "radial-gradient(rgba(255, 255 255, 0.171) 2px, transparent 0)", backgroundSize: "30px 30px", backgroundPosition: "-5px -5px", width: '100%', height: '100vh' }}>
         <defs>
-          <marker
-            id="arrowhead"
-            viewBox="0 0 10 10"
-            refX="9"
-            refY="5"
-            markerWidth="6"
-            markerHeight="6"
-            orient="auto"
-          >
+          <marker id="arrowhead" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
             <path d="M 0 0 L 10 5 L 0 10 z" fill="#fff" />
           </marker>
         </defs>
         <g className="main-content">
-          {/* Components */}
-          {positionedComponents.map((pc, i) => (
-            <g key={`comp-${i}`} data-name={pc.name}>
-              <rect
-                x={pc.x - pc.width / 2}
-                y={pc.y - pc.height / 2}
-                width={pc.width}
-                height={pc.height}
-                fill="#444"
-                stroke="#ccc"
-                rx={8}
-                ry={8}
-              />
-              <text
-                x={pc.x}
-                y={pc.y}
-                textAnchor="middle"
-                alignmentBaseline="middle"
-                fontSize={10}
-                fill="#fff"
-              >
-                {pc.name.split(/[/\\]/).pop()} ({pc.type})
-              </text>
-              {/* Input pins */}
-              {pc.inputs.sort((a, b) => a.pinIndex - b.pinIndex).map(pin => {
-                const ppos = pinPositions[pc.name]?.inputs[pin.pinIndex];
-                if (!ppos) return null;
-                
-                return (
-                  <g key={`in-${pc.name}-${pin.pinIndex}`}>
-                    <circle cx={ppos.x} cy={ppos.y} r={4} fill="blue" />
-                    <text
-                      x={ppos.x - 6}
-                      y={ppos.y + 3}
-                      fontSize={8}
-                      fill="#fff"
-                      textAnchor="end"
-                    >
-                      {pin.wire.split(/[/\\]/).pop()}
-                    </text>
-                  </g>
-                );
-              })}
-              {/* Output pins */}
-              {pc.outputs.sort((a, b) => a.pinIndex - b.pinIndex).map(pin => {
-                const ppos = pinPositions[pc.name]?.outputs[pin.pinIndex];
-                if (!ppos) return null;
-                
-                return (
-                  <g key={`out-${pc.name}-${pin.pinIndex}`}>
-                    <circle cx={ppos.x} cy={ppos.y} r={4} fill="green" />
-                    <text
-                      x={ppos.x + 6}
-                      y={ppos.y + 3}
-                      fontSize={8}
-                      fill="#fff"
-                      textAnchor="start"
-                    >
-                      {pin.wire.split(/[/\\]/).pop()}
-                    </text>
-                  </g>
-                );
-              })}
-            </g>
-          ))}
-
-          {/* Interconnects */}
-          {circuitData.interconnects.map((ic, i) => {
-            const pos = interPos[ic.name];
-            if (!pos) return null;
-            
+          {/* Render all nodes (components and interconnects) */}
+          {positionedComponents.map((node) => {
+            // For interconnects, use a different style
+            if (node.type.toLowerCase().includes('interconnect')) {
+              return (
+                <g key={`node-${node.name}`}>
+                  <rect x={node.x - node.width / 2} y={node.y - node.height / 2}
+                        width={node.width} height={node.height}
+                        fill="#ffffcc" stroke="#999" strokeDasharray="4" />
+                  <text x={node.x} y={node.y} textAnchor="middle" alignmentBaseline="middle" fontSize={10} fill="#000">
+                    {node.name.split(/[/\\]/).pop()}
+                  </text>
+                </g>
+              );
+            }
+            // Otherwise, render as a regular component.
+            let fill = '#444', stroke = '#ccc', textFill = '#fff';
+            const t = node.type.toUpperCase();
+            if (t.includes('INPUT')) { fill = '#a8d5ff'; stroke = '#4285F4'; textFill = '#000'; }
+            else if (t.includes('OUTPUT')) { fill = '#ffb3b3'; stroke = '#EA4335'; textFill = '#000'; }
+            else if (t.includes('DFF') || t.includes('FLIP')) { fill = '#c5e1a5'; stroke = '#34A853'; textFill = '#000'; }
+            else if (t.includes('LUT')) { fill = '#fff176'; stroke = '#FBBC05'; textFill = '#000'; }
             return (
-              <g key={`ic-${ic.name}`}>
-                <rect
-                  x={pos.x - 15}
-                  y={pos.y - 10}
-                  width={30}
-                  height={20}
-                  fill="rgba(255, 255, 0, 0.7)"
-                  stroke="#333"
-                  strokeDasharray="4"
-                />
-                <text
-                  x={pos.x}
-                  y={pos.y + 4}
-                  textAnchor="middle"
-                  fontSize={8}
-                  fill="#000"
-                >
-                  {ic.name.split(/[/\\]/).pop()}
+              <g key={`node-${node.name}`}>
+                <rect x={node.x - node.width / 2} y={node.y - node.height / 2}
+                      width={node.width} height={node.height}
+                      fill={fill} stroke={stroke} strokeWidth={2} rx={8} ry={8} />
+                <text x={node.x} y={node.y} textAnchor="middle" alignmentBaseline="middle"
+                      fontSize={12} fill={textFill} fontWeight="bold">
+                  {node.name}
+                </text>
+                <text x={node.x} y={node.y + 14} textAnchor="middle" alignmentBaseline="middle"
+                      fontSize={9} fill={textFill}>
+                  {node.type}
+                </text>
+                {/* Render pins for non-interconnect nodes */}
+                {node.inputs.sort((a, b) => a.pinIndex - b.pinIndex).map(pin => {
+                  const pos = pinPositions[node.name]?.inputs[pin.pinIndex];
+                  if (!pos) return null;
+                  return (
+                    <g key={`pin-in-${node.name}-${pin.pinIndex}`}>
+                      <circle cx={pos.x} cy={pos.y} r={4} fill="blue" />
+                      <text x={pos.x - 6} y={pos.y + 3} fontSize={8} fill="#fff" textAnchor="end">
+                        {pin.wire.replace(/.*[\\/]/,'').substring(0,10)}
+                        {pin.constant && (pin.value === 1 ? ' (1)' : ' (0)')}
+                      </text>
+                    </g>
+                  );
+                })}
+                {node.outputs.sort((a, b) => a.pinIndex - b.pinIndex).map(pin => {
+                  const pos = pinPositions[node.name]?.outputs[pin.pinIndex];
+                  if (!pos) return null;
+                  return (
+                    <g key={`pin-out-${node.name}-${pin.pinIndex}`}>
+                      <circle cx={pos.x} cy={pos.y} r={4} fill="green" />
+                      <text x={pos.x + 6} y={pos.y + 3} fontSize={8} fill="#fff" textAnchor="start">
+                        {pin.wire.replace(/.*[\\/]/,'').substring(0,10)}
+                      </text>
+                    </g>
+                  );
+                })}
+              </g>
+            );
+          })}
+
+          {/* Render connections between internal nodes */}
+          {circuitData.connections.map((conn, i) => {
+            const fromPos = getPinPos(conn.from);
+            const toPos = getPinPos(conn.to);
+            if (!fromPos || !toPos) return null;
+            const dx = toPos.x - fromPos.x;
+            const controlOffset = Math.min(50, Math.abs(dx) / 2);
+            const path = `M${fromPos.x},${fromPos.y} 
+                          C${fromPos.x + controlOffset},${fromPos.y} 
+                            ${toPos.x - controlOffset},${toPos.y} 
+                            ${toPos.x},${toPos.y}`;
+            return (
+              <path key={`conn-${i}`} d={path} fill="none" stroke="#fff" strokeWidth={1.5} markerEnd="url(#arrowhead)" />
+            );
+          })}
+
+          {/* Render top-level ports */}
+          {Object.entries(circuitData.ports).map(([portName, dir]) => {
+            const pos = portPositions[portName];
+            if (!pos) return null;
+            const isInput = (dir === 'input');
+            const fill = isInput ? '#a8d5ff' : '#ffb3b3';
+            const stroke = isInput ? '#4285F4' : '#EA4335';
+            return (
+              <g key={`port-${portName}`}>
+                <rect x={pos.x - 40} y={pos.y - 15} width={80} height={30}
+                      fill={fill} stroke={stroke} strokeWidth={2} rx={6} ry={6} />
+                <text x={pos.x} y={pos.y + 2} textAnchor="middle" alignmentBaseline="middle"
+                      fontSize={10} fill="#000" fontWeight="bold">
+                  {portName}
                 </text>
               </g>
             );
           })}
 
-          {/* Connections */}
-          {renderConnections()}
+          {/* Render connections from ports to internal nodes */}
+          {portConnectionsToDraw.map((pcd, i) => {
+            const dx = pcd.toPos.x - pcd.fromPos.x;
+            const controlOffset = Math.min(100, Math.abs(dx) / 2);
+            const path = `M${pcd.fromPos.x},${pcd.fromPos.y}
+                          C${pcd.fromPos.x + controlOffset},${pcd.fromPos.y}
+                            ${pcd.toPos.x - controlOffset},${pcd.toPos.y}
+                            ${pcd.toPos.x},${pcd.toPos.y}`;
+            return (
+              <path key={`portline-${i}`} d={path} fill="none" stroke="#fff" strokeWidth={1.5} markerEnd="url(#arrowhead)" />
+            );
+          })}
         </g>
       </svg>
-
-      {/* Summary */}
-      {circuitData.summary && (
-        <div style={{ marginTop: '20px' }}>
-          <h3>Circuit Summary</h3>
-          <p>Total Components: {circuitData.components.length}</p>
-          <p>Total Interconnects: {circuitData.interconnects.length}</p>
-          <p>Total Connections: {circuitData.connections.length}</p>
-          {circuitData.summary.total_components && <p>Summary Components: {circuitData.summary.total_components}</p>}
-          {circuitData.summary.total_ports && <p>Summary Ports: {circuitData.summary.total_ports}</p>}
-          {circuitData.summary.total_interconnects && <p>Summary Interconnects: {circuitData.summary.total_interconnects}</p>}
-          {circuitData.summary.total_connections && <p>Summary Connections: {circuitData.summary.total_connections}</p>}
-        </div>
-      )}
     </div>
   );
 };

@@ -202,7 +202,7 @@ function TeacherPage() {
       flexDirection: "column"
     }}>
       <h1 style={{
-        textAlign: "center",
+        textAlign: "left",
         margin: "10px 0",
         padding: "10px 0",
         position: "sticky",
@@ -426,7 +426,7 @@ function TeacherPage() {
         <div style={{
           flex: "3",
           height: "100%",
-          overflowY: "auto"
+          overflowY: "hidden"
         }}>
           <div style={{
             height: "100%",

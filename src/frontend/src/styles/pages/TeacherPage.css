@@ -1,0 +1,108 @@
+/* TeacherPage.css */
+
+.teacher-page {
+    width: 100vw;
+    height: 100vh;
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .teacher-header {
+    text-align: left;
+    margin: 10px 0;
+    padding: 10px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  
+  .teacher-content {
+    display: flex;
+    width: 100%;
+    height: calc(100vh - 60px);
+    overflow: hidden;
+    padding: 0 10px 10px 10px;
+    box-sizing: border-box;
+  }
+  
+  .left-panel {
+    flex: 1;
+    max-width: 400px;
+    height: 100%;
+    overflow-y: auto;
+    padding-right: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .upload-section,
+  .circuit-list-section {
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+  }
+  
+  .circuit-list-section {
+    flex-grow: 1;
+    overflow-y: auto;
+  }
+  
+  .circuit-list-item {
+    padding: 10px;
+    margin-bottom: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  .visualization-panel {
+    flex: 3;
+    height: 100%;
+    overflow-y: hidden;
+  }
+  
+  .circuit-visualization-container {
+    height: 100%;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .button-upload {
+    background-color: #4caf50;
+    color: white;
+    width: 100%;
+  }
+  
+  .button-delete {
+    background-color: #f44336;
+    color: white;
+    width: 70px;
+  }
+  
+  .button-load {
+    background-color: #4caf50;
+    color: white;
+    width: 70px;
+  }
+  
+  .checkbox {
+    margin-right: 10px;
+    width: 18px;
+    height: 18px;
+    margin-top: 3px;
+  }
