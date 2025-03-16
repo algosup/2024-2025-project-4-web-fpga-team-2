@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, DragEvent } from "react";
 import CircuitVisualizer from "../components/CircuitVisualizer";
 
 // Define type for circuit data
@@ -11,13 +11,16 @@ interface Circuit {
 }
 
 function TeacherPage() {
-  const [files, setFiles] = useState<FileList | null>(null);
   const [circuits, setCircuits] = useState<Circuit[]>([]);
   const [selectedCircuit, setSelectedCircuit] = useState<Circuit | null>(null);
   const [circuitName, setCircuitName] = useState<string>("");
   const [circuitDescription, setCircuitDescription] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [selectedCircuits, setSelectedCircuits] = useState<Set<string>>(new Set());
+
+  // Separate state for each file type:
+  const [vFile, setVFile] = useState<File | null>(null);
+  const [sdfFile, setSdfFile] = useState<File | null>(null);
 
   // Fetch available circuits on component mount
   useEffect(() => {
@@ -28,7 +31,6 @@ function TeacherPage() {
     try {
       setLoading(true);
       const response = await fetch("http://localhost:5001/circuits");
-
       if (response.ok) {
         const data = await response.json();
         setCircuits(data);
@@ -59,29 +61,21 @@ function TeacherPage() {
       alert("No circuits selected for deletion.");
       return;
     }
-
     if (!window.confirm(`Are you sure you want to delete ${selectedCircuits.size} selected circuit(s)?`)) {
       return;
     }
-
     setLoading(true);
     try {
       const deletePromises = Array.from(selectedCircuits).map(id =>
-        fetch(`http://localhost:5001/circuits/${id}`, {
-          method: "DELETE",
-        })
+        fetch(`http://localhost:5001/circuits/${id}`, { method: "DELETE" })
       );
-
       const results = await Promise.all(deletePromises);
       const allSuccessful = results.every(res => res.ok);
-
       if (allSuccessful) {
         setCircuits(circuits.filter(c => !selectedCircuits.has(c.id)));
-
         if (selectedCircuit && selectedCircuits.has(selectedCircuit.id)) {
           setSelectedCircuit(null);
         }
-
         setSelectedCircuits(new Set());
         alert("Selected circuits deleted successfully!");
       } else {
@@ -94,57 +88,76 @@ function TeacherPage() {
       setLoading(false);
     }
   };
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files && event.target.files.length === 2) {
-      const fileList = event.target.files;
-      const validFiles = Array.from(fileList).filter(file =>
-        file.name.endsWith(".v") || file.name.endsWith(".sdf")
-      );
 
-      if (validFiles.length === 2) {
-        setFiles(fileList);
-      } else {
-        alert("You must upload exactly one .v file and one .sdf file.");
-        setFiles(null);
-      }
+  // File processing helpers:
+  function handleSingleFile(file: File) {
+    if (file.name.endsWith(".v")) {
+      setVFile(file);
+    } else if (file.name.endsWith(".sdf")) {
+      setSdfFile(file);
     } else {
-      alert("Please select exactly two files: one .v file and one .sdf file.");
-      setFiles(null);
+      alert("File must be .v or .sdf");
     }
-  };
+  }
 
+  function handleMultipleFiles(fileList: FileList) {
+    Array.from(fileList).forEach(file => {
+      handleSingleFile(file);
+    });
+  }
+
+  function removeFile(type: "v" | "sdf") {
+    if (type === "v") {
+      setVFile(null);
+    } else {
+      setSdfFile(null);
+    }
+  }
+
+  function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
+    if (!event.target.files) return;
+    handleMultipleFiles(event.target.files);
+    // Reset the input value to allow re-uploading the same file if needed.
+    event.target.value = "";
+  }
+
+  function handleDrop(event: DragEvent<HTMLDivElement>) {
+    event.preventDefault();
+    if (event.dataTransfer.files) {
+      handleMultipleFiles(event.dataTransfer.files);
+    }
+  }
+  function handleDragOver(event: DragEvent<HTMLDivElement>) {
+    event.preventDefault();
+  }
+
+  // Updated upload logic: require both files.
   const uploadFiles = async () => {
-    if (!files || files.length !== 2) {
-      alert("You must upload exactly one .v file and one .sdf file.");
+    if (!vFile || !sdfFile) {
+      alert("Please upload both a .v file and a .sdf file.");
       return;
     }
-
     setLoading(true);
-    const formData = new FormData();
-    Array.from(files).forEach(file => formData.append("files", file));
-
-    // Add name and description to the form data
-    formData.append("name", circuitName || `Circuit-${new Date().toLocaleString()}`);
-    formData.append("description", circuitDescription || "");
-
     try {
+      const formData = new FormData();
+      formData.append("files", vFile);
+      formData.append("files", sdfFile);
+      formData.append("name", circuitName || `Circuit-${new Date().toLocaleString()}`);
+      formData.append("description", circuitDescription || "");
       const response = await fetch("http://localhost:5001/upload", {
         method: "POST",
         body: formData,
       });
-
-      if (response.ok) {
-        const result = await response.json();
-        alert("Files uploaded successfully!");
-        setFiles(null);
-        setCircuitName("");
-        setCircuitDescription("");
-
-        // Refresh the circuit list
-        fetchCircuits();
-      } else {
+      if (!response.ok) {
         const errorData = await response.json();
         alert(`Failed to upload files: ${errorData.error}`);
+      } else {
+        alert("Files uploaded successfully!");
+        setVFile(null);
+        setSdfFile(null);
+        setCircuitName("");
+        setCircuitDescription("");
+        fetchCircuits();
       }
     } catch (error) {
       console.error("Error uploading files:", error);
@@ -158,22 +171,14 @@ function TeacherPage() {
     if (!window.confirm("Are you sure you want to delete this circuit?")) {
       return;
     }
-
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:5001/circuits/${id}`, {
-        method: "DELETE",
-      });
-
+      const response = await fetch(`http://localhost:5001/circuits/${id}`, { method: "DELETE" });
       if (response.ok) {
-        // Remove from local state
         setCircuits(circuits.filter(c => c.id !== id));
-
-        // If the deleted circuit was selected, clear selection
         if (selectedCircuit && selectedCircuit.id === id) {
           setSelectedCircuit(null);
         }
-
         alert("Circuit deleted successfully!");
       } else {
         alert("Failed to delete circuit.");
@@ -207,11 +212,11 @@ function TeacherPage() {
         padding: "10px",
         position: "sticky",
         top: 0,
-        zIndex: 100
+        zIndex: 100,
+        fontSize: "2rem",
       }}>
         Teacher's Dashboard
       </h1>
-
       <div style={{
         display: "flex",
         width: "100%",
@@ -220,7 +225,7 @@ function TeacherPage() {
         padding: "0 10px 10px 10px",
         boxSizing: "border-box"
       }}>
-        {/* Left side - Upload and Circuit List */}
+        {/* Left side - Upload, File Previews, and Circuit List */}
         <div style={{
           flex: "1",
           maxWidth: "400px",
@@ -232,63 +237,161 @@ function TeacherPage() {
           gap: "10px"
         }}>
           {/* File Upload Section */}
-          <div style={{
+            <div style={{
             padding: "20px",
             border: "1px solid #ccc",
             borderRadius: "8px"
-          }}>
+            }}>
             <h3 style={{ margin: "0 0 15px 0" }}>Upload New Circuit</h3>
             <div style={{ marginBottom: "10px" }}>
               <label htmlFor="circuitName">Circuit Name:</label>
               <input
-                type="text"
-                id="circuitName"
-                value={circuitName}
-                onChange={(e) => setCircuitName(e.target.value)}
-                style={{ width: "100%", padding: "8px", marginTop: "5px", boxSizing: "border-box" }}
-                placeholder="Enter a name for this circuit"
+              type="text"
+              id="circuitName"
+              value={circuitName}
+              onChange={(e) => setCircuitName(e.target.value)}
+              style={{ width: "100%", padding: "8px", marginTop: "5px", boxSizing: "border-box" }}
+              placeholder="Enter a name for this circuit"
               />
             </div>
-
             <div style={{ marginBottom: "10px" }}>
               <label htmlFor="circuitDescription">Description (optional):</label>
               <textarea
-                id="circuitDescription"
-                value={circuitDescription}
-                onChange={(e) => setCircuitDescription(e.target.value)}
-                style={{ width: "100%", padding: "8px", marginTop: "5px", minHeight: "80px", boxSizing: "border-box" }}
-                placeholder="Add a description for this circuit"
+              id="circuitDescription"
+              value={circuitDescription}
+              onChange={(e) => setCircuitDescription(e.target.value)}
+              style={{ width: "100%", padding: "8px", marginTop: "5px", minHeight: "80px", boxSizing: "border-box" }}
+              placeholder="Add a description for this circuit"
               />
             </div>
 
-            <div style={{ marginBottom: "10px" }}>
-              <label>Select Files:</label>
-              <input
-                type="file"
-                multiple
-                accept=".v,.sdf"
-                onChange={handleFileChange}
-                style={{ width: "100%", padding: "8px", marginTop: "5px", boxSizing: "border-box" }}
-              />
-              <small>Select one .v file and one .sdf file</small>
-            </div>
-
-            <button
-              onClick={uploadFiles}
-              disabled={!files || files.length !== 2 || loading}
-              style={{
-                padding: "8px 16px",
-                backgroundColor: (!files || files.length !== 2 || loading) ? "#cccccc" : "#4CAF50",
-                color: "white",
+            {/* File Previews */}
+            {vFile && (
+              <div style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              border: "1px solid #ccc",
+              borderRadius: "4px",
+              padding: "6px",
+              marginBottom: "10px"
+              }}>
+              <span style={{ fontSize: "1.5rem" }}>📄</span>
+              <div style={{ flex: 1, wordBreak: "break-all" }}>{vFile.name}</div>
+              <button
+                onClick={() => removeFile("v")}
+                style={{
+                background: "none",
                 border: "none",
-                borderRadius: "4px",
-                cursor: (!files || files.length !== 2 || loading) ? "not-allowed" : "pointer",
-                width: "100%"
+                color: "#f44336",
+                fontWeight: "bold",
+                cursor: "pointer",
+                fontSize: "1.2rem"
+                }}
+                title="Remove file"
+              >
+                ✕
+              </button>
+              </div>
+            )}
+            {sdfFile && (
+              <div style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              border: "1px solid #ccc",
+              borderRadius: "4px",
+              padding: "6px",
+              marginBottom: "10px"
+              }}>
+              <span style={{ fontSize: "1.5rem" }}>📝</span>
+              <div style={{ flex: 1, wordBreak: "break-all" }}>{sdfFile.name}</div>
+              <button
+                onClick={() => removeFile("sdf")}
+                style={{
+                background: "none",
+                border: "none",
+                color: "#f44336",
+                fontWeight: "bold",
+                cursor: "pointer",
+                fontSize: "1.2rem"
+                }}
+                title="Remove file"
+              >
+                ✕
+              </button>
+              </div>
+            )}
+
+            {/* Show drag/drop and file input if one or both files are missing */}
+            {(!vFile || !sdfFile) && (
+              <div 
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
+              style={{
+                marginBottom: "10px",
+                padding: "20px",
+                border: "2px dashed #aaa",
+                borderRadius: "8px",
+                textAlign: "center",
+                color: "#aaa"
               }}
-            >
-              {loading ? "Uploading..." : "Upload Files"}
-            </button>
-          </div>
+              >
+              <p style={{ margin: 0 }}>
+                {(!vFile && !sdfFile) && <>Drag and drop your <strong>.v</strong> and <strong>.sdf</strong> files here</>}
+                {(vFile && !sdfFile) && <>Drag and drop your <strong>.sdf</strong> file here</>}
+                {(!vFile && sdfFile) && <>Drag and drop your <strong>.v</strong> file here</>}
+                <span style={{ margin: "0 5px" }}>or</span>
+                <label 
+                style={{
+                  display: "inline-block",
+                  padding: "6px 12px",
+                  backgroundColor: "#666",
+                  color: "#fff",
+                  borderRadius: "4px",
+                  cursor: "pointer"
+                }}
+                >
+                Choose Files
+                <input
+                  type="file"
+                  multiple
+                  accept=".v,.sdf"
+                  onChange={handleFileChange}
+                  style={{ display: "none" }}
+                />
+                </label>
+              </p>
+              <small style={{ display: "block", marginTop: "10px", color: "#999" }}>
+                {(!vFile && !sdfFile) && "You can select both files at once or upload them separately"}
+                {(vFile && !sdfFile) && "Still needed: one .sdf file"}
+                {(!vFile && sdfFile) && "Still needed: one .v file"}
+              </small>
+              <small style={{ display: "block", marginTop: "5px", color: "#999" }}>
+                {(vFile || sdfFile) && "If you select multiple files, existing files will be replaced"}
+              </small>
+              </div>
+            )}
+
+            {/* Upload Button - only shown when both files are present */}
+            {vFile && sdfFile && (
+              <button
+                onClick={uploadFiles}
+                disabled={loading}
+                style={{
+                  padding: "8px 16px",
+                  backgroundColor: loading ? "#cccccc" : "#4CAF50",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "4px",
+                  cursor: loading ? "not-allowed" : "pointer",
+                  width: "100%"
+                }}
+              >
+                {loading ? "Uploading..." : "Upload Files"}
+              </button>
+            )}
+            </div>
 
           {/* Circuit List Section */}
           <div style={{
@@ -298,7 +401,6 @@ function TeacherPage() {
             flexGrow: 1,
             overflowY: "auto"
           }}>
-            {/* Header with Delete Selected button */}
             <div style={{
               display: "flex",
               justifyContent: "space-between",
@@ -322,9 +424,7 @@ function TeacherPage() {
                 Delete Selected ({selectedCircuits.size})
               </button>
             </div>
-
             {loading && <p>Loading circuits...</p>}
-
             {circuits.length === 0 && !loading ? (
               <p>No circuits available. Upload a new circuit to get started.</p>
             ) : (
@@ -341,12 +441,7 @@ function TeacherPage() {
                     }}
                   >
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <div style={{
-                        display: "flex",
-                        alignItems: "flex-start",
-                        flex: 1,
-                        minWidth: 0
-                      }}>
+                      <div style={{ display: "flex", alignItems: "flex-start", flex: 1, minWidth: 0 }}>
                         <input
                           type="checkbox"
                           checked={selectedCircuits.has(circuit.id)}
@@ -450,7 +545,7 @@ function TeacherPage() {
                   borderRadius: "8px",
                   color: "#333"
                 }}>
-                <CircuitVisualizer jsonFile={selectedCircuit.jsonFile} />
+                  <CircuitVisualizer jsonFile={selectedCircuit.jsonFile} />
                 </div>
               </>
             ) : (

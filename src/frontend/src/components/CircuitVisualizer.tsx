@@ -93,6 +93,16 @@ interface PortConnectionDraw {
   wire: string;
 }
 
+interface TimingDelay {
+  instance?: string;
+  cellType: string;
+  inputPort?: string;
+  outputPort?: string;
+  delay?: number;
+  max_delay?: number;
+  min_delay?: number;
+}
+
 const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFile }) => {
   const [circuitData, setCircuitData] = useState<CircuitData | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -108,10 +118,11 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
   });
   // State for hovered node (for tooltip)
   const [hoveredNode, setHoveredNode] = useState<PositionedComponent | null>(null);
-
   const svgRef = useRef<SVGSVGElement>(null);
   const svgId = useMemo(() => `circuit-svg-${Math.random().toString(36).substring(7)}`, []);
   const filePath = useMemo(() => jsonPath || jsonFile || '', [jsonPath, jsonFile]);
+  const [showTimingInfo, setShowTimingInfo] = useState<boolean>(false);
+  const [timingDetails, setTimingDetails] = useState<TimingDelay[] | null>(null);
   const svgWidth = 1200;
   const svgHeight = 800;
 
@@ -346,6 +357,30 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
     return map;
   }, [circuitData]);
 
+  // First, update the getTimingForComponent function to better extract timing data
+  const getTimingForComponent = (componentName: string): TimingDelay[] => {
+    if (!circuitData?.timing?.delays) return [];
+
+    // Debug to console to see what's in the timing data
+    console.log("Timing data structure:", circuitData.timing);
+
+    // Filter delays related to this component
+    return circuitData.timing.delays.filter((delay: any) =>
+      delay.instance && delay.instance.includes(componentName.replace(/\\/g, "\\\\"))
+    );
+  };
+
+  // Add this function to get color based on delay value
+  const getDelayColor = (delays: any[]): string => {
+    if (!delays || delays.length === 0) return "#444"; // Default color
+
+    // In a real implementation, you might normalize this based on max delay
+    const delayCount = delays.length;
+    if (delayCount > 5) return "#e74c3c"; // Red for high delay
+    if (delayCount > 3) return "#f39c12"; // Orange for medium delay
+    return "#2ecc71"; // Green for low delay
+  };
+
   // 8) Build connections from ports to nodes.
   const portConnectionsToDraw = useMemo<PortConnectionDraw[]>(() => {
     if (!circuitData) return [];
@@ -374,6 +409,9 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
         });
       });
     });
+
+    // Add this function to extract timing data for a component
+
     return results;
   }, [circuitData, portPositions, nodePositions, pinPositions, inferredPortWires]);
 
@@ -436,7 +474,27 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
   if (!circuitData) return <div>No circuit data loaded.</div>;
 
   return (
+
     <div style={{ color: '#fff' }}>
+      {/* Timing toggle button */}
+      <button
+        onClick={() => setShowTimingInfo(!showTimingInfo)}
+        style={{
+          position: 'absolute',
+          top: '10px',
+          right: '10px',
+          zIndex: 100,
+          padding: '8px 12px',
+          backgroundColor: showTimingInfo ? '#e74c3c' : '#3498db',
+          color: 'white',
+          border: 'none',
+          borderRadius: '4px',
+          cursor: 'pointer'
+        }}
+      >
+        {showTimingInfo ? 'Hide Timing' : 'Show Timing'}
+      </button>
+
       <svg id={svgId} ref={svgRef} style={{ backgroundColor: "#313131", width: '100%', height: '100vh' }}>
         <defs>
           <marker id="arrowhead" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
@@ -447,9 +505,23 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
           {/* Render all nodes (components and interconnects) */}
           {nodePositions.map((node) => {
             // Set up hover handlers for the tooltip
-            const handleMouseEnter = () => setHoveredNode(node);
-            const handleMouseLeave = () => setHoveredNode(null);
+            const handleMouseEnter = () => {
+              setHoveredNode(node);
+              // If timing display is on, fetch timing data for this node
+              if (showTimingInfo) {
+                setTimingDetails(getTimingForComponent(node.name));
+              }
+            };
+            const handleMouseLeave = () => {
+              setHoveredNode(null);
+              setTimingDetails(null);
+            };
+
             if (node.type.toLowerCase().includes('interconnect')) {
+              // Interconnect node rendering with timing colors
+              const fill = showTimingInfo ?
+                getDelayColor(getTimingForComponent(node.name)) : "#ffffcc";
+
               return (
                 <g
                   key={`node-${node.name}`}
@@ -460,20 +532,31 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
                   onMouseLeave={handleMouseLeave}
                 >
                   <rect x={-node.width / 2} y={-node.height / 2} width={node.width} height={node.height}
-                    fill="#ffffcc" stroke="#999" strokeDasharray="4" />
+                    fill={fill} stroke="#999" strokeDasharray="4" />
                   <text x={0} y={0} textAnchor="middle" alignmentBaseline="middle" fontSize={10} fill="#000">
                     {node.type}
                   </text>
                 </g>
               );
             }
-            // For regular nodes, only display the type by default
+
+            // For regular nodes, calculate fill based on timing if enabled
             let fill = '#444', stroke = '#ccc', textFill = '#fff';
             const t = node.type.toUpperCase();
-            if (t.includes('INPUT')) { fill = '#a8d5ff'; stroke = '#4285F4'; textFill = '#000'; }
-            else if (t.includes('OUTPUT')) { fill = '#ffb3b3'; stroke = '#EA4335'; textFill = '#000'; }
-            else if (t.includes('DFF') || t.includes('FLIP')) { fill = '#c5e1a5'; stroke = '#34A853'; textFill = '#000'; }
-            else if (t.includes('LUT')) { fill = '#fff176'; stroke = '#FBBC05'; textFill = '#000'; }
+
+            if (showTimingInfo) {
+              // Use timing data to determine color
+              fill = getDelayColor(getTimingForComponent(node.name));
+              stroke = fill !== "#444" ? fill.replace(')', ', 0.8)').replace('rgb', 'rgba') : '#ccc';
+            } else {
+              // Original color logic
+              if (t.includes('INPUT')) { fill = '#a8d5ff'; stroke = '#4285F4'; textFill = '#000'; }
+              else if (t.includes('OUTPUT')) { fill = '#ffb3b3'; stroke = '#EA4335'; textFill = '#000'; }
+              else if (t.includes('DFF') || t.includes('FLIP')) { fill = '#c5e1a5'; stroke = '#34A853'; textFill = '#000'; }
+              else if (t.includes('LUT')) { fill = '#fff176'; stroke = '#FBBC05'; textFill = '#000'; }
+            }
+
+            // Rest of the node rendering remains the same
             return (
               <g
                 key={`node-${node.name}`}
@@ -485,7 +568,6 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
               >
                 <rect x={-node.width / 2} y={-node.height / 2} width={node.width} height={node.height}
                   fill={fill} stroke={stroke} strokeWidth={2} rx={8} ry={8} />
-                {/* Only display the type inside the node */}
                 <text x={0} y={0} textAnchor="middle" alignmentBaseline="middle"
                   fontSize={12} fill={textFill} fontWeight="bold">
                   {node.type}
@@ -576,42 +658,74 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
           {hoveredNode && (() => {
             const inputLines = hoveredNode.inputs.length;
             const outputLines = hoveredNode.outputs.length;
-            // Calculate tooltip height dynamically (20px for the title + 16px per line + some padding)
-            // Calculate tooltip dimensions based on content
-            const inputWireLength = Math.max(10, ...hoveredNode.inputs.map(pin => pin.wire.length));
-            const outputWireLength = Math.max(10, ...hoveredNode.outputs.map(pin => pin.wire.length));
-            const maxContentLength = Math.max(
-              hoveredNode.name.length,
-              inputWireLength + 8, // "Inputs: " + wire
-              outputWireLength + 9 // "Outputs: " + wire
-            );
-            
+
+            // Calculate tooltip height dynamically
+            let tooltipHeight = 40 + 16 * (inputLines + outputLines + 2);
+            let tooltipContentLines = [
+              hoveredNode.name,
+              "Inputs:",
+              ...hoveredNode.inputs.map(pin => pin.wire),
+              "Outputs:",
+              ...hoveredNode.outputs.map(pin => pin.wire)
+            ];
+
+            // Add timing information if enabled and available
+            if (showTimingInfo && timingDetails && timingDetails.length > 0) {
+              tooltipContentLines = [
+                hoveredNode.name,
+                `Timing Details (${timingDetails.length} delays):`,
+                ...timingDetails.slice(0, 5).map((delay: any, i) => {
+                  // Extract delay value, checking multiple possible properties
+                  const delayValue =
+                    delay.delay_ps !== undefined ? delay.delay_ps :
+                      delay.delay !== undefined ? delay.delay :
+                        delay.delay !== undefined ? delay.delay :
+                          delay.value !== undefined ? delay.value :
+                            delay.time !== undefined ? delay.time :
+                              delay.max_delay !== undefined ? delay.max_delay :
+                                null;
+                  // Convert picoseconds to nanoseconds if needed
+                  const displayValue = delayValue !== null ?
+                    `(${(delayValue / 1000).toFixed(2)}ns)` : '';
+                  // After setting timing details
+                  console.log("Raw timing data for component:", JSON.stringify(timingDetails, null, 2));
+                  // Format the timing line with port info and delay if available
+                  return `${i + 1}. ${delay.cellType || delay.type || 'Cell'}: ` +
+                    `${delay.inputPort || delay.from || ''} → ${delay.outputPort || delay.to || ''}` +
+                    (delayValue !== null ? ` (${delayValue}ns)` : '');
+                })
+              ];
+
+              // Show a message if there are more delays
+              if (timingDetails.length > 5) {
+                tooltipContentLines.push(`...and ${timingDetails.length - 5} more`);
+              }
+
+              // Adjust tooltip height based on content
+              tooltipHeight = 40 + (tooltipContentLines.length * 16);
+            }
+
             // Set minimum sizes with padding
-            const tooltipWidth = Math.max(200, maxContentLength * 7);
-            const tooltipHeight = 40 + 16 * (inputLines + outputLines + 2); // +2 for headers
+            const tooltipWidth = 250;
+
             return (
               <g
                 className="tooltip"
                 transform={`translate(${hoveredNode.x + hoveredNode.width / 2 + 10}, ${hoveredNode.y - 20})`}
               >
-                <rect x={0} y={0} width={tooltipWidth} height={tooltipHeight} fill="#fff" stroke="#000" rx={5} ry={5} />
-                <text x={10} y={16} fontSize="12" fill="#000" fontWeight="bold">
-                  {hoveredNode.name}
-                </text>
-                <text x={10} y={32} fontSize="10" fill="#000" fontWeight="bold">
-                  Inputs:
-                </text>
-                {hoveredNode.inputs.map((pin, index) => (
-                  <text key={`input-${index}`} x={20} y={32 + 16 * (index + 1)} fontSize="10" fill="#000">
-                    {pin.wire}
-                  </text>
-                ))}
-                <text x={10} y={32 + 16 * (inputLines + 1)} fontSize="10" fill="#000" fontWeight="bold">
-                  Outputs:
-                </text>
-                {hoveredNode.outputs.map((pin, index) => (
-                  <text key={`output-${index}`} x={20} y={32 + 16 * (inputLines + 2 + index)} fontSize="10" fill="#000">
-                    {pin.wire}
+                <rect x={0} y={0} width={tooltipWidth} height={tooltipHeight}
+                  fill="#fff" stroke="#000" rx={5} ry={5} opacity={0.9} />
+
+                {tooltipContentLines.map((line, i) => (
+                  <text
+                    key={`tooltip-line-${i}`}
+                    x={10}
+                    y={16 + i * 16}
+                    fontSize={i === 0 ? "12" : "10"}
+                    fill="#000"
+                    fontWeight={i === 0 || line.includes("Inputs:") || line.includes("Outputs:") || line.includes("Timing") ? "bold" : "normal"}
+                  >
+                    {line}
                   </text>
                 ))}
               </g>

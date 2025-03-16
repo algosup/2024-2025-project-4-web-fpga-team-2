@@ -4,19 +4,19 @@ function cleanupVerilog(verilogContent) {
   // Remove block and line comments
   verilogContent = verilogContent.replace(/\/\*[\s\S]*?\*\//g, ' ');
   verilogContent = verilogContent.replace(/\/\/.*$/gm, '');
-  
+
   // Remove empty lines
   verilogContent = verilogContent.split('\n')
     .filter(line => line.trim() !== '')
     .join('\n');
-  
+
   return verilogContent;
 }
 
 function parseVerilog(verilogContent) {
   // Cleanup the content first
   verilogContent = cleanupVerilog(verilogContent);
-  
+
   let moduleName = "";
   let ports = {};
   let wires = new Set();
@@ -61,7 +61,7 @@ function parseVerilog(verilogContent) {
     const typeMatch = trimmedBlock.match(/^\s*([A-Za-z0-9_]+)\s*(?:#\s*\(.*?\))?\s+/s);
     if (!typeMatch) continue;
     const originalType = typeMatch[1];
-    
+
     // Determine the component category
     let componentType = "Unknown";
     if (/^(DFF|FF|FLIPFLOP|SDFF|SDFFR|NX_DFF|QDFF|TDFF|SYNC_DFF|ASYNC_DFF|DFLIPFLOP|RISINGEDGE_DFLIPFLOP)$/i.test(originalType)) {
@@ -372,184 +372,155 @@ function parseVerilog(verilogContent) {
 }
 
 function parseSDF(sdfContent) {
-    // Clean up the SDF content
-    sdfContent = sdfContent.replace(/\/\*[\s\S]*?\*\//g, '');
-    sdfContent = sdfContent.replace(/\/\/.*$/gm, '');
-    
-    // Remove empty lines
-    sdfContent = sdfContent.split('\n')
-      .filter(line => line.trim() !== '')
-      .join('\n');
-    
-    const delays = [];
-    
-    // Extract cell delays
-    const cellBlocks = sdfContent.split('CELL');
-    for (let i = 1; i < cellBlocks.length; i++) {
-      const cellBlock = cellBlocks[i];
-      
-      // Extract cell type and instance
-      const cellTypeMatch = cellBlock.match(/\(\s*CELLTYPE\s*"([^"]+)"\s*\)/);
-      const instanceMatch = cellBlock.match(/\(\s*INSTANCE\s*([^\s\)]+)\s*\)/);
-      
-      if (!cellTypeMatch || !instanceMatch) continue;
-      
-      const cellType = cellTypeMatch[1];
-      const instance = instanceMatch[1];
-      
-      // Extract timing information
-      const timingBlocks = cellBlock.split('DELAY');
-      for (let j = 1; j < timingBlocks.length; j++) {
-        const timingBlock = timingBlocks[j];
-        
-        // Extract IOPATH delays
-        const ioPaths = timingBlock.match(/\(\s*IOPATH\s+([^\s]+)\s+([^\s]+)\s+\(\s*([^)]+)\s*\)\s*\(\s*([^)]+)\s*\)\s*\)/g);
-        
-        if (ioPaths) {
-          ioPaths.forEach(ioPath => {
-            const matches = ioPath.match(/\(\s*IOPATH\s+([^\s]+)\s+([^\s]+)\s+\(\s*([^)]+)\s*\)\s*\(\s*([^)]+)\s*\)\s*\)/);
-            if (matches) {
-              const [, inputPort, outputPort, riseDelays, fallDelays] = matches;
-              
-              // Parse rise and fall delays (min:typ:max)
-              const riseDelayValues = riseDelays.split(':').map(v => parseFloat(v.trim()));
-              const fallDelayValues = fallDelays.split(':').map(v => parseFloat(v.trim()));
-              
-              delays.push({
-                cellType,
-                instance,
-                from: inputPort,
-                to: outputPort,
-                rise: {
-                  min: riseDelayValues[0] || 0,
-                  typ: riseDelayValues[1] || 0,
-                  max: riseDelayValues[2] || 0
-                },
-                fall: {
-                  min: fallDelayValues[0] || 0,
-                  typ: fallDelayValues[1] || 0,
-                  max: fallDelayValues[2] || 0
-                }
-              });
-            }
-          });
-        }
-        
-        // Extract SETUPHOLD timing
-        const setupHolds = timingBlock.match(/\(\s*SETUPHOLD\s+([^\s]+)\s+([^\s]+)\s+\(\s*([^)]+)\s*\)\s*\(\s*([^)]+)\s*\)\s*\)/g);
-        
-        if (setupHolds) {
-          setupHolds.forEach(setupHold => {
-            const matches = setupHold.match(/\(\s*SETUPHOLD\s+([^\s]+)\s+([^\s]+)\s+\(\s*([^)]+)\s*\)\s*\(\s*([^)]+)\s*\)\s*\)/);
-            if (matches) {
-              const [, dataPort, clockPort, setupDelays, holdDelays] = matches;
-              
-              // Parse setup and hold delays (min:typ:max)
-              const setupDelayValues = setupDelays.split(':').map(v => parseFloat(v.trim()));
-              const holdDelayValues = holdDelays.split(':').map(v => parseFloat(v.trim()));
-              
-              delays.push({
-                cellType,
-                instance,
-                type: 'SETUPHOLD',
-                data: dataPort,
-                clock: clockPort,
-                setup: {
-                  min: setupDelayValues[0] || 0,
-                  typ: setupDelayValues[1] || 0,
-                  max: setupDelayValues[2] || 0
-                },
-                hold: {
-                  min: holdDelayValues[0] || 0,
-                  typ: holdDelayValues[1] || 0,
-                  max: holdDelayValues[2] || 0
-                }
-              });
-            }
-          });
-        }
-        
-        // Extract WIDTH timing
-        const widths = timingBlock.match(/\(\s*WIDTH\s+([^\s]+)\s+\(\s*([^)]+)\s*\)\s*\)/g);
-        
-        if (widths) {
-          widths.forEach(width => {
-            const matches = width.match(/\(\s*WIDTH\s+([^\s]+)\s+\(\s*([^)]+)\s*\)\s*\)/);
-            if (matches) {
-              const [, port, widthValues] = matches;
-              
-              // Parse width values (min:typ:max)
-              const widthDelayValues = widthValues.split(':').map(v => parseFloat(v.trim()));
-              
-              delays.push({
-                cellType,
-                instance,
-                type: 'WIDTH',
-                port: port,
-                width: {
-                  min: widthDelayValues[0] || 0,
-                  typ: widthDelayValues[1] || 0,
-                  max: widthDelayValues[2] || 0
-                }
-              });
-            }
-          });
-        }
-      }
-    }
-    
-    return delays;
-  }
-  function analyzeCircuitFiles(verilogContent, sdfContent) {
-    
-    console.log("[Parser] Analyzing circuit files...");
+  // Array to store all extracted delay information
+  const delays = [];
 
-    // Parse the Verilog file
-    const verilogData = parseVerilog(verilogContent);
-    console.log(`[Parser] Found ${verilogData.components.length} components and ${verilogData.connections.length} connections`);
-    
-    // Parse SDF file if provided
-    let delays = [];
-    if (sdfContent && sdfContent.trim()) {
-      try {
-        delays = parseSDF(sdfContent);
-        console.log(`[Parser] Found ${delays.length} timing constraints in SDF`);
-        
-        // Add timing data to the circuit data
-        verilogData.timing = {
-            delays: delays,
-            summary: {
-              total_delays: delays.length,
-              max_delay: Math.max(...delays
-                .filter(d => d.rise || d.fall)
-                .flatMap(d => [d.rise?.max || 0, d.fall?.max || 0])),
-              components_with_timing: [...new Set(delays.map(d => d.instance))].length
-            }
-          };
-      } catch (err) {
-        console.error("[Parser] Error parsing SDF file:", err.message);
-      }
-    }
-    
-    return verilogData;
+  // Regular expression to match CELL blocks
+  const cellRegex = /\(\s*CELL\s*\(\s*CELLTYPE\s*"([^"]*)"\s*\)\s*\(\s*INSTANCE\s*([^)]*)\s*\)([\s\S]*?)(?=\(\s*CELL|\)$)/g;
+  
+  let cellMatch;
+  while ((cellMatch = cellRegex.exec(sdfContent)) !== null) {
+    const cellType = cellMatch[1];
+    const instance = cellMatch[2].trim();
+    const cellContent = cellMatch[3];
+
+    // Extract delay information within the cell
+    extractDelays(cellType, instance, cellContent, delays);
   }
 
+  return delays;
+}
 
-    function generateJsonFile(data, filePath) {
-        return new Promise((resolve, reject) => {
-        fs.writeFile(filePath, JSON.stringify(data, null, 2), (err) => {
-            if (err) {
-            reject(err);
-            } else {
-            resolve();
-            }
-        });
-        });
+function extractDelays(cellType, instance, cellContent, delays) {
+  // Regular expressions for different types of timing constraints
+  
+  // IOPATH delays (combinational paths)
+  const iopathRegex = /\(\s*IOPATH\s+([^ ]+)\s+([^ ]+)\s+\(\s*([\s\S]*?)\s*\)\s*\)/g;
+  let iopathMatch;
+  
+  while ((iopathMatch = iopathRegex.exec(cellContent)) !== null) {
+    const inputPort = iopathMatch[1].trim();
+    const outputPort = iopathMatch[2].trim();
+    const delayValues = iopathMatch[3];
+    
+    // Extract rise and fall delays
+    const riseDelayMatch = delayValues.match(/\(\s*POSEDGE\s+\(([^)]+)\)\s*\)/);
+    const fallDelayMatch = delayValues.match(/\(\s*NEGEDGE\s+\(([^)]+)\)\s*\)/);
+    
+    // If no specific rise/fall, look for generic delays
+    const genericDelayMatch = !riseDelayMatch && !fallDelayMatch && 
+                              delayValues.match(/\(([^)]+)\)/);
+    
+    const delay = {
+      cellType,
+      instance,
+      inputPort, 
+      outputPort,
+      type: 'iopath'
+    };
+    
+    if (riseDelayMatch) {
+      const [min, typ, max] = parseDelayValues(riseDelayMatch[1]);
+      delay.rise = { min, typ, max };
     }
-    module.exports = {
-        cleanupVerilog,
-        parseVerilog,
-        parseSDF,
-        analyzeCircuitFiles,
-        generateJsonFile
+    
+    if (fallDelayMatch) {
+      const [min, typ, max] = parseDelayValues(fallDelayMatch[1]);
+      delay.fall = { min, typ, max };
+    }
+    
+    if (genericDelayMatch && !riseDelayMatch && !fallDelayMatch) {
+      const [min, typ, max] = parseDelayValues(genericDelayMatch[1]);
+      delay.rise = { min, typ, max };
+      delay.fall = { min, typ, max };
+    }
+    
+    delays.push(delay);
+  }
+  
+  // SETUP and HOLD time constraints
+  const timingCheckRegex = /\(\s*(SETUP|HOLD|RECOVERY|REMOVAL|WIDTH|PERIOD)\s+([^ ]+)\s+([^ ]+)\s+\(([^)]+)\)\s*\)/g;
+  let timingMatch;
+  
+  while ((timingMatch = timingCheckRegex.exec(cellContent)) !== null) {
+    const checkType = timingMatch[1].toLowerCase();
+    const port1 = timingMatch[2].trim();
+    const port2 = timingMatch[3].trim();
+    const [min, typ, max] = parseDelayValues(timingMatch[4]);
+    
+    delays.push({
+      cellType,
+      instance,
+      type: checkType,
+      port1,
+      port2,
+      value: { min, typ, max }
+    });
+  }
+}
+
+function parseDelayValues(delayString) {
+  const values = delayString.trim().split(/\s+/).map(parseFloat);
+  
+  // Different SDF formats might have 1, 2, or 3 values (min:typ:max)
+  if (values.length === 1) {
+    return [values[0], values[0], values[0]]; // Use single value for all
+  } else if (values.length === 2) {
+    return [values[0], values[1], values[1]]; // min:typ=max
+  } else {
+    return [values[0], values[1], values[2]]; // min:typ:max
+  }
+}
+function analyzeCircuitFiles(verilogContent, sdfContent) {
+
+  console.log("[Parser] Analyzing circuit files...");
+
+  // Parse the Verilog file
+  const verilogData = parseVerilog(verilogContent);
+  console.log(`[Parser] Found ${verilogData.components.length} components and ${verilogData.connections.length} connections`);
+
+  // Parse SDF file if provided
+  let delays = [];
+  if (sdfContent && sdfContent.trim()) {
+    try {
+      delays = parseSDF(sdfContent);
+      console.log(`[Parser] Found ${delays.length} timing constraints in SDF`);
+
+      // Add timing data to the circuit data
+      verilogData.timing = {
+        delays: delays,
+        summary: {
+          total_delays: delays.length,
+          max_delay: Math.max(...delays
+            .filter(d => d.rise || d.fall)
+            .flatMap(d => [d.rise?.max || 0, d.fall?.max || 0])),
+          components_with_timing: [...new Set(delays.map(d => d.instance))].length
+        }
       };
+    } catch (err) {
+      console.error("[Parser] Error parsing SDF file:", err.message);
+    }
+  }
+
+  return verilogData;
+}
+
+
+function generateJsonFile(data, filePath) {
+  return new Promise((resolve, reject) => {
+    fs.writeFile(filePath, JSON.stringify(data, null, 2), (err) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve();
+      }
+    });
+  });
+}
+module.exports = {
+  cleanupVerilog,
+  parseVerilog,
+  parseSDF,
+  analyzeCircuitFiles,
+  generateJsonFile
+};
