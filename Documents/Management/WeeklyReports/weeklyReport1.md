@@ -34,7 +34,7 @@ The templates were written such as these for the issues (for the Quality Assuran
 | Parser                                  | 100%     |
 | Automate creating the simple schematics | 50%      |
 | Connecting wire between components      | 35%      |
-| Sides of the website                    | 100%     |
+| Sides of the website on the Home Page   | 100%     |
 | POC                                     | 65%      |
 | Test Plan                               | 20%      |
 | Issues Template (Test Cases-related)    | 100%     |
