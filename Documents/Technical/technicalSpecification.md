@@ -91,7 +91,7 @@ The front end of the website will be made using HyperText Markup Language (HTML)
 
 HTML is used to build the structure of the website , which can then be interpreted by any browser on any hardware to display the website.<br>
 We then use CSS to modify the appearance of the website, making it more visually appealing, which results in a more attractive website and a better user experience. <br>
-Finally, JS is used to handle events and modify the webpage directly from the browser, such as 
+Finally, JS is used to handle events and modify the webpage directly from the browser, such as load a file.
 
 ## Backend
 
