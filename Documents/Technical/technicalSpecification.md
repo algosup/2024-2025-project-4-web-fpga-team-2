@@ -99,7 +99,7 @@ Parser reads the file and translate it into .json file, facilitates data exchang
 
 ## Frontend
 
-The front end of the website will be made using HyperText Markup Language (HTML)[^html], Cascading Style Sheets (CSS)[^css] , and JavaScript (JS)[^js] .
+The front end of the website will be made using HyperText Markup Language (HTML), Cascading Style Sheets (CSS) , and JavaScript (JS) .
 
 HTML is used to build the structure of the website , which can then be interpreted by any browser on any hardware to display the website.<br>
 We then use CSS to modify the appearance of the website, making it more visually appealing, which results in a more attractive website and a better user experience. <br>
