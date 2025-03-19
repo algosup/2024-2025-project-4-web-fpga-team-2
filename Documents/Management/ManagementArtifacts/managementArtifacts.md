@@ -1,4 +1,4 @@
-# Tables & KPIs
+# Management Artifacts
 
 ## 1. RACI Table
 
