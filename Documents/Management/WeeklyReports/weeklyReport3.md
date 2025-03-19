@@ -10,8 +10,7 @@ The functional specification is now finished by the Program Manager. It was revi
 
 ### Website
 
-The developers successfully finished to implement the parser. The JSON can now be used to automatically create the schematics. The circuit visualizer (grouping "Connecting wire between components" and "Schematics realized by the JSON file" tasks) is now 80% complete. The user interface of the dashboard is also 75% finish.
-<!--See with Lucas for his tasks-->
+The developers successfully finished to implement the parser. The JSON can now be used to automatically create the schematics. The circuit visualizer (grouping "Connecting wire between components" and "Schematics realized by the JSON file" tasks) is now 80% complete. However, the POC is finished which is a big step forward; we can now focus on the additional features. The user interface of the dashboard is also 75% finish.
 
 ## Management Planing
 
@@ -27,7 +26,7 @@ All finished tasks from the 2 last week are placed at the bottom of the board.
 | Schematics realized by the JSON file    | 80%      |
 | Connecting wire between components      | 80%      |
 | Dashboard (Teacher + Student)           | 75%      |
-| POC                                     | 65%      |
+| POC                                     | 100%     |
 | Test Plan                               | 100%     |
 | Test Cases                              | 10%      |
 | Conventions + Structure                 | 100%     |
