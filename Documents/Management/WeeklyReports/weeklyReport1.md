@@ -59,4 +59,4 @@ All the time dedicated to the project is currently recorded in a Google Sheet to
 
 - Moving forward on the Functional and the Test Plan.
 - Trying to finish the simple schematics automatic creation.
-- Attempt to finish the POC.
+- Progress on the POC.
