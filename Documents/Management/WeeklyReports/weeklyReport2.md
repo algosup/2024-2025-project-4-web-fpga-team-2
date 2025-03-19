@@ -31,7 +31,7 @@ All finished tasks from the last week are placed at the bottom of the board.
 | Schematics realized by the JSON file    | 50%      |
 | Connecting wire between components      | 35%      |
 | Dashboard (Teacher + Student)           | 50%      |
-| POC                                     | 65%      |
+| POC                                     | 85%      |
 | Test Plan                               | 50%      |
 | Conventions + Structure                 | 100%     |
 | Issues Template (Test Cases-related)    | 100%     |
@@ -46,4 +46,4 @@ The [code of conduct](../../../CODE_OF_CONDUCT.md) was written and shared with t
 - Finish the Functional Specification and the Test Plan.
 - Finish the parser and the dashboard.
 - Start the body of the Technical Specification.
-- Attempt to finish the POC (like the previous week *it's not the priority*).
+- Attempt to finish the POC.
