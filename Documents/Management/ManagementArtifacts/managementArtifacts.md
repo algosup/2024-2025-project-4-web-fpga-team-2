@@ -29,8 +29,8 @@ The RACI matrix is table that used to define the roles and responsibilities of t
 <br>
 
 > [!NOTE]
-> If someone is Responsible of a task, then this person is also the other roles. Thus, if the Project Manager is Responsible for the Project Management task, then the Project Manager is also Consulted, and Informed for this task (unless otherwise stated).
-(the same applies for the other roles).
+> If someone is Responsible of a task, then this person is also the other roles. Thus, if the Project Manager is Responsible for the Project Management task, then the Project Manager is also Consulted, and Informed for this task (unless otherwise stated). 
+> <br>It also applies for the other roles.
 
 > [!NOTE]
 > The Accountable role is unique for each task. For instance, if the Project Manager is Responsable, he will not necessary be Accountable.
@@ -45,13 +45,13 @@ A MoSCoW table is used to prioritize requirements based on their importance and 
 
 ### 2.2 Matrix
 
-| Must Have                                                                               | Should Have                                       | Could Have        | Won't Have                        |
-| --------------------------------------------------------------------------------------- | ------------------------------------------------- | ----------------- | --------------------------------- |
-| Front-end interface (Teacher)                                                           | A parser that transforms the files into JSON file | An Export option  | A mobile version of the website   |
-| Front-end interface (Student)                                                           | A readable JSON file                              | A Share option    | Direct implementation of the code |
-| Load .v and .sdf files                                                                  | Some pretty diagrams                              | Account feature   |                                   |
-| Creation of a fixed, animated and with values schemas (waiting for the client response) | Online version of the website                     | Back-end          |                                   |
-|                                                                                         | Tool bar editing the rendered schema              |                   |                                   |
+| Must Have                                                                               | Should Have                                       | Could Have       | Won't Have                        |
+| --------------------------------------------------------------------------------------- | ------------------------------------------------- | ---------------- | --------------------------------- |
+| Front-end interface (Teacher)                                                           | A parser that transforms the files into JSON file | An Export option | A mobile version of the website   |
+| Front-end interface (Student)                                                           | A readable JSON file                              | A Share option   | Direct implementation of the code |
+| Load .v and .sdf files                                                                  | Some pretty diagrams                              | Account feature  |                                   |
+| Creation of a fixed, animated and with values schemas (waiting for the client response) | Online version of the website                     | Back-end         |                                   |
+|                                                                                         | Tool bar editing the rendered schema              |                  |                                   |
 
 ## 3. Key Performance Indicators (KPIs)
 
@@ -85,8 +85,8 @@ $$
 
 Why:
 
-- The number of sections completed is the number of sections that have been completed in the files.
-- The total section predefined is the total number of sections that have been established at the beginning of the document which can be subject to minor changes between the beginning and the end.
+- The "number of sections completed" is the number of sections that have been completed in the files.
+- The "total section predefined" is the total number of sections that have been established at the beginning of the document which can be subject to minor changes between the beginning and the end.
 
 <br>
 
@@ -113,23 +113,28 @@ $$
 
 #### 3.2.3 Web Page
 
-The web page is the final product of the project. It is the result of the work of the team. The web page is divided into several parts:
+The web page is the final product of the project. It is the result of the work of the team. The web page is divided into 2 parts :
 
-- Front-end interface (Teacher);
-- Front-end interface (Student);
-- Load .v and .sdf files;
-- Creation of a fixed, animated and with values schemas;
-- A parser that transforms the files into JSON file;
-- A readable JSON file;
-- Some pretty diagrams;
-- Online version of the website;
-- Tool bar editing the rendered schema;
-- Buttons (Export, Share);
-- Account feature;
-- Back-end.
+- **POC:**
+  - The front-end interface;
+  - Load .v and .sdf files;
+  - Creation of a fixed, animated and with values schemas;
+  - A parser that transforms the files into JSON file;
+  - Online version of the website.
+
+- **Features:**
+  - A readable JSON file;
+  - Some pretty diagrams;
+  - Tool bar editing the rendered schema;
+  - An Export option;
+  - A Share option;
+  - Account feature.
+  - Back-end.
+
+<br>
 
 > [!NOTE]
-> This list is based on the MoSCoW table. Thus, the list can be updated at any time during the project.
+> These lists are based on the MoSCoW table. Thus, the lists can be updated at any time during the project.
 
 <br>
 
@@ -141,6 +146,15 @@ $$
 
 <br>
 
+Why:
+
+- The "number of achieved features" indicates the number of features which have been completed and ready to be used without a bug.
+- "All features" refers to all the features indicated in the MoSCoW table (or just above).
+
+<br>
+
+##### 
+
 #### 3.2.4 Human Resources
 
 The human resources are the team members' mood. This section explains how the team members feel about the project. The team members are asked to give a note between 1 and 10. The average of all the notes is the KPI.
@@ -148,7 +162,7 @@ The human resources are the team members' mood. This section explains how the te
 ##### Formula:
 
 $$
-\text{Human Resources} = \left( \frac{\sum \text{Individual notes}}{\text{Number of team members}} \right)
+\text{Human Resources} = \left( \frac{\sum \text{Individual Grade}}{\text{Number of team members}} \right)
 $$
 
 <br>
@@ -168,4 +182,4 @@ Each week, a survey is sent to the team members to know the progress of the proj
 
 The management review is a survey that takes place at the end of the project to assess management (in addition to the weekly forms) as a whole. The members are asked to say how they felt about the management of the project.
 <br>
-You can find the management review [here]().
+You can find the management review [here](../ManagementArtifacts/post_Mortem.md).
