@@ -17,6 +17,8 @@ function TeacherPage() {
   const [circuitDescription, setCircuitDescription] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [selectedCircuits, setSelectedCircuits] = useState<Set<string>>(new Set());
+  const [sendingToStudents, setSendingToStudents] = useState<boolean>(false);
+
 
   // Separate state for each file type:
   const [vFile, setVFile] = useState<File | null>(null);
@@ -195,6 +197,24 @@ function TeacherPage() {
     setSelectedCircuit(circuit);
   };
 
+  const approveCircuit = async (id: string) => {
+    setLoading(true);
+    try {
+      const response = await fetch(`http://localhost:5001/approve/${id}`, {
+        method: "POST",
+      });
+      if (response.ok) {
+        alert("Circuit approved!");
+        fetchCircuits();
+      } else {
+        alert("Failed to approve circuit.");
+      }
+    } catch (error) {
+      console.error("Error approving circuit:", error);
+    }
+    setLoading(false);
+  };
+
   return (
     <div style={{
       width: "100vw",
@@ -237,139 +257,139 @@ function TeacherPage() {
           gap: "10px"
         }}>
           {/* File Upload Section */}
-            <div style={{
+          <div style={{
             padding: "20px",
             border: "1px solid #ccc",
             borderRadius: "8px"
-            }}>
+          }}>
             <h3 style={{ margin: "0 0 15px 0" }}>Upload New Circuit</h3>
             <div style={{ marginBottom: "10px" }}>
               <label htmlFor="circuitName">Circuit Name:</label>
               <input
-              type="text"
-              id="circuitName"
-              value={circuitName}
-              onChange={(e) => setCircuitName(e.target.value)}
-              style={{ width: "100%", padding: "8px", marginTop: "5px", boxSizing: "border-box" }}
-              placeholder="Enter a name for this circuit"
+                type="text"
+                id="circuitName"
+                value={circuitName}
+                onChange={(e) => setCircuitName(e.target.value)}
+                style={{ width: "100%", padding: "8px", marginTop: "5px", boxSizing: "border-box" }}
+                placeholder="Enter a name for this circuit"
               />
             </div>
             <div style={{ marginBottom: "10px" }}>
               <label htmlFor="circuitDescription">Description (optional):</label>
               <textarea
-              id="circuitDescription"
-              value={circuitDescription}
-              onChange={(e) => setCircuitDescription(e.target.value)}
-              style={{ width: "100%", padding: "8px", marginTop: "5px", minHeight: "80px", boxSizing: "border-box" }}
-              placeholder="Add a description for this circuit"
+                id="circuitDescription"
+                value={circuitDescription}
+                onChange={(e) => setCircuitDescription(e.target.value)}
+                style={{ width: "100%", padding: "8px", marginTop: "5px", minHeight: "80px", boxSizing: "border-box" }}
+                placeholder="Add a description for this circuit"
               />
             </div>
 
             {/* File Previews */}
             {vFile && (
               <div style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              border: "1px solid #ccc",
-              borderRadius: "4px",
-              padding: "6px",
-              marginBottom: "10px"
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                border: "1px solid #ccc",
+                borderRadius: "4px",
+                padding: "6px",
+                marginBottom: "10px"
               }}>
-              <span style={{ fontSize: "1.5rem" }}>📄</span>
-              <div style={{ flex: 1, wordBreak: "break-all" }}>{vFile.name}</div>
-              <button
-                onClick={() => removeFile("v")}
-                style={{
-                background: "none",
-                border: "none",
-                color: "#f44336",
-                fontWeight: "bold",
-                cursor: "pointer",
-                fontSize: "1.2rem"
-                }}
-                title="Remove file"
-              >
-                ✕
-              </button>
+                <span style={{ fontSize: "1.5rem" }}>📄</span>
+                <div style={{ flex: 1, wordBreak: "break-all" }}>{vFile.name}</div>
+                <button
+                  onClick={() => removeFile("v")}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    color: "#f44336",
+                    fontWeight: "bold",
+                    cursor: "pointer",
+                    fontSize: "1.2rem"
+                  }}
+                  title="Remove file"
+                >
+                  ✕
+                </button>
               </div>
             )}
             {sdfFile && (
               <div style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              border: "1px solid #ccc",
-              borderRadius: "4px",
-              padding: "6px",
-              marginBottom: "10px"
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                border: "1px solid #ccc",
+                borderRadius: "4px",
+                padding: "6px",
+                marginBottom: "10px"
               }}>
-              <span style={{ fontSize: "1.5rem" }}>📝</span>
-              <div style={{ flex: 1, wordBreak: "break-all" }}>{sdfFile.name}</div>
-              <button
-                onClick={() => removeFile("sdf")}
-                style={{
-                background: "none",
-                border: "none",
-                color: "#f44336",
-                fontWeight: "bold",
-                cursor: "pointer",
-                fontSize: "1.2rem"
-                }}
-                title="Remove file"
-              >
-                ✕
-              </button>
+                <span style={{ fontSize: "1.5rem" }}>📝</span>
+                <div style={{ flex: 1, wordBreak: "break-all" }}>{sdfFile.name}</div>
+                <button
+                  onClick={() => removeFile("sdf")}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    color: "#f44336",
+                    fontWeight: "bold",
+                    cursor: "pointer",
+                    fontSize: "1.2rem"
+                  }}
+                  title="Remove file"
+                >
+                  ✕
+                </button>
               </div>
             )}
 
             {/* Show drag/drop and file input if one or both files are missing */}
             {(!vFile || !sdfFile) && (
-              <div 
-              onDragOver={handleDragOver}
-              onDrop={handleDrop}
-              style={{
-                marginBottom: "10px",
-                padding: "20px",
-                border: "2px dashed #aaa",
-                borderRadius: "8px",
-                textAlign: "center",
-                color: "#aaa"
-              }}
-              >
-              <p style={{ margin: 0 }}>
-                {(!vFile && !sdfFile) && <>Drag and drop your <strong>.v</strong> and <strong>.sdf</strong> files here</>}
-                {(vFile && !sdfFile) && <>Drag and drop your <strong>.sdf</strong> file here</>}
-                {(!vFile && sdfFile) && <>Drag and drop your <strong>.v</strong> file here</>}
-                <span style={{ margin: "0 5px" }}>or</span>
-                <label 
+              <div
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
                 style={{
-                  display: "inline-block",
-                  padding: "6px 12px",
-                  backgroundColor: "#666",
-                  color: "#fff",
-                  borderRadius: "4px",
-                  cursor: "pointer"
+                  marginBottom: "10px",
+                  padding: "20px",
+                  border: "2px dashed #aaa",
+                  borderRadius: "8px",
+                  textAlign: "center",
+                  color: "#aaa"
                 }}
-                >
-                Choose Files
-                <input
-                  type="file"
-                  multiple
-                  accept=".v,.sdf"
-                  onChange={handleFileChange}
-                  style={{ display: "none" }}
-                />
-                </label>
-              </p>
-              <small style={{ display: "block", marginTop: "10px", color: "#999" }}>
-                {(!vFile && !sdfFile) && "You can select both files at once or upload them separately"}
-                {(vFile && !sdfFile) && "Still needed: one .sdf file"}
-                {(!vFile && sdfFile) && "Still needed: one .v file"}
-              </small>
-              <small style={{ display: "block", marginTop: "5px", color: "#999" }}>
-                {(vFile || sdfFile) && "If you select multiple files, existing files will be replaced"}
-              </small>
+              >
+                <p style={{ margin: 0 }}>
+                  {(!vFile && !sdfFile) && <>Drag and drop your <strong>.v</strong> and <strong>.sdf</strong> files here</>}
+                  {(vFile && !sdfFile) && <>Drag and drop your <strong>.sdf</strong> file here</>}
+                  {(!vFile && sdfFile) && <>Drag and drop your <strong>.v</strong> file here</>}
+                  <span style={{ margin: "0 5px" }}>or</span>
+                  <label
+                    style={{
+                      display: "inline-block",
+                      padding: "6px 12px",
+                      backgroundColor: "#666",
+                      color: "#fff",
+                      borderRadius: "4px",
+                      cursor: "pointer"
+                    }}
+                  >
+                    Choose Files
+                    <input
+                      type="file"
+                      multiple
+                      accept=".v,.sdf"
+                      onChange={handleFileChange}
+                      style={{ display: "none" }}
+                    />
+                  </label>
+                </p>
+                <small style={{ display: "block", marginTop: "10px", color: "#999" }}>
+                  {(!vFile && !sdfFile) && "You can select both files at once or upload them separately"}
+                  {(vFile && !sdfFile) && "Still needed: one .sdf file"}
+                  {(!vFile && sdfFile) && "Still needed: one .v file"}
+                </small>
+                <small style={{ display: "block", marginTop: "5px", color: "#999" }}>
+                  {(vFile || sdfFile) && "If you select multiple files, existing files will be replaced"}
+                </small>
               </div>
             )}
 
@@ -391,7 +411,7 @@ function TeacherPage() {
                 {loading ? "Uploading..." : "Upload Files"}
               </button>
             )}
-            </div>
+          </div>
 
           {/* Circuit List Section */}
           <div style={{
@@ -479,7 +499,9 @@ function TeacherPage() {
                               {circuit.description}
                             </p>
                           )}
+                          
                         </div>
+                        
                       </div>
                       <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
                         <button
@@ -508,7 +530,21 @@ function TeacherPage() {
                         >
                           Delete
                         </button>
+                        <button
+                          onClick={() => approveCircuit(circuit.id)}
+                          style={{
+                            padding: "5px 10px",
+                            backgroundColor: "#2196F3",
+                            color: "white",
+                            border: "none",
+                            borderRadius: "4px",
+                            width: "70px"
+                          }}
+                        >
+                          Send
+                        </button>
                       </div>
+                      
                     </div>
                   </li>
                 ))}
@@ -537,7 +573,11 @@ function TeacherPage() {
               <>
                 <div style={{ marginBottom: "10px" }}>
                   <strong>Current Circuit:</strong> {selectedCircuit.name}
+                
+                <div style={{ marginBottom: "10px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  {/*  */}
                 </div>
+                  </div>
                 <div style={{
                   flexGrow: 1,
                   border: "1px solid #ddd",
@@ -545,6 +585,18 @@ function TeacherPage() {
                   borderRadius: "8px",
                   color: "#333"
                 }}>
+                  
+                  <strong style={{
+                    position: "absolute",
+                    top: "10px",
+                    left: "10px",
+                    padding: "8px",
+                    backgroundColor: "#4CAF50",
+                    color: "white",
+                    borderRadius: "4px"
+                  }}>
+                    {selectedCircuit.name}
+                  </strong>
                   <CircuitVisualizer jsonFile={selectedCircuit.jsonFile} />
                 </div>
               </>
