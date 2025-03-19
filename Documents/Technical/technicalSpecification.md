@@ -19,7 +19,7 @@
 </details>
 
 ## Introduction
-The project consists of creating a webpage that simulates the behavior of an FPGA and generates, from a .v and .sdf file, a blueprint of the FPGA with its components and the connections between them. It is intended to be used to teach people how signals propagate inside an FPGA.
+The project consists of creating a webpage that simulates the behavior of an FPGA[^FPGA] and generates, from a .v and .sdf file, a blueprint of the FPGA with its components and the connections between them. It is intended to be used to teach people how signals propagate inside an FPGA.
 
 ## Objectives
 
@@ -53,7 +53,7 @@ The project consists of creating a webpage that simulates the behavior of an FPG
 │  │                     
 │  ├──📁QualityAssurance
 │  │  └──📁Images    
-│  │  └──📝TestCaseRules.md  
+│  │  └──📝testCaseRules.md  
 │  │  └──📝testPlan.md   
 │  │              
 │  ├──📁Technical                                
@@ -76,14 +76,26 @@ You can check them using this link:
 
 To see all Requirements it is recommended to read the [functional specification](https://github.com/algosup/2024-2025-project-4-web-fpga-team-2/blob/main/Documents/Functional/functionalSpecification.md) document.
 
-## System Architecture
-### A. Overview
+## Technologies used
 
-| Input | Processing | Output |
-| ----- | ---------- | ------ |
-|A .v file or .sdf file.|Read the file.|Display a blueprint of FPGA components and their connections on the web page.|
+### HTML, CSS And JavaScript
 
+- HTML[^html] will be used to build the website's structure.
+- CSS[^css] : will be used for the website's design.
+- JavaScript[^js] will be used to interactivity between client and website.
 
+### JSON
+- JSON[^json] will be used to exchange information between the server and the web application.
+
+### Node.js, React And TypeScript
+
+- Node.js[^node.js] will be used to create a server http and Managing API requests with Express.
+- React[^react] will be used for the circuit visualizer(render).
+
+### Parser  
+
+In order to read the .v and .sdf file we will used a parser.
+Parser reads the file and translate it into .json file, facilitates data exchange and transmission.
 
 ## Frontend
 
@@ -95,18 +107,26 @@ Finally, JS is used to handle events and modify the webpage directly from the br
 
 ## Backend
 
+When you upload a file :
+display schema on student side
+delete file
+
+
 
 
 ## Glossary
 
 
-[^FPGA] : FPGA is an acronym for Field Programmable Gate Array. it is an integrated circuit with basic elements and preconfigured electrical signal routes between them.
+[^FPGA] : FPGA is an acronym for Field Programmable Gate Array. it is an integrated circuit with basic elements and preconfigured electrical signal routes between them. [source](http://en.wikipedia.org/wiki/Field-programmable_gate_array)
 
 [^html] : HTML is an acronym for Hypertext Markup Language that is the standard markup language for documents designed to be displayed in a web browser. [Source](https://en.wikipedia.org/wiki/HTML)
 
 [^css] : CSS is an acronym for Cascading Style Sheets that is a style sheet language used for specifying the presentation and styling of a document written in a markup language. [Source](https://en.wikipedia.org/wiki/CSS)
 
 [^js] : is a programming language and core technology of the World Wide Web, alongside HTML and CSS.[Source](https://en.wikipedia.org/wiki/JavaScript)
+
+
+[^json] : JSON is an acronym for JavaScript Object Notation an open standard file format and data interchange format that uses human-readable text to store and transmit data objects consisting of name-value pairs and arrays (or other serializable values). [Source](https://en.wikipedia.org/wiki/JSON)
 
 [^node.js] : Node.js an asynchronous event-driven JavaScript runtime that is designed to build scalable network applications. [Source](https://nodejs.org/en/about)
 
