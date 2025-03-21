@@ -91,6 +91,7 @@ To see all Requirements it is recommended to read the [functional specification]
 
 - Node.js[^node.js] will be used to create a server http and Managing API requests with Express.
 - React[^react] will be used for the circuit visualizer(render).
+- TypeScript[^TypeScript] will be used to 
 
 ### Parser  
 
@@ -107,9 +108,25 @@ Finally, JS is used to handle events and modify the webpage directly from the br
 
 ## Backend
 
-When you upload a file :
-display schema on student side
-delete file
+### Server
+
+### When you upload a file
+
+For the teacher, here's how to upload a file. 
+
+![ImageUpload](Images/upload.png)
+
+
+### Delete a file
+
+the teacher will be able to delete a file that has already been upload.
+
+There will be a folder called “upload” containing all the files uploaded by the teacher in json format.
+To delete a file, the teacher presses the “delete” button and the file is removed from the folder.
+
+
+### display schema on student side
+
 
 
 
