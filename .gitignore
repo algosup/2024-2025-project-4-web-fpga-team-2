@@ -79,3 +79,4 @@ src/backend/uploads/*.json
 !tsconfig.json
 !.eslintrc.json
 !jest.config.json
+.qodo
