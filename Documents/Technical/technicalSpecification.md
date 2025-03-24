@@ -69,7 +69,7 @@ The project consists of creating a webpage that simulates the behavior of an FPG
 ## Conventions
 
 There are conventions to follow during the project.
-You can check them using this link:
+You can check them using this link :
 [Convention](https://github.com/algosup/2024-2025-project-4-web-fpga-team-2/blob/main/Documents/Technical/convention.md)
 
 ## Requirements
@@ -110,14 +110,46 @@ Finally, JS is used to handle events and modify the webpage directly from the br
 
 ### Server
 
-### When you upload a file
+The server.js file will be placed in the “Backend” folder along with the parser.js file.<br>
+The server will be a Node.js Server.
+This is an HTTP server that also hosts a WebSocket server, both running on the same underlying HTTP server.
+
+<strong>what the server has to do :</strong>
+
+- <strong>The server enables real-time communication</strong><br>
+  We will use WebSocket to allow the server to enable real-time communication by instantly broadcasting updates to all connected clients whenever a circuit is uploaded, processed, or deleted.
+
+- <strong>API REST</strong>
+  
+
+- <strong>generates an upload folder</strong><br>
+ The folder upload will be generated only when it doesn't exist. <br>
+ It can be accessed using the HTTP protocol.<br>
+ This folder will contain all files downloaded by the teacher in JSON format.
+
+- <strong>gives a name to the JSON file created in the upload folder</strong><br>
+  To do this, we'll use the Multer module. <br>
+  The file of each file will be based on the date and the original file's extension.
+
+- <strong>Manage Database</strong><br>
+  The server uses an SQLite database to store metadata about uploaded circuits.<br>
+    Each circuit entry includes a unique ID, name, creation date, JSON file path, and description.<br>
+    The database ensures that circuits can be listed, retrieved by ID, and deleted when needed.<br>
+    When a circuit is deleted, the corresponding database entry and JSON file are removed to keep the storage clean.
+
+
+
+
+
+
+### When You Upload A File(POST)
 
 For the teacher, here's how to upload a file. 
 
 ![ImageUpload](Images/upload.png)
 
 
-### Delete a file
+### Delete a file(DELETE)
 
 the teacher will be able to delete a file that has already been upload.
 
