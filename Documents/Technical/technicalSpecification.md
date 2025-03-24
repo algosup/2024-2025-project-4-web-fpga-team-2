@@ -5,7 +5,7 @@
 **Project Name:** Web FPGA
 **Team:** Team 2  
 **Document Edited by:** Léna<br>
-**Last Time Modified:** 03/13/2025
+**Last Time Modified:** 03/24/2025
 
 </div>
 
@@ -85,7 +85,7 @@ To see all requirements it is recommended to read the [functional specification]
 ### JSON
 - JSON[^json] will be used to exchange information between the server and the web application.
 
-### Node.js, React And TypeScript
+### Node.js, D3.js, React And TypeScript
 
 - Node.js[^node.js] will be used to create an http server and manage API requests with Express.
 - React[^react] will be used for the circuit visualizer(render).
@@ -110,7 +110,7 @@ Finally, JS is used to handle events and modify the webpage directly from the br
 
 ### Display The Circuit
 
-The file CircuitVisualizer.tsx will be placed in the “Frontend” folder.
+The file circuitVisualizer.tsx will be placed in the “Frontend” folder.
 This file will be the render of this project.
  
 To display a circuit the program need a JSON file.
@@ -127,8 +127,9 @@ To display a circuit the program need a JSON file.
 
 As stated in the functionnal, it must have an animation representing the current flowing between the various circuit components.
 
-
-
+To represent the current flowing between the components we will use D3.js to create circles.
+These small circles will be generated from the circuit inputs and will disappear at the output.
+The speed of these circles will be based on the Time Constraint of the .json file. 
 
 
 ## Backend
@@ -166,12 +167,26 @@ This is an HTTP server that also hosts a WebSocket server, both running on the s
   The file of each file will be based on the date and the original file's extension.
 
 
+### Parser
+
+The parser.js file will be placed in the “Backend” folder along with the server.js file.<br>
+	
+This file will be a set of JavaScript functions for extracting all information from a Verilog file.
+
+-  <strong>clean_up_verilog(VerilogCode)</strong> : should 'clean' the .v file, delete the commentaire and void ligne.
+-  <strong>parse_verilog(VerilogCode)</strong> : It seeks to identify the various elements of the circuit, input, output and wire. In order to create a structure representing the Verilog code.
+-  <strong>parse_SDF(sdfContent)</strong> : Should analyzes an SDF file to extract timing information, such as propagation delays and timings.
+-  <strong>analyze_circuit_files(VerilogCode, sdfContent)</strong> : After identify the components,this function creates connections between the various circuit components.
+-  <strong>generate_json_file(data, filePath)</strong> : generates a JSON file from a data object and saves it in the filePath location. It's will be use to creat JSON file based on .sdf and .v files.
+
+
+
 
 
 
 ### When You Upload A File(POST)
 
-For the teacher, here's how to upload a file. 
+For the teacher side, here's how to upload a file. 
 
 ![ImageUpload](Images/upload.png)
 
