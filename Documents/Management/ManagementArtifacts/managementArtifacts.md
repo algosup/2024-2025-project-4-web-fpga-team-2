@@ -124,11 +124,11 @@ The web page is the final product of the project. It is the result of the work o
 
 - **Features:**
   - A readable JSON file;
-  - Some pretty diagrams;
+  - Pretty diagrams;
   - Tool bar editing the rendered schema;
   - An Export option;
   - A Share option;
-  - Account feature.
+  - Account system.
   - Back-end.
 
 <br>
