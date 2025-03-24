@@ -39,7 +39,7 @@ All finished tasks from the last week are placed at the bottom of the board.
 
 ### Code of conduct
 
-The [code of conduct](../../../CODE_OF_CONDUCT.md) was written and shared with the team. It will be signed by all members of the team during the next meeting.
+The [code of conduct](../../../CODE_OF_CONDUCT.md) was written and shared with the team. It will be signed by all members of the team during the next project time.
 
 ## Key Goals for Week 3
 
