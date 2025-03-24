@@ -36,7 +36,7 @@ All finished tasks from the 2 last week are placed at the bottom of the board.
 
 ### Management Documents
 
-The Risk Management Plan is now finished. A Tables and KPIs document has been created and almost finished. The KPIs will be store in a Google Sheet for a better readability from the next week.
+The Risk Management Plan is now finished. The Management Artifacts document has been created and almost finished. The KPIs will be store in a Google Sheet for a better readability from the next week.
 
 ### Problems Encountered
 
@@ -44,9 +44,9 @@ Unfortunately, due to a misunderstanding the QA thought that the deadline for th
 
 ## Next Week
 
-- Finish the Technical Specification for 90%.
+- Finish the Technical Specification for 75%.
 - Finish the circuit visualizer.
 - Try to finish the dashboard (the UI is less important for now than the circuit visualizer).
 - Find new ideas for the Test Cases.
-- Finish the Tables and KPIs document.
+- Finish the Management Artifacts document.
 - Start the KPIs' Google Sheet.
