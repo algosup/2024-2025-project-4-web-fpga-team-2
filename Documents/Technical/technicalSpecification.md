@@ -91,7 +91,7 @@ To see all Requirements it is recommended to read the [functional specification]
 
 - Node.js[^node.js] will be used to create a server http and Managing API requests with Express.
 - React[^react] will be used for the circuit visualizer(render).
-- TypeScript[^TypeScript] will be used to 
+- TypeScript[^TypeScript] will be used to for the circuit visualizer.
 
 ### Parser  
 
@@ -108,6 +108,7 @@ Finally, JS is used to handle events and modify the webpage directly from the br
 
 ## Backend
 
+
 ### Server
 
 The server.js file will be placed in the “Backend” folder along with the parser.js file.<br>
@@ -119,7 +120,16 @@ This is an HTTP server that also hosts a WebSocket server, both running on the s
 - <strong>The server enables real-time communication</strong><br>
   We will use WebSocket to allow the server to enable real-time communication by instantly broadcasting updates to all connected clients whenever a circuit is uploaded, processed, or deleted.
 
-- <strong>API REST</strong>
+- <strong>Manage Database</strong><br>
+  The server uses an SQLite database to store metadata about uploaded circuits.<br>
+    Each circuit entry includes a unique ID, name, creation date, JSON file path, and description.<br>
+    The database ensures that circuits can be listed, retrieved by ID, and deleted when needed.<br>
+    When a circuit is deleted, the corresponding database entry and JSON file are removed to keep the storage clean.
+
+- <strong>API REST</strong><br>
+  POST : Must be able to upload two files (Verilog and SDF), which are then processed to generate a JSON file representing the circuit. <br>
+  GET : Retrieves a list of existing circuits or detailed information on a specific circuit via its ID. <br>
+  DELETE : the teacher will be able to delete a file that has already been upload.
   
 
 - <strong>generates an upload folder</strong><br>
@@ -130,13 +140,6 @@ This is an HTTP server that also hosts a WebSocket server, both running on the s
 - <strong>gives a name to the JSON file created in the upload folder</strong><br>
   To do this, we'll use the Multer module. <br>
   The file of each file will be based on the date and the original file's extension.
-
-- <strong>Manage Database</strong><br>
-  The server uses an SQLite database to store metadata about uploaded circuits.<br>
-    Each circuit entry includes a unique ID, name, creation date, JSON file path, and description.<br>
-    The database ensures that circuits can be listed, retrieved by ID, and deleted when needed.<br>
-    When a circuit is deleted, the corresponding database entry and JSON file are removed to keep the storage clean.
-
 
 
 
@@ -154,7 +157,17 @@ For the teacher, here's how to upload a file.
 the teacher will be able to delete a file that has already been upload.
 
 There will be a folder called “upload” containing all the files uploaded by the teacher in json format.
-To delete a file, the teacher presses the “delete” button and the file is removed from the folder.
+
+To delete a file, the teacher presses the “delete” button and the file is removed from the folder and the SQLite database.
+
+- the server extracts the circuit ID from the URL of the HTTP request.
+- An SQL query is sent to the database to find the circuit entry.
+  - if the circuit wasn't found : send "404 circuit not found"
+  - if the circuit was found : delete the JSON file in the folder upload and delete circuit in the database with this SQL request.
+    ```SQL
+    DELETE FROM circuit WHERE id = CircuitIdDeleted ;
+    ```
+- All clients connected via WebSocket receive notification that a circuit has been deleted.
 
 
 ### display schema on student side
