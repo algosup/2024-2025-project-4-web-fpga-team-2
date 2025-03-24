@@ -19,21 +19,19 @@
 </details>
 
 ## Introduction
-The project consists of creating a webpage that simulates the behavior of an FPGA[^FPGA] and generates, from a .v and .sdf file, a blueprint of the FPGA with its components and the connections between them. It is intended to be used to teach people how signals propagate inside an FPGA.
+The project consists of creating a web page that simulates the behavior of an FPGA[^FPGA] and generates, from a .v and .sdf file, a blueprint of the FPGA with its components and the connections between them. It is intended to be used to teach people how signals propagate inside an FPGA.
 
 ## Objectives
 
-- Simulate an FPGA and generate a blueprint of its components and their connections.
+- The teacher will access the web page, use the functionality to load a .v and .sdf file, and simulate an FPGA to generate a blueprint of its components and their connections.
 
-- Provide a user-friendly interface.
+- The web page will provide a user-friendly interface for the teacher to interact with.
 
-- Load a .v and .sdf file.
+- The blueprint can be downloaded or shared as a .png file
 
-- Download or share the blueprint as a .png file.
+- The teacher will access the web page, use this functionality, and share it with students to explain how an FPGA works.
 
-- The teacher will access the webpage, use this functionality, and share it with students to explain how an FPGA works.
-
-- Students will view the webpage while the teacher explains and simulates the FPGA's behavior.
+- Students will view the web page while the teacher explains and simulates the FPGA's behavior.
 
 
 
@@ -74,7 +72,7 @@ You can check them using this link :
 
 ## Requirements
 
-To see all Requirements it is recommended to read the [functional specification](https://github.com/algosup/2024-2025-project-4-web-fpga-team-2/blob/main/Documents/Functional/functionalSpecification.md) document.
+To see all requirements it is recommended to read the [functional specification](https://github.com/algosup/2024-2025-project-4-web-fpga-team-2/blob/main/Documents/Functional/functionalSpecification.md) document.
 
 ## Technologies used
 
@@ -89,17 +87,16 @@ To see all Requirements it is recommended to read the [functional specification]
 
 ### Node.js, React And TypeScript
 
-- Node.js[^node.js] will be used to create a server http and Managing API requests with Express.
+- Node.js[^node.js] will be used to create an http server and manage API requests with Express.
 - React[^react] will be used for the circuit visualizer(render).
 - TypeScript[^TypeScript] will be used for the circuit visualizer.
-- D3.js[d3js] will be used to zoom in and out on the circuit diagram or manipulate the DOM.
+- D3.js[^d3js] will be used to zoom in and out on the circuit diagram or manipulate the DOM.
 
 
 
 ### Parser  
 
-In order to read the .v and .sdf file we will used a parser.
-Parser reads the file and translate it into .json file, facilitates data exchange and transmission.
+To read the .v and .sdf file, a parser will be used. The parser reads the file and translate it into a .json file, facilitating data exchange and transmission.
 
 ## Frontend
 
@@ -222,4 +219,4 @@ To delete a file, the teacher presses the “delete” button and the file is re
 
 [^TypeScript]: TypeScript is a syntactic superset of JavaScript which adds static typing. [Source](https://www.typescriptlang.org/)
 
-[d3js]: D3.js is JavaScript library for bespoke data visualization. [Source](https://d3js.org/)
+[^d3js]: D3.js is JavaScript library for bespoke data visualization. [Source](https://d3js.org/)
