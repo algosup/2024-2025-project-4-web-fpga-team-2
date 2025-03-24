@@ -42,36 +42,38 @@ interface Connection {
   wire: string;
 }
 
-interface PortMap {
-  [key: string]: string; // e.g. { "\\D": "input", "\\clk": "input", "\\Q": "output" }
+interface TimingDelay {
+  cellType: string;
+  instance: string;
+  type: string;
+  inputPort?: string;
+  outputPort?: string;
+  rise?: { min: number; typ: number; max: number };
+  fall?: { min: number; typ: number; max: number };
+  max_delay?: number; // in picoseconds
+}
+
+interface TimingData {
+  delays: TimingDelay[];
+  summary?: {
+    total_delays: number;
+    max_delay: number;
+    components_with_timing: number;
+  };
 }
 
 interface CircuitData {
   module: string;
-  ports: PortMap;
+  ports: Record<string, string>;
   wires: string[];
   components: ComponentNode[];
   interconnects: Interconnect[];
   connections: Connection[];
   summary?: any;
-  timing?: any;
+  timing?: TimingData;
 }
 
-interface CircuitVisualizerProps {
-  jsonPath?: string;
-  jsonFile?: string;
-}
-
-/** Node info stored by Dagre after layout. */
-interface DagreNode {
-  comp: ComponentNode;
-  width: number;
-  height: number;
-  x: number;
-  y: number;
-}
-
-/** Positioned component includes position and size. */
+/** For storing node positions. */
 interface PositionedComponent extends ComponentNode {
   x: number;
   y: number;
@@ -79,13 +81,13 @@ interface PositionedComponent extends ComponentNode {
   height: number;
 }
 
-/** For storing pin positions. */
+/** For storing positions. */
 interface Position {
   x: number;
   y: number;
 }
 
-/** For drawing lines from ports to pins */
+/** For drawing port connection lines. */
 interface PortConnectionDraw {
   portName: string;
   fromPos: Position;
@@ -93,38 +95,34 @@ interface PortConnectionDraw {
   wire: string;
 }
 
-interface TimingDelay {
-  instance?: string;
-  cellType: string;
-  inputPort?: string;
-  outputPort?: string;
-  delay?: number;
-  max_delay?: number;
-  min_delay?: number;
+interface CircuitVisualizerProps {
+  jsonPath?: string;
+  jsonFile?: string;
 }
 
 const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFile }) => {
   const [circuitData, setCircuitData] = useState<CircuitData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  // State for node positions (updated by layout and drag)
   const [nodePositions, setNodePositions] = useState<PositionedComponent[]>([]);
-  // State for custom port positions (can be preset or updated via dragging)
   const [customPortPositions, setCustomPortPositions] = useState<Record<string, Position>>({
     "\\clk": { x: 100, y: 100 },
     "\\async_reset": { x: 100, y: 200 },
     "\\D": { x: 100, y: 300 },
     "\\Q": { x: 100, y: 400 }
   });
-  // State for hovered node (for tooltip)
   const [hoveredNode, setHoveredNode] = useState<PositionedComponent | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
+  const [animationSpeed, setAnimationSpeed] = useState<number>(1);
+  const [animateFlow, setAnimateFlow] = useState<boolean>(false);
+  const [clockCycle, setClockCycle] = useState<number>(0);
+  const [isRunning, setIsRunning] = useState<boolean>(false);
+  const svgWidth = 1200;
+  const svgHeight = 800;
   const svgId = useMemo(() => `circuit-svg-${Math.random().toString(36).substring(7)}`, []);
   const filePath = useMemo(() => jsonPath || jsonFile || '', [jsonPath, jsonFile]);
   const [showTimingInfo, setShowTimingInfo] = useState<boolean>(false);
   const [timingDetails, setTimingDetails] = useState<TimingDelay[] | null>(null);
-  const svgWidth = 1200;
-  const svgHeight = 800;
 
   // 1) Load JSON data
   useEffect(() => {
@@ -202,7 +200,7 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
     }, 100);
   }, [circuitData]);
 
-  // 3) Merge components and interconnects into one array
+  // 3) Merge components and interconnects into one array.
   const allNodes = useMemo<ComponentNode[]>(() => {
     if (!circuitData) return [];
     const interNodes = circuitData.interconnects.map(ic => ({
@@ -214,7 +212,7 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
     return [...circuitData.components, ...interNodes];
   }, [circuitData]);
 
-  // 4) Run Dagre Layout on all nodes and update nodePositions state.
+  // 4) Run Dagre Layout.
   useEffect(() => {
     if (!circuitData) return;
     try {
@@ -282,7 +280,7 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
     }
   }, [circuitData, allNodes]);
 
-  // 5) Compute pin positions based on nodePositions.
+  // 5) Compute pin positions.
   const pinPositions = useMemo<Record<string, { inputs: Record<number, Position>, outputs: Record<number, Position> }>>(() => {
     const posMap: Record<string, { inputs: Record<number, Position>, outputs: Record<number, Position> }> = {};
     nodePositions.forEach(pc => {
@@ -331,7 +329,6 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
     return pos;
   }, [circuitData, svgWidth]);
 
-  // Use custom port positions if defined; otherwise, fallback to defaults.
   const portPositions = useMemo<Record<string, Position>>(() => {
     if (!circuitData) return {};
     const merged: Record<string, Position> = {};
@@ -341,7 +338,7 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
     return merged;
   }, [circuitData, customPortPositions, defaultPortPositions]);
 
-  // 7) Infer port wire names based on naming conventions.
+  // 7) Infer port wires.
   const inferredPortWires = useMemo<Record<string, string>>(() => {
     if (!circuitData) return {};
     const map: Record<string, string> = {};
@@ -357,40 +354,18 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
     return map;
   }, [circuitData]);
 
-  // First, update the getTimingForComponent function to better extract timing data
-  const getTimingForComponent = (componentName: string): TimingDelay[] => {
-    if (!circuitData?.timing?.delays) return [];
-
-    // Debug to console to see what's in the timing data
-    console.log("Timing data structure:", circuitData.timing);
-
-    // Filter delays related to this component
-    return circuitData.timing.delays.filter((delay: any) =>
-      delay.instance && delay.instance.includes(componentName.replace(/\\/g, "\\\\"))
-    );
-  };
-
-  // Add this function to get color based on delay value
-  const getDelayColor = (delays: any[]): string => {
-    if (!delays || delays.length === 0) return "#444"; // Default color
-
-    // In a real implementation, you might normalize this based on max delay
-    const delayCount = delays.length;
-    if (delayCount > 5) return "#e74c3c"; // Red for high delay
-    if (delayCount > 3) return "#f39c12"; // Orange for medium delay
-    return "#2ecc71"; // Green for low delay
-  };
-
-  // 8) Build connections from ports to nodes.
   const portConnectionsToDraw = useMemo<PortConnectionDraw[]>(() => {
     if (!circuitData) return [];
     const results: PortConnectionDraw[] = [];
-    Object.entries(circuitData.ports).forEach(([portName, dir]) => {
+    // For each port, find its position and determine the matching wire.
+    Object.entries(circuitData.ports).forEach(([portName, direction]) => {
       const portPos = portPositions[portName];
       if (!portPos) return;
       const wire = inferredPortWires[portName];
       if (!wire) return;
+      // For each node, check if any pin (input or output) has a matching wire.
       nodePositions.forEach((node) => {
+        // Check inputs.
         node.inputs.forEach((pin) => {
           if (pin.wire === wire) {
             const pinPos = pinPositions[node.name]?.inputs[pin.pinIndex];
@@ -399,6 +374,7 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
             }
           }
         });
+        // Check outputs.
         node.outputs.forEach((pin) => {
           if (pin.wire === wire) {
             const pinPos = pinPositions[node.name]?.outputs[pin.pinIndex];
@@ -409,24 +385,96 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
         });
       });
     });
-
-    // Add this function to extract timing data for a component
-
     return results;
   }, [circuitData, portPositions, nodePositions, pinPositions, inferredPortWires]);
+  // 8) Get timing data for a component.
+  const getTimingForComponent = (componentName: string): TimingDelay[] => {
+    if (!circuitData?.timing?.delays) return [];
+    // Here we simply check if the delay’s instance includes the component name.
+    return circuitData.timing.delays.filter((delay: TimingDelay) =>
+      delay.instance && delay.instance.includes(componentName.replace(/^\\/, ""))
+    );
+  };
 
-  // 9) Helper to get pin positions for internal connections.
+  // 9) Modified getDelayForWire that now uses component type info.
+  function getDelayForWire(wire: string, circuitData: CircuitData, compType: string, compName: string): number {
+    if (!circuitData?.timing?.delays) return 2000;
+    let found: TimingDelay | undefined;
+    // If the source is an interconnect, match by instance exactly.
+    if (compType.toLowerCase() === "interconnect") {
+      found = circuitData.timing.delays.find((d: TimingDelay) => d.instance === compName);
+    } else {
+      found = circuitData.timing.delays.find((d: TimingDelay) => d.instance && d.instance.includes(wire));
+    }
+    if (found && found.max_delay && found.max_delay > 0) {
+      // Convert picoseconds to a visible duration (adjust multiplier as needed).
+      return (found.max_delay / 1000) * 100;
+    }
+    console.log("No delay found for wire:", wire);
+    return 2000;
+  }
+  function getDelayColor(delays: TimingDelay[]): string {
+    if (!delays || delays.length === 0) return "#444"; // default color
+    // You could use the number of delays as a proxy for "delay intensity"
+    const delayCount = delays.length;
+    if (delayCount > 5) return "#e74c3c"; // red for high delay
+    if (delayCount > 3) return "#f39c12"; // orange for medium delay
+    return "#2ecc71"; // green for low delay
+  }
+  // 10) Animate pulse on a given path with a specified color.
+  function animatePulseOnce(pathElement: SVGPathElement, durationMs: number, color: string) {
+    const parent = pathElement.parentNode as SVGElement;
+    const circle = d3.select(parent)
+      .append("circle")
+      .attr("class", "pulse")
+      .attr("r", 4)
+      .attr("fill", color)
+      .style("pointer-events", "none");
+
+    circle
+      .attr("transform", () => {
+        const p0 = pathElement.getPointAtLength(0);
+        return `translate(${p0.x},${p0.y})`;
+      })
+      .transition()
+      .duration(durationMs)
+      .ease(d3.easeLinear)
+      .attrTween("transform", function () {
+        const length = pathElement.getTotalLength();
+        return (t: number) => {
+          const p = pathElement.getPointAtLength(t * length);
+          return `translate(${p.x},${p.y})`;
+        };
+      })
+      .on("end", () => circle.remove());
+  }
+
+  // 11) Load JSON file.
+  useEffect(() => {
+    if (!filePath) return;
+    fetch(filePath)
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP error ${res.status} – ${res.statusText}`);
+        return res.json();
+      })
+      .then((data: CircuitData) => {
+        setCircuitData(data);
+      })
+      .catch(err => console.error("Error loading circuit data:", err));
+  }, [jsonPath, jsonFile]);
+
+  // 12) Helper to get pin positions for a connection end.
   const getPinPos = (end: { component: string; pinIndex: number; type: string; port?: string }): Position | undefined => {
     const node = nodePositions.find(c => c.name === end.component);
     if (!node) return undefined;
-    const isOutput = (end.type.toLowerCase() === 'output' || (end.port && end.port.toLowerCase() === 'out'));
+    const isOutput = end.type.toLowerCase() === 'output' || (end.port && end.port.toLowerCase() === 'out');
     const map = pinPositions[node.name];
     if (!map) return undefined;
     const index = end.pinIndex || 0;
     return isOutput ? map.outputs[index] : map.inputs[index];
   };
 
-  // 10) Attach drag behavior to nodes.
+  // 13) Attach drag behavior to nodes.
   useEffect(() => {
     d3.selectAll<SVGGElement, unknown>('.draggable')
       .call(
@@ -442,13 +490,12 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
                 node.name === nodeId ? { ...node, x: event.x, y: event.y } : node
               )
             );
-            // If the dragged node is currently hovered, update its position in hoveredNode as well
             setHoveredNode(prev => (prev && prev.name === nodeId ? { ...prev, x: event.x, y: event.y } : prev));
           })
       );
   }, [nodePositions]);
 
-  // 11) Attach drag behavior to ports so that they are movable.
+  // 14) Attach drag behavior to ports.
   useEffect(() => {
     d3.selectAll<SVGGElement, unknown>('.draggable-port')
       .call(
@@ -467,47 +514,104 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
       );
   }, [portPositions]);
 
-  // 12) Render everything.
+  // 15) Clock cycle timer.
+  useEffect(() => {
+    if (!isRunning) return;
+    const timer = setInterval(() => {
+      setClockCycle(prev => prev + 1);
+    }, 1000); // Adjust clock period (1 second per cycle)
+    return () => clearInterval(timer);
+  }, [isRunning]);
+
+  // 16) Animate data flow on connection paths.
+  useEffect(() => {
+    if (!svgRef.current || !circuitData) return;
+    const svg = d3.select(svgRef.current);
+    svg.selectAll<SVGPathElement, unknown>("path.data-flow-connection")
+      .each(function () {
+        const wire = this.getAttribute("data-wire") || "";
+        let color = "red";
+        if (wire.toLowerCase().includes("clk")) {
+          color = "yellow";
+        } else if (wire.toLowerCase().includes("async")) {
+          color = "blue";
+        }
+        // We no longer use unifyName here.
+        // In a real scenario you might pass additional info about the connection.
+        const baseDuration = wire ? getDelayForWire(wire, circuitData, "interconnect", wire) : 2000;
+        const finalDuration = baseDuration / animationSpeed;
+        animatePulseOnce(this, finalDuration, color);
+      });
+  }, [clockCycle, circuitData, animationSpeed]);
+
+  // 17) Render the visual elements.
   if (!filePath) return <div>No circuit file path provided.</div>;
   if (loading) return <div>Loading circuit data...</div>;
   if (error) return <div>Error: {error}</div>;
   if (!circuitData) return <div>No circuit data loaded.</div>;
 
+  const renderConnections = () => {
+    if (!circuitData) return null;
+    return circuitData.connections.map((conn: Connection, i: number) => {
+      // For demonstration, compute a dummy bezier path between two fixed points.
+      // (You should replace this with the proper pin positions.)
+      const start = { x: 100, y: 100 };
+      const end = { x: 300, y: 300 };
+      const dx = end.x - start.x;
+      const controlOffset = Math.min(100, Math.abs(dx) / 2);
+      const path = `M${start.x},${start.y} C${start.x + controlOffset},${start.y} ${end.x - controlOffset},${end.y} ${end.x},${end.y}`;
+      return (
+        <path
+          key={`conn-${i}`}
+          className="data-flow-connection"
+          data-wire={conn.wire}
+          d={path}
+          fill="none"
+          stroke="#fff"
+          strokeWidth={1.5}
+          markerEnd="url(#arrowhead)"
+        />
+      );
+    });
+  };
   return (
-
     <div style={{ color: '#fff' }}>
-      {/* Timing toggle button */}
-      <button
-        onClick={() => setShowTimingInfo(!showTimingInfo)}
-        style={{
-          position: 'absolute',
-          top: '10px',
-          right: '10px',
-          zIndex: 100,
-          padding: '8px 12px',
-          backgroundColor: showTimingInfo ? '#e74c3c' : '#3498db',
-          color: 'white',
-          border: 'none',
-          borderRadius: '4px',
-          cursor: 'pointer'
-        }}
-      >
-        {showTimingInfo ? 'Hide Timing' : 'Show Timing'}
-      </button>
-
+      <div style={{ marginBottom: "1rem" }}>
+        <button onClick={() => setClockCycle(c => c + 1)} style={{ marginRight: "1rem" }}>
+          Next Cycle
+        </button>
+        <button onClick={() => setIsRunning(r => !r)} style={{ marginRight: "1rem" }}>
+          {isRunning ? "Pause" : "Run"}
+        </button>
+        <span style={{ marginRight: "1rem" }}>Clock Cycle: {clockCycle}</span>
+        <label style={{ marginRight: "0.5rem" }}>Animation Speed: {animationSpeed.toFixed(1)}x</label>
+        <input
+          type="range"
+          min="0.1"
+          max="5"
+          step="0.1"
+          value={animationSpeed}
+          onChange={(e) => setAnimationSpeed(parseFloat(e.target.value))}
+        />
+      </div>
       <svg id={svgId} ref={svgRef} style={{ backgroundColor: "#313131", width: '100%', height: '100vh' }}>
         <defs>
-          <marker id="arrowhead" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <marker
+            id="arrowhead"
+            viewBox="0 0 10 10"
+            refX="9"
+            refY="5"
+            markerWidth="6"
+            markerHeight="6"
+            orient="auto"
+          >
             <path d="M 0 0 L 10 5 L 0 10 z" fill="#fff" />
           </marker>
         </defs>
         <g className="main-content">
-          {/* Render all nodes (components and interconnects) */}
           {nodePositions.map((node) => {
-            // Set up hover handlers for the tooltip
             const handleMouseEnter = () => {
               setHoveredNode(node);
-              // If timing display is on, fetch timing data for this node
               if (showTimingInfo) {
                 setTimingDetails(getTimingForComponent(node.name));
               }
@@ -516,12 +620,12 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
               setHoveredNode(null);
               setTimingDetails(null);
             };
-
+    
             if (node.type.toLowerCase().includes('interconnect')) {
-              // Interconnect node rendering with timing colors
-              const fill = showTimingInfo ?
-                getDelayColor(getTimingForComponent(node.name)) : "#ffffcc";
-
+              const fill = showTimingInfo
+                ? getDelayColor(getTimingForComponent(node.name))
+                : "#ffffcc";
+    
               return (
                 <g
                   key={`node-${node.name}`}
@@ -531,32 +635,42 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
                   onMouseEnter={handleMouseEnter}
                   onMouseLeave={handleMouseLeave}
                 >
-                  <rect x={-node.width / 2} y={-node.height / 2} width={node.width} height={node.height}
-                    fill={fill} stroke="#999" strokeDasharray="4" />
-                  <text x={0} y={0} textAnchor="middle" alignmentBaseline="middle" fontSize={10} fill="#000">
+                  <rect
+                    x={-node.width / 2}
+                    y={-node.height / 2}
+                    width={node.width}
+                    height={node.height}
+                    fill={fill}
+                    stroke="#999"
+                    strokeDasharray="4"
+                  />
+                  <text
+                    x={0}
+                    y={0}
+                    textAnchor="middle"
+                    alignmentBaseline="middle"
+                    fontSize={10}
+                    fill="#000"
+                  >
                     {node.type}
                   </text>
                 </g>
               );
             }
-
-            // For regular nodes, calculate fill based on timing if enabled
+    
             let fill = '#444', stroke = '#ccc', textFill = '#fff';
             const t = node.type.toUpperCase();
-
+    
             if (showTimingInfo) {
-              // Use timing data to determine color
               fill = getDelayColor(getTimingForComponent(node.name));
               stroke = fill !== "#444" ? fill.replace(')', ', 0.8)').replace('rgb', 'rgba') : '#ccc';
             } else {
-              // Original color logic
               if (t.includes('INPUT')) { fill = '#a8d5ff'; stroke = '#4285F4'; textFill = '#000'; }
               else if (t.includes('OUTPUT')) { fill = '#ffb3b3'; stroke = '#EA4335'; textFill = '#000'; }
               else if (t.includes('DFF') || t.includes('FLIP')) { fill = '#c5e1a5'; stroke = '#34A853'; textFill = '#000'; }
               else if (t.includes('LUT')) { fill = '#fff176'; stroke = '#FBBC05'; textFill = '#000'; }
             }
-
-            // Rest of the node rendering remains the same
+    
             return (
               <g
                 key={`node-${node.name}`}
@@ -566,21 +680,41 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
               >
-                <rect x={-node.width / 2} y={-node.height / 2} width={node.width} height={node.height}
-                  fill={fill} stroke={stroke} strokeWidth={2} rx={8} ry={8} />
-                <text x={0} y={0} textAnchor="middle" alignmentBaseline="middle"
-                  fontSize={12} fill={textFill} fontWeight="bold">
+                <rect
+                  x={-node.width / 2}
+                  y={-node.height / 2}
+                  width={node.width}
+                  height={node.height}
+                  fill={fill}
+                  stroke={stroke}
+                  strokeWidth={2}
+                  rx={8}
+                  ry={8}
+                />
+                <text
+                  x={0}
+                  y={0}
+                  textAnchor="middle"
+                  alignmentBaseline="middle"
+                  fontSize={12}
+                  fill={textFill}
+                  fontWeight="bold"
+                >
                   {node.type}
                 </text>
-                {/* Optionally remove the second text element if it's not needed */}
-                {/* Render pins as before */}
                 {node.inputs.sort((a, b) => a.pinIndex - b.pinIndex).map(pin => {
                   const pos = pinPositions[node.name]?.inputs[pin.pinIndex];
                   if (!pos) return null;
                   return (
                     <g key={`pin-in-${node.name}-${pin.pinIndex}`}>
                       <circle cx={-node.width / 2} cy={pos.y - node.y} r={4} fill="blue" />
-                      <text x={-node.width / 2 - 6} y={pos.y - node.y + 3} fontSize={8} fill="#fff" textAnchor="end">
+                      <text
+                        x={-node.width / 2 - 6}
+                        y={pos.y - node.y + 3}
+                        fontSize={8}
+                        fill="#fff"
+                        textAnchor="end"
+                      >
                         {pin.wire.replace(/.*[\\/]/, '').substring(0, 10)}
                       </text>
                     </g>
@@ -592,7 +726,13 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
                   return (
                     <g key={`pin-out-${node.name}-${pin.pinIndex}`}>
                       <circle cx={node.width / 2} cy={pos.y - node.y} r={4} fill="green" />
-                      <text x={node.width / 2 + 6} y={pos.y - node.y + 3} fontSize={8} fill="#fff" textAnchor="start">
+                      <text
+                        x={node.width / 2 + 6}
+                        y={pos.y - node.y + 3}
+                        fontSize={8}
+                        fill="#fff"
+                        textAnchor="start"
+                      >
                         {pin.wire.replace(/.*[\\/]/, '').substring(0, 10)}
                       </text>
                     </g>
@@ -601,27 +741,29 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
               </g>
             );
           })}
-
-
-          {/* Render internal connections */}
+    
           {circuitData.connections.map((conn, i) => {
             const fromPos = getPinPos(conn.from);
             const toPos = getPinPos(conn.to);
             if (!fromPos || !toPos) return null;
             const dx = toPos.x - fromPos.x;
             const controlOffset = Math.min(50, Math.abs(dx) / 2);
-            const path = `M${fromPos.x},${fromPos.y} 
-                          C${fromPos.x + controlOffset},${fromPos.y} 
-                            ${toPos.x - controlOffset},${toPos.y} 
-                            ${toPos.x},${toPos.y}`;
+            const path = `M${fromPos.x},${fromPos.y} C${fromPos.x + controlOffset},${fromPos.y} ${toPos.x - controlOffset},${toPos.y} ${toPos.x},${toPos.y}`;
             return (
-              <path key={`conn-${i}`} d={path} fill="none" stroke="#fff" strokeWidth={1.5} markerEnd="url(#arrowhead)" />
+              <path
+                key={`conn-${i}`}
+                className="data-flow-connection"
+                data-wire={conn.wire}
+                d={path}
+                fill="none"
+                stroke="#fff"
+                strokeWidth={1.5}
+                markerEnd="url(#arrowhead)"
+              />
             );
           })}
-
-          {/* Render ports */}
+    
           {Object.entries(circuitData.ports).map(([portName, dir]) => {
-            // Filtering standard ports if desired.
             const standardPorts = ["\\D", "\\clk", "\\Q", "\\async_reset"];
             if (!standardPorts.includes(portName)) return null;
             const pos = portPositions[portName];
@@ -630,36 +772,59 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
             const fill = isInput ? '#a8d5ff' : '#ffb3b3';
             const stroke = isInput ? '#4285F4' : '#EA4335';
             return (
-              <g key={`port-${portName}`} className="draggable-port" data-port-name={portName} transform={`translate(${pos.x},${pos.y})`}>
-                <rect x={-40} y={-15} width={80} height={30}
-                  fill={fill} stroke={stroke} strokeWidth={2} rx={6} ry={6} />
-                <text x={0} y={2} textAnchor="middle" alignmentBaseline="middle"
-                  fontSize={10} fill="#000" fontWeight="bold">
+              <g
+                key={`port-${portName}`}
+                className="draggable-port"
+                data-port-name={portName}
+                transform={`translate(${pos.x},${pos.y})`}
+              >
+                <rect
+                  x={-40}
+                  y={-15}
+                  width={80}
+                  height={30}
+                  fill={fill}
+                  stroke={stroke}
+                  strokeWidth={2}
+                  rx={6}
+                  ry={6}
+                />
+                <text
+                  x={0}
+                  y={2}
+                  textAnchor="middle"
+                  alignmentBaseline="middle"
+                  fontSize={10}
+                  fill="#000"
+                  fontWeight="bold"
+                >
                   {portName}
                 </text>
               </g>
             );
           })}
-
-          {/* Render connections from ports to nodes */}
+    
           {portConnectionsToDraw.map((pcd, i) => {
             const dx = pcd.toPos.x - pcd.fromPos.x;
             const controlOffset = Math.min(100, Math.abs(dx) / 2);
-            const path = `M${pcd.fromPos.x},${pcd.fromPos.y}
-                          C${pcd.fromPos.x + controlOffset},${pcd.fromPos.y}
-                            ${pcd.toPos.x - controlOffset},${pcd.toPos.y}
-                            ${pcd.toPos.x},${pcd.toPos.y}`;
+            const path = `M${pcd.fromPos.x},${pcd.fromPos.y} C${pcd.fromPos.x + controlOffset},${pcd.fromPos.y} ${pcd.toPos.x - controlOffset},${pcd.toPos.y} ${pcd.toPos.x},${pcd.toPos.y}`;
             return (
-              <path key={`portline-${i}`} d={path} fill="none" stroke="#fff" strokeWidth={1.5} markerEnd="url(#arrowhead)" />
+              <path
+                key={`portline-${i}`}
+                className="data-flow-connection"
+                data-wire={pcd.wire}
+                d={path}
+                fill="none"
+                stroke="#fff"
+                strokeWidth={1.5}
+                markerEnd="url(#arrowhead)"
+              />
             );
           })}
-
-          {/* Render tooltip if a node is hovered */}
+    
           {hoveredNode && (() => {
             const inputLines = hoveredNode.inputs.length;
             const outputLines = hoveredNode.outputs.length;
-
-            // Calculate tooltip height dynamically
             let tooltipHeight = 40 + 16 * (inputLines + outputLines + 2);
             let tooltipContentLines = [
               hoveredNode.name,
@@ -668,54 +833,38 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
               "Outputs:",
               ...hoveredNode.outputs.map(pin => pin.wire)
             ];
-
-            // Add timing information if enabled and available
             if (showTimingInfo && timingDetails && timingDetails.length > 0) {
               tooltipContentLines = [
                 hoveredNode.name,
                 `Timing Details (${timingDetails.length} delays):`,
-                ...timingDetails.slice(0, 5).map((delay: any, i) => {
-                  // Extract delay value, checking multiple possible properties
-                  const delayValue =
-                    delay.delay_ps !== undefined ? delay.delay_ps :
-                      delay.delay !== undefined ? delay.delay :
-                        delay.delay !== undefined ? delay.delay :
-                          delay.value !== undefined ? delay.value :
-                            delay.time !== undefined ? delay.time :
-                              delay.max_delay !== undefined ? delay.max_delay :
-                                null;
-                  // Convert picoseconds to nanoseconds if needed
-                  const displayValue = delayValue !== null ?
-                    `(${(delayValue / 1000).toFixed(2)}ns)` : '';
-                  // After setting timing details
-                  console.log("Raw timing data for component:", JSON.stringify(timingDetails, null, 2));
-                  // Format the timing line with port info and delay if available
-                  return `${i + 1}. ${delay.cellType || delay.type || 'Cell'}: ` +
-                    `${delay.inputPort || delay.from || ''} → ${delay.outputPort || delay.to || ''}` +
-                    (delayValue !== null ? ` (${delayValue}ns)` : '');
+                ...timingDetails.slice(0, 5).map((delay: any, i: number) => {
+                  const delayValue = delay.max_delay !== undefined ? delay.max_delay : null;
+                  const displayValue = delayValue !== null ? `(${(delayValue / 1000).toFixed(2)}ns)` : '';
+                  return `${i + 1}. ${delay.cellType || delay.type}: ${delay.inputPort || ""} → ${delay.outputPort || ""} ${displayValue}`;
                 })
               ];
-
-              // Show a message if there are more delays
               if (timingDetails.length > 5) {
                 tooltipContentLines.push(`...and ${timingDetails.length - 5} more`);
               }
-
-              // Adjust tooltip height based on content
               tooltipHeight = 40 + (tooltipContentLines.length * 16);
             }
-
-            // Set minimum sizes with padding
             const tooltipWidth = 250;
-
             return (
               <g
                 className="tooltip"
                 transform={`translate(${hoveredNode.x + hoveredNode.width / 2 + 10}, ${hoveredNode.y - 20})`}
               >
-                <rect x={0} y={0} width={tooltipWidth} height={tooltipHeight}
-                  fill="#fff" stroke="#000" rx={5} ry={5} opacity={0.9} />
-
+                <rect
+                  x={0}
+                  y={0}
+                  width={tooltipWidth}
+                  height={tooltipHeight}
+                  fill="#fff"
+                  stroke="#000"
+                  rx={5}
+                  ry={5}
+                  opacity={0.9}
+                />
                 {tooltipContentLines.map((line, i) => (
                   <text
                     key={`tooltip-line-${i}`}
@@ -736,5 +885,4 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
     </div>
   );
 };
-
 export default CircuitVisualizer;
