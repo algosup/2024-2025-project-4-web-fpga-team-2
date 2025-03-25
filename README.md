@@ -1,4 +1,11 @@
 # Web FPGA Team 2
+
+
+<img src ="../ReadmeExtensions/3000px_Bleu.jpg">
+
+
+
+
 ## 🖥️⚡Overview
 We develop a web interface for an FPGA Simulator. This web interface will be used to teach people how the signals propagate inside an FPGA.
 
@@ -35,7 +42,7 @@ An FPGA is a reprogrammable electronic chip that allows users to create custom c
 ## 📂 Project Document
 
 📄 [**Functional Specifications**](https://github.com/algosup/2024-2025-project-4-web-fpga-team-2/blob/main/Documents/Functional/functionalSpecification.md) <br>
-⚙️ [**Technical Specifications** ]() <br>
+⚙️ [**Technical Specifications** ](https://github.com/algosup/2024-2025-project-4-web-fpga-team-2/blob/main/Documents/Technical/technicalSpecification.md) <br>
 🧪 [**Test Plan** ]() <br>
 ✅ [**Test Cases**]() <br>
 📜 [ **Code Of Conduct**]() <br>
