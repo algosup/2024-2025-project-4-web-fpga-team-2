@@ -183,7 +183,7 @@ For this project we are using multiple softwares :
   - Python
 
 ### 3.3 Testing Environment
-For testing we are using 3 MAC's and 1 Windows computer to ensure the compatibility between the two platform.
+For testing we are using 3 MAC's and 1 Windows computer to ensure the compatibility between the two platforms.
 
 
 ### 3.4 Test Scope
