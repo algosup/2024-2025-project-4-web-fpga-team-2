@@ -109,7 +109,7 @@ This project has for purpose to help [FPGA](#glossary) teacher making students u
 
 ### 1.3 Customers
 
-Our customer is a FPGA teacher at CNES, the equivalent of NASA in France. He wants to be able to teach more easly to his students the basis of FPGA hardware.
+Our customer is a FPGA teacher at CNES, the equivalent of NASA in France. He wants to be able to teach more easily to his students the basis of FPGA hardware.
 
 </details>
 
@@ -123,14 +123,14 @@ Our customer is a FPGA teacher at CNES, the equivalent of NASA in France. He wan
 
 ### 2.1 Document criteria
 
-The majority of our documents have **the same criterias**, making harmony between them is required for **standardization and a better organization of the project**.
+The majority of our documents have **the same criteria**, making harmony between them is required for **standardization and a better organization of the project**.
 
 The common criteria are:
 - All documents must have a **table of contents** for better navigation.
 - Documents must stay **as simple as possible**, making them **short and not too technical**. If technical terms are necessary to implement, a **glossary must be implemented**.
 - All the documents are written in **English**.
 
-Files and folder naming criteria's can be found in the [conventions document]().
+Files and folder naming criteria's can be found in the [conventions document](/Documents/Technical/convention.md).
 
 ### 2.2 Review process
 
@@ -168,11 +168,15 @@ Other platform will be tested only if Chromium version has been validated.
 
 For this project we are using multiple software :
 
-- For the program :
+- For the program:
   - HTML
   - JavaScript and JSON
   - CSS
-  - 
+  - TypeScript
+  - React
+
+*More information on the [Technical Specification](/Documents/Technical/technicalSpecification.md)*
+
 - For Testing :
   - Python
 
@@ -201,7 +205,7 @@ There are different types of testing :
 
 **Functional testing**
 
-Functional testing is a type of software testing that evaluates the functionality of the program based on specified requirements that have been written in the [Functional Specification](). The program needs to perform as expected, focusing on user-facing features and behaviors. This type of testing includes integration testing, system testing, and user acceptance testing.
+Functional testing is a type of software testing that evaluates the functionality of the program based on specified requirements that have been written in the [Functional Specification](/Documents/Functional/functionalSpecification.md). The program needs to perform as expected, focusing on user-facing features and behaviors. This type of testing includes integration testing, system testing, and user acceptance testing.
 
 **Unit testing**
 
@@ -213,7 +217,7 @@ To ensure pull request (or PR) correctness and without errors we placed securiti
 
 To validate a PR for the main branch it needs to be **verified by the quality assurance** except quality assurance's PR that has to be **verified by the technical leader**.
 
-![image]()
+![image](/Documents/TestPlan/Image/pullRequest.png)
 *example of a pull request*
 
 </details>
@@ -311,6 +315,8 @@ To manage our test we are using specific tools :
 - We use GitHub for test management. Test cases and GitHub issues are updated in the [GitHub Issue section](https://GitHub.com/algosup/2024-2025-project-4-web-fpga-team-2/issues).
 <br>
 - We have python scripts to enhance testing properly.
+<br>
+- An [excel table](https://docs.google.com/spreadsheets/d/1K0NGR9Gy0eXgPXVqPabkYytwUibx3F4-xqDcYCp--LI/edit?usp=sharing) stocking the progress of each test cases.
 
 ### 5.2 Test design
 

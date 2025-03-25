@@ -37,3 +37,5 @@ Test cases should be reviewed and updated regularly to reflect any changes in th
 ## 9 : Handling of Negative Scenarios
 
 Test cases should include scenarios that validate error handling and edge cases, testing how the system behaves under unexpected or incorrect inputs.
+
+*Test cases general progress can be found on this [google sheet](https://docs.google.com/spreadsheets/d/1K0NGR9Gy0eXgPXVqPabkYytwUibx3F4-xqDcYCp--LI/edit?usp=sharing)*
