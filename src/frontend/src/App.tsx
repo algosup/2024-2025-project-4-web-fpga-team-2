@@ -1,6 +1,7 @@
 import { useState } from "react";
 import TeacherPage from "./pages/TeacherPage";
 import StudentPage from "./pages/StudentPage";
+import "./App.css";
 
 function App() {
   const [role, setRole] = useState<"teacher" | "student" | null>(null);
@@ -27,7 +28,7 @@ function App() {
   if (role === "student") return <StudentPage username={username} />;
 
   return (
-    <div style={{ textAlign: "center", marginTop: "50px", backgroundColor: "#222", color: "white", height: "100vh", width: "100vw" }}>
+    <div className="app-container">
       <h1>Welcome to PWA Education App</h1>
       <h2>Select Your Role</h2>
 
