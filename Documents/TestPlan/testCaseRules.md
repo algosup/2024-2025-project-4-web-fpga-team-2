@@ -1,22 +1,22 @@
-# Test case rules
+# Test Case Rules
 
 This document has been created to explain the test case rules.
 
-## 1 : All Test cases must have an ID
+## 1 : All Test Cases Must have an ID
 
 Test cases need an ID to find the wanted test case swiftly and categorize them.
 
-## 2 : Deeper details and explanations are required
+## 2 : Deeper Details and Explanations are Required
 
-The specific test has to be as much precise as possible for an exact understanding of this test.
+The specific tests has to be as much precise as possible for an exact understanding of this test.
 
-## 3 : There must be regular test cycle
+## 3 : There Must Be a Regular Test Cycle
 
 A cycle of test must be done regularly to ensure progression of the project gradually.
 
-## 4 : Test cases must relate to the product
+## 4 : Test Cases Must Relate to The Product
 
-Test cases aren't for documentations and non code related issues.
+Test cases aren't for documentation and non-code-related issues.
 
 ## 5 : Expected Results Must Be Defined
 
