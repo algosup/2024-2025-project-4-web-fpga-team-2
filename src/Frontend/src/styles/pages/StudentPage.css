@@ -1,0 +1,257 @@
+.student-page--container {
+  width: 100vw;
+  height: 100vh;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.student-page--header {
+  text-align: left;
+  margin: 10px;
+  padding: 10px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  font-size: 2rem;
+}
+
+.student-page--content {
+  display: flex;
+  width: 100%;
+  height: calc(100vh - 60px);
+  overflow: hidden;
+  padding: 0 10px 10px 10px;
+  box-sizing: border-box;
+}
+
+.student-page--visualizer-wrapper {
+  flex: 3;
+  height: 100%;
+  overflow-y: hidden;
+}
+
+.student-page--visualizer-container {
+  height: 100%;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.student-page--empty-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  border: 1px solid #ddd;
+}
+
+.student-page--burger-menu-container {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  transform: scale(0.6);
+  z-index: 200;
+}
+
+.burger-menu-label {
+  display: block;
+  position: relative;
+  cursor: pointer;
+  width: 50px;
+  height: 40px;
+}
+
+.burger-menu-input {
+  -webkit-appearance: none;
+  display: none;
+  visibility: hidden;
+}
+
+.burger-menu-span {
+  position: absolute;
+  height: 7px;
+  background: #ffffff;
+  border-radius: 100px;
+  display: inline-block;
+  transition: 0.3s ease;
+}
+
+/* Top span */
+.burger-menu-span.top.open {
+  width: 48px;
+  left: 5px;
+  top: 0;
+  transform: rotate(45deg);
+  transform-origin: top left;
+}
+.burger-menu-span.top.closed {
+  width: 45px;
+  left: 0;
+  top: 0;
+  transform: none;
+}
+
+/* Middle span */
+.burger-menu-span.middle {
+  width: 45px;
+  top: 17px;
+  left: 0;
+}
+.burger-menu-span.middle.open {
+  transform: translateX(-20px);
+  opacity: 0;
+}
+.burger-menu-span.middle.closed {
+  transform: none;
+  opacity: 1;
+}
+
+/* Bottom span */
+.burger-menu-span.bottom.open {
+  width: 48px;
+  left: 0;
+  bottom: -1px;
+  transform: rotate(-45deg);
+  transform-origin: top left;
+}
+.burger-menu-span.bottom.closed {
+  width: 45px;
+  left: 0;
+  bottom: 0;
+  transform: none;
+}
+
+.student-page--sidebar {
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: all 0.3s ease-in-out;
+}
+
+.student-page--sidebar.open {
+  flex: 1;
+  max-width: 400px;
+  padding: 0 10px 0 0;
+  opacity: 1;
+  visibility: visible;
+}
+.student-page--sidebar.closed {
+  flex: 0;
+  max-width: 0;
+  padding: 0;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.student-page--sidebar-content {
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+.student-page--sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.student-page--sidebar-header h3 {
+  margin: 0;
+}
+
+.student-page--refresh-btn {
+  padding: 5px 10px;
+  background-color: #2196F3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.student-page--circuits-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.student-page--circuit-item {
+  padding: 10px;
+  margin-bottom: 8px;
+  border: 1px solid #ddd; /* Use JS for changing border on selection */
+  border-radius: 4px;
+}
+
+.student-page--circuit-item-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.student-page--circuit-info {
+  display: flex;
+  align-items: flex-start;
+  flex: 1;
+  min-width: 0;
+}
+
+.student-page--circuit-info-inner {
+  flex: 1;
+  min-width: 0;
+  padding-right: 10px;
+}
+
+.student-page--circuit-name {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.student-page--circuit-date {
+  margin: 5px 0;
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.student-page--circuit-description {
+  margin: 5px 0;
+  font-size: 0.9rem;
+  max-height: 40px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.student-page--circuit-actions {}
+
+.student-page--load-btn {
+  padding: 5px 10px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  width: 70px;
+}
+
+/* Optional: style for loading icon */
+.loading-icon {
+  width: 12px;
+  height: 12px;
+}

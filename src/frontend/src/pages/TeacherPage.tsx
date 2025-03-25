@@ -1,5 +1,6 @@
 import React, { useState, useEffect, DragEvent } from "react";
 import CircuitVisualizer from "../components/CircuitVisualizer";
+import "../styles/pages/TeacherPage.css";
 
 // Define type for circuit data
 interface Circuit {
@@ -216,98 +217,46 @@ function TeacherPage() {
   };
 
   return (
-    <div style={{
-      width: "100vw",
-      height: "100vh",
-      padding: "0",
-      margin: "0",
-      boxSizing: "border-box",
-      overflow: "hidden",
-      display: "flex",
-      flexDirection: "column"
-    }}>
-      <h1 style={{
-        textAlign: "left",
-        margin: "10px",
-        padding: "10px",
-        position: "sticky",
-        top: 0,
-        zIndex: 100,
-        fontSize: "2rem",
-      }}>
+    <div className="teacher-page">
+      <h1 className="teacher-header">
         Teacher's Dashboard
       </h1>
-      <div style={{
-        display: "flex",
-        width: "100%",
-        height: "calc(100vh - 60px)",
-        overflow: "hidden",
-        padding: "0 10px 10px 10px",
-        boxSizing: "border-box"
-      }}>
+      <div className="teacher-page-content">
         {/* Left side - Upload, File Previews, and Circuit List */}
-        <div style={{
-          flex: "1",
-          maxWidth: "400px",
-          height: "100%",
-          overflowY: "auto",
-          padding: "0 10px 0 0",
-          display: "flex",
-          flexDirection: "column",
-          gap: "10px"
-        }}>
+        <div className="teacher-sidebar">
           {/* File Upload Section */}
-          <div style={{
-            padding: "20px",
-            border: "1px solid #ccc",
-            borderRadius: "8px"
-          }}>
-            <h3 style={{ margin: "0 0 15px 0" }}>Upload New Circuit</h3>
-            <div style={{ marginBottom: "10px" }}>
+          <div className="upload-section">
+            <h3>Upload New Circuit</h3>
+            <div className="form-group">
               <label htmlFor="circuitName">Circuit Name:</label>
               <input
                 type="text"
                 id="circuitName"
                 value={circuitName}
                 onChange={(e) => setCircuitName(e.target.value)}
-                style={{ width: "100%", padding: "8px", marginTop: "5px", boxSizing: "border-box" }}
+                className="text-input"
                 placeholder="Enter a name for this circuit"
               />
             </div>
-            <div style={{ marginBottom: "10px" }}>
+            <div className="form-group">
               <label htmlFor="circuitDescription">Description (optional):</label>
               <textarea
                 id="circuitDescription"
                 value={circuitDescription}
                 onChange={(e) => setCircuitDescription(e.target.value)}
-                style={{ width: "100%", padding: "8px", marginTop: "5px", minHeight: "80px", boxSizing: "border-box", resize: "none" }}
+                className="textarea-input"
                 placeholder="Add a description for this circuit"
               />
             </div>
 
             {/* File Previews */}
             {vFile && (
-              <div style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "8px",
-                border: "1px solid #ccc",
-                borderRadius: "4px",
-                padding: "6px",
-                marginBottom: "10px"
-              }}>
-                <span style={{ fontSize: "1.5rem" }}>📄</span>
-                <div style={{ flex: 1, wordBreak: "break-all" }}>{vFile.name}</div>
+              <div className="file-preview">
+                <span className="file-icon">📄</span>
+                <div className="file-name">{vFile.name}</div>
                 <button
                   onClick={() => removeFile("v")}
-                  style={{
-                    background: "none",
-                    border: "none",
-                    color: "#f44336",
-                    fontWeight: "bold",
-                    cursor: "pointer",
-                    fontSize: "1.2rem"
-                  }}
+                  className="remove-button"
                   title="Remove file"
                 >
                   ✕
@@ -315,27 +264,12 @@ function TeacherPage() {
               </div>
             )}
             {sdfFile && (
-              <div style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "8px",
-                border: "1px solid #ccc",
-                borderRadius: "4px",
-                padding: "6px",
-                marginBottom: "10px"
-              }}>
-                <span style={{ fontSize: "1.5rem" }}>📝</span>
-                <div style={{ flex: 1, wordBreak: "break-all" }}>{sdfFile.name}</div>
+              <div className="file-preview">
+                <span className="file-icon">📝</span>
+                <div className="file-name">{sdfFile.name}</div>
                 <button
                   onClick={() => removeFile("sdf")}
-                  style={{
-                    background: "none",
-                    border: "none",
-                    color: "#f44336",
-                    fontWeight: "bold",
-                    cursor: "pointer",
-                    fontSize: "1.2rem"
-                  }}
+                  className="remove-button"
                   title="Remove file"
                 >
                   ✕
@@ -343,35 +277,18 @@ function TeacherPage() {
               </div>
             )}
 
-            {/* Show drag/drop and file input if one or both files are missing */}
             {(!vFile || !sdfFile) && (
               <div
                 onDragOver={handleDragOver}
                 onDrop={handleDrop}
-                style={{
-                  marginBottom: "10px",
-                  padding: "20px",
-                  border: "2px dashed #aaa",
-                  borderRadius: "8px",
-                  textAlign: "center",
-                  color: "#aaa"
-                }}
+                className="drag-drop-area"
               >
-                <p style={{ margin: 0 }}>
+                <p>
                   {(!vFile && !sdfFile) && <>Drag and drop your <strong>.v</strong> and <strong>.sdf</strong> files here</>}
                   {(vFile && !sdfFile) && <>Drag and drop your <strong>.sdf</strong> file here</>}
                   {(!vFile && sdfFile) && <>Drag and drop your <strong>.v</strong> file here</>}
-                  <span style={{ margin: "0 5px" }}>or</span>
-                  <label
-                    style={{
-                      display: "inline-block",
-                      padding: "6px 12px",
-                      backgroundColor: "#666",
-                      color: "#fff",
-                      borderRadius: "4px",
-                      cursor: "pointer"
-                    }}
-                  >
+                  <span className="or-text">or</span>
+                  <label className="choose-files">
                     Choose Files
                     <input
                       type="file"
@@ -382,31 +299,22 @@ function TeacherPage() {
                     />
                   </label>
                 </p>
-                <small style={{ display: "block", marginTop: "10px", color: "#999" }}>
+                <small className="drag-drop-note">
                   {(!vFile && !sdfFile) && "You can select both files at once or upload them separately"}
                   {(vFile && !sdfFile) && "Still needed: one .sdf file"}
                   {(!vFile && sdfFile) && "Still needed: one .v file"}
                 </small>
-                <small style={{ display: "block", marginTop: "5px", color: "#999" }}>
+                <small className="drag-drop-note">
                   {(vFile || sdfFile) && "If you select multiple files, existing files will be replaced"}
                 </small>
               </div>
             )}
 
-            {/* Upload Button - only shown when both files are present */}
             {vFile && sdfFile && (
               <button
                 onClick={uploadFiles}
                 disabled={loading}
-                style={{
-                  padding: "8px 16px",
-                  backgroundColor: loading ? "#cccccc" : "#4CAF50",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "4px",
-                  cursor: loading ? "not-allowed" : "pointer",
-                  width: "100%"
-                }}
+                className="upload-button"
               >
                 {loading ? "Uploading..." : "Upload Files"}
               </button>
@@ -414,32 +322,13 @@ function TeacherPage() {
           </div>
 
           {/* Circuit List Section */}
-          <div style={{
-            padding: "20px",
-            border: "1px solid #ccc",
-            borderRadius: "8px",
-            flexGrow: 1,
-            overflowY: "auto"
-          }}>
-            <div style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              marginBottom: "15px"
-            }}>
-              <h3 style={{ margin: 0 }}>Available Circuits</h3>
+          <div className="circuit-list-section">
+            <div className="circuit-list-header">
+              <h3>Available Circuits</h3>
               <button
                 onClick={deleteSelectedCircuits}
                 disabled={selectedCircuits.size === 0 || loading}
-                style={{
-                  padding: "5px 10px",
-                  backgroundColor: selectedCircuits.size === 0 || loading ? "#cccccc" : "#f44336",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "4px",
-                  cursor: selectedCircuits.size === 0 || loading ? "not-allowed" : "pointer",
-                  fontSize: "0.9rem"
-                }}
+                className="delete-selected-button"
               >
                 Delete Selected ({selectedCircuits.size})
               </button>
@@ -448,103 +337,51 @@ function TeacherPage() {
             {circuits.length === 0 && !loading ? (
               <p>No circuits available. Upload a new circuit to get started.</p>
             ) : (
-              <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+              <ul className="circuit-list">
                 {circuits.map((circuit) => (
                   <li
                     key={circuit.id}
-                    style={{
-                      padding: "10px",
-                      marginBottom: "8px",
-                      border: selectedCircuit?.id === circuit.id ? "2px solid #4CAF50" :
-                        selectedCircuits.has(circuit.id) ? "2px solid #2196F3" : "1px solid #ddd",
-                      borderRadius: "4px"
-                    }}
+                    className={`circuit-list-item ${
+                      selectedCircuit?.id === circuit.id
+                        ? "selected"
+                        : selectedCircuits.has(circuit.id)
+                        ? "highlight"
+                        : ""
+                    }`}
                   >
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <div style={{ display: "flex", alignItems: "flex-start", flex: 1, minWidth: 0 }}>
+                    <div className="circuit-item-content">
+                      <div className="circuit-item-main">
                         <input
                           type="checkbox"
                           checked={selectedCircuits.has(circuit.id)}
                           onChange={() => toggleCircuitSelection(circuit.id)}
-                          style={{
-                            marginRight: "10px",
-                            width: "18px",
-                            height: "18px",
-                            marginTop: "3px"
-                          }}
+                          className="circuit-checkbox"
                         />
-                        <div style={{ flex: 1, minWidth: 0, paddingRight: "10px" }}>
-                          <strong style={{
-                            display: "block",
-                            whiteSpace: "nowrap",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis"
-                          }}>
+                        <div className="circuit-info">
+                          <strong className="circuit-name">
                             {circuit.name}
                           </strong>
-                          <p style={{ margin: "5px 0", fontSize: "0.8rem", color: "#666" }}>
+                          <p className="circuit-date">
                             {new Date(circuit.createdAt).toLocaleString()}
                           </p>
                           {circuit.description && (
-                            <p style={{
-                              margin: "5px 0",
-                              fontSize: "0.9rem",
-                              maxHeight: "40px",
-                              overflow: "hidden",
-                              textOverflow: "ellipsis",
-                              display: "-webkit-box",
-                              WebkitLineClamp: 2,
-                              WebkitBoxOrient: "vertical"
-                            }}>
+                            <p className="circuit-description">
                               {circuit.description}
                             </p>
                           )}
-                          
                         </div>
-                        
                       </div>
-                      <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
-                        <button
-                          onClick={() => selectCircuit(circuit)}
-                          style={{
-                            padding: "5px 10px",
-                            backgroundColor: "#4CAF50",
-                            color: "white",
-                            border: "none",
-                            borderRadius: "4px",
-                            width: "70px"
-                          }}
-                        >
+                      <div className="circuit-item-actions">
+                        <button onClick={() => selectCircuit(circuit)} className="load-button">
                           Load
                         </button>
-                        <button
-                          onClick={() => deleteCircuit(circuit.id)}
-                          style={{
-                            padding: "5px 10px",
-                            backgroundColor: "#f44336",
-                            color: "white",
-                            border: "none",
-                            borderRadius: "4px",
-                            width: "70px"
-                          }}
-                        >
+                        <button onClick={() => deleteCircuit(circuit.id)} className="delete-button">
                           Delete
                         </button>
-                        <button
-                          onClick={() => approveCircuit(circuit.id)}
-                          style={{
-                            padding: "5px 10px",
-                            backgroundColor: "#2196F3",
-                            color: "white",
-                            border: "none",
-                            borderRadius: "4px",
-                            width: "70px"
-                          }}
-                        >
+                        <button onClick={() => approveCircuit(circuit.id)} className="approve-button">
                           Send
                         </button>
                       </div>
-                      
                     </div>
                   </li>
                 ))}
@@ -554,60 +391,23 @@ function TeacherPage() {
         </div>
 
         {/* Right side - Circuit Visualization */}
-        <div style={{
-          flex: "3",
-          height: "100%",
-          overflowY: "hidden"
-        }}>
-          <div style={{
-            height: "100%",
-            padding: "20px",
-            border: "1px solid #ccc",
-            borderRadius: "8px",
-            boxSizing: "border-box",
-            display: "flex",
-            flexDirection: "column"
-          }}>
-            <h3 style={{ margin: "0 0 15px 0" }}>Circuit Visualization</h3>
+        <div className="circuit-visualization">
+          <div className="visualization-container">
+            <h3 className="visualization-header">Circuit Visualization</h3>
             {selectedCircuit ? (
               <>
-                <div style={{ marginBottom: "10px" }}>
+                <div className="current-circuit">
                   <strong>Current Circuit:</strong> {selectedCircuit.name}
-                
-                <div style={{ marginBottom: "10px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  {/*  */}
                 </div>
-                  </div>
-                <div style={{
-                  flexGrow: 1,
-                  border: "1px solid #ddd",
-                  position: "relative",
-                  borderRadius: "8px",
-                  color: "#333"
-                }}>
-                  
-                  <strong style={{
-                    position: "absolute",
-                    top: "10px",
-                    left: "10px",
-                    padding: "8px",
-                    backgroundColor: "#4CAF50",
-                    color: "white",
-                    borderRadius: "4px"
-                  }}>
+                <div className="visualization-area">
+                  <strong className="visualization-title">
                     {selectedCircuit.name}
                   </strong>
                   <CircuitVisualizer jsonFile={selectedCircuit.jsonFile} />
                 </div>
               </>
             ) : (
-              <div style={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                height: "100%",
-                border: "1px solid #ddd"
-              }}>
+              <div className="no-selection">
                 <p>No circuit selected. Please select a circuit from the list.</p>
               </div>
             )}
