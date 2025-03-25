@@ -280,7 +280,7 @@ function TeacherPage() {
                 id="circuitDescription"
                 value={circuitDescription}
                 onChange={(e) => setCircuitDescription(e.target.value)}
-                style={{ width: "100%", padding: "8px", marginTop: "5px", minHeight: "80px", boxSizing: "border-box" }}
+                style={{ width: "100%", padding: "8px", marginTop: "5px", minHeight: "80px", boxSizing: "border-box", resize: "none" }}
                 placeholder="Add a description for this circuit"
               />
             </div>
