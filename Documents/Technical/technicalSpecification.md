@@ -14,14 +14,37 @@
 
 ## Table Of Contents
 
-<details close>
+<details>
 <summary>Table Of Contents</summary>
+
+  - [1.Introduction](#1introduction)
+  - [2.Objectives](#2objectives)
+  - [3.Project Folder Structure](#3project-folder-structure)
+  - [4.Conventions](#4conventions)
+  - [5.Requirements](#5requirements)
+  - [6.Technologies used](#6technologies-used)
+    - [HTML, CSS And JavaScript](#html-css-and-javascript)
+    - [JSON](#json)
+    - [Node.js, D3.js, React And TypeScript](#nodejs-d3js-react-and-typescript)
+    - [Parser](#parser)
+  - [7.Frontend](#7frontend)
+    - [Overview](#overview)
+    - [Display The Circuit](#display-the-circuit)
+    - [Animation](#animation)
+  - [8.Backend](#8backend)
+    - [Server](#server)
+    - [Parser](#parser-1)
+    - [When You Upload A File(POST)](#when-you-upload-a-filepost)
+    - [Delete A File(DELETE)](#delete-a-filedelete)
+  - [9.Glossary](#9glossary)
+
+
 </details>
 
-## Introduction
+## 1.Introduction
 The project consists of creating a web page that simulates the behavior of an FPGA[^FPGA] and generates, from a .v and .sdf file, a blueprint of the FPGA with its components and the connections between them. It is intended to be used to teach people how signals propagate inside an FPGA.
 
-## Objectives
+## 2.Objectives
 
 - The teacher will access the web page, use the functionality to load a .v and .sdf file, and simulate an FPGA to generate a blueprint of its components and their connections.
 
@@ -35,7 +58,7 @@ The project consists of creating a web page that simulates the behavior of an FP
 
 
 
-## Project Folder Structure
+## 3.Project Folder Structure
 
 ```bash
 📦2024-2025-project-4-web-fpga-team-2-programs
@@ -64,17 +87,17 @@ The project consists of creating a web page that simulates the behavior of an FP
 ├──📝README.md
 ├──📝LICENSE
 ```
-## Conventions
+## 4.Conventions
 
 There are conventions to follow during the project.
 You can check them using this link :
 [Convention](https://github.com/algosup/2024-2025-project-4-web-fpga-team-2/blob/main/Documents/Technical/convention.md)
 
-## Requirements
+## 5.Requirements
 
 To see all requirements it is recommended to read the [functional specification](https://github.com/algosup/2024-2025-project-4-web-fpga-team-2/blob/main/Documents/Functional/functionalSpecification.md) document.
 
-## Technologies used
+## 6.Technologies used
 
 ### HTML, CSS And JavaScript
 
@@ -98,7 +121,7 @@ To see all requirements it is recommended to read the [functional specification]
 
 To read the .v and .sdf file, a parser will be used. The parser reads the file and translate it into a .json file, facilitating data exchange and transmission.
 
-## Frontend
+## 7.Frontend
 
 ### Overview
 The front end of the website will be made using HyperText Markup Language (HTML), Cascading Style Sheets (CSS) , and JavaScript (JS).
@@ -132,7 +155,7 @@ These small circles will be generated from the circuit inputs and will disappear
 The speed of these circles will be based on the Time Constraint of the .json file. 
 
 
-## Backend
+## 8.Backend
 
 ### Server
 
@@ -214,7 +237,7 @@ To delete a file, the teacher presses the “delete” button and the file is re
 
 
 
-## Glossary
+## 9.Glossary
 
 
 [^FPGA]: FPGA is an acronym for Field Programmable Gate Array. it is an integrated circuit with basic elements and preconfigured electrical signal routes between them. [source](http://en.wikipedia.org/wiki/Field-programmable_gate_array)
