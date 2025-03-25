@@ -141,10 +141,10 @@ This file will be the render of this project.
 To display a circuit, the program need a JSON file.
 
 - Fetch will be used to retrieve the JSON file containing the circuit information.
-- The D3.js library is will be used to zoom in and out on the circuit diagram.
-- Dagre (in the D3.js library) is will be used to automatically arrange circuit components in the form of oriented graphs.
-- D3.js is will be used to manipulate the DOM (Document Object Model), draw circles for pins and connect components with lines (arcs or segments).
-- The D3.js library is will be used to generate and display the SVG graphics, making the circuit interactive and manipulable (zoom, move the schema).
+- The D3.js library will be used to zoom in and out on the circuit diagram.
+- Dagre (in the D3.js library) will be used to automatically arrange circuit components in the form of oriented graphs.
+- D3.js will be used to manipulate the DOM (Document Object Model), draw circles for pins and connect components with lines (arcs or segments).
+- The D3.js library will be used to generate and display the SVG graphics, making the circuit interactive and manipulable (zoom, move the schema).
 
 
 
