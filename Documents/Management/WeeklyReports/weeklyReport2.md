@@ -6,7 +6,7 @@
 
 ### Documents
 
-The functional specification started to be written and is 60% complete. It will be finished during by the middle of next week (Thursday 13rd) to ensure that the technical leader and the program manager have the same time to work on their document. Also, the test plan is medium finished.
+The functional specification started to be written and is 60% complete. It will be finished during by the middle of next week (Thursday 13rd) to ensure that the technical leader and the program manager have the same time to work on their document. Also, the test plan is halfway finished.
 
 ### Website
 
