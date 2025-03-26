@@ -10,7 +10,7 @@ In this week, we met with our client to find out what he really wanted us to ach
 
 ### Conventions and Structure
 
-The coding conventions as well as the files/folder conventions and structure have been written allowing a good organization among the team and particularly the developers.
+The coding conventions as well as the files/folder conventions and structure have been written allowing a good organization within the team, especially the developers.
 
 ### Website
 

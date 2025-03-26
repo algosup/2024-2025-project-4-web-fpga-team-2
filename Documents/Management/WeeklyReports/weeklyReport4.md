@@ -6,7 +6,7 @@
 
 ### Documents
 
-The technical specification continue to be written and is now at 30%. The QA wrote also other test cases to test for efficiently the code and the website behavior (35%). Finally, 2 questions were asked to the customer to know if what we are currently doing convinced him and to have more informations about the schemas.
+The technical specification continue to be written and is now at 30%. The QA wrote also other test cases to test more efficiently the code and the website behavior (35%). Finally, 2 questions were asked to the customer to know if what we are currently doing convinced him and to have more informations about the schemas.
 
 ### Website
 
