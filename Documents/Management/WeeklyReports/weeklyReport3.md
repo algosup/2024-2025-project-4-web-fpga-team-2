@@ -10,7 +10,7 @@ The functional specification is now finished by the Program Manager. It was revi
 
 ### Website
 
-The developers successfully finished to implement the parser. The JSON can now be used to automatically create the schematics. The circuit visualizer (grouping "Connecting wire between components" and "Schematics realized by the JSON file" tasks) is now 80% complete. However, the POC is finished which is a big step forward; we can now focus on the additional features. The user interface of the dashboard is also 75% finish.
+The developers successfully finished to implement the parser. The JSON can now be used to automatically create the schematics. The circuit visualizer (grouping "Connecting wire between components" and "Schematics realized by the JSON file" tasks) is now 80% complete. The POC is finished which is a big step forward; we can now focus on the additional features. The user interface of the dashboard is also 75% finished.
 
 ## Management Planing
 
@@ -36,7 +36,7 @@ All finished tasks from the 2 last week are placed at the bottom of the board.
 
 ### Management Documents
 
-The Risk Management Plan is now finished. The Management Artifacts document has been created and almost finished. The KPIs will be store in a Google Sheet for a better readability from the next week.
+The Risk Management Plan is now finished. The Management Artifacts document has been created and almost finished. The KPIs will be stored in a Google Sheet for a better readability from the next week.
 
 ### Problems Encountered
 
