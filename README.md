@@ -5,13 +5,13 @@
 </div>
 
 <p align="center">
-  <a href="#">Overview</a> •
-  <a href="#">What's a FPGA</a> •
+  <a href="#️overview">Overview</a> •
+  <a href="#️-whats-a-fpga-">What's a FPGA</a> •
   <a href="#-requirements-to-access-the-website">Requirements</a> •
-  <a href="#">Key Features</a> •
-  <a href="#">How to Use It</a> •
-  <a href="#">Document</a> •
-  <a href="#license">License</a>
+  <a href="#-key-features">Key Features</a> •
+  <a href="#-how-to-use-it-">How to Use It</a> •
+  <a href="#-project-documents">Documents</a> •
+  <a href="#️-license">License</a>
 </p>
 
 <div align="center">
@@ -61,9 +61,9 @@ To access our website, you need a Chromium-based browser (Edge, Chrome, Opera, e
 ## 📖 How to Use It ?
 
 
-## 📂 Project Document
+## 📂 Project Documents
 
-📄 [**Functional Specifications**](https://github.com/algosup/2024-2025-project-4-web-fpga-team-2/blob/main/Documents/TestPlan/testPlan.mdDocuments/Functional/functionalSpecification.md) <br>
+📄 [**Functional Specifications**](https://github.com/algosup/2024-2025-project-4-web-fpga-team-2/blob/main/Documents/Functional/functionalSpecification.md) <br>
 ⚙️ [**Technical Specifications** ](https://github.com/algosup/2024-2025-project-4-web-fpga-team-2/blob/main/Documents/Technical/technicalSpecification.md) <br>
 🧪 [**Test Plan** ](https://github.com/algosup/2024-2025-project-4-web-fpga-team-2/blob/main/Documents/TestPlan/testPlan.md) <br>
 ✅ [**Test Cases Rules**](https://github.com/algosup/2024-2025-project-4-web-fpga-team-2/blob/main/Documents/TestPlan/testCaseRules.md) <br>
