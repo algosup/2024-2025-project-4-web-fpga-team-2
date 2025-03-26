@@ -59,7 +59,7 @@ To access our website, you need a Chromium-based browser (Edge, Chrome, Opera, e
 
 
 ## 📖 How to Use It ?
-
+you can access the website by clicking on this [link](https://algosup.github.io/2024-2025-project-4-web-fpga-team-2/).
 
 ## 📂 Project Documents
 
