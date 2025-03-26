@@ -47,7 +47,7 @@ A Gantt Chart was started, to precisely indicate the amount of time that a task 
 
 A specific part for the code (and all long tasks) will be done during the week.
 
-You can access to the Gantt Chart through this [link](/Documents/Management/ManagementArtifacts/gantt_Chart.pdf)
+You can access to the Gantt Chart through this [link](../ManagementArtifacts/gantt_chart.svg)
 
 ### Time Management
 

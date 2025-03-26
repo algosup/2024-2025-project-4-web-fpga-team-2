@@ -40,7 +40,7 @@ The Risk Management Plan is now finished. The Management Artifacts document has 
 
 ### Problems Encountered
 
-Unfortunately, due to a misunderstanding the QA thought that the deadline for the functional specification was on the 14th causing a little delay for the reviewing of the document. However, the document and its review were commit before the deadline (Thursday 13rd).
+Unfortunately, due to a misunderstanding the QA thought that the deadline for the functional specification was on the 14th causing a little delay in reviewing of the document. However, the document and its review were commit before the deadline (Thursday 13rd).
 
 ## Next Week
 

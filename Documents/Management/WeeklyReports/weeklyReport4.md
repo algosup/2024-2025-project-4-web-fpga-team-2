@@ -20,7 +20,7 @@ All the KPIs are now stored in a Google Sheet. The KPIs' table can be found [her
 
 ### KPIs Table
 
-The KPIs' table is now created on a Google Sheet and an be accessible by this [link](https://docs.google.com/spreadsheets/d/1IzNeeq6BHiJQUQX-DqInGMWjPvM-9AiJ3GWgXlKIHhs/edit?usp=sharing).
+The KPI table is now created on Google Sheet to make it easier to read and find.
 
 ## Next Week
 
