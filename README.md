@@ -1,4 +1,9 @@
+<div align="center">
+
 # Web FPGA Team 2
+
+</div>
+
 
 <div align="center">
     <img src ="Documents\ReadmeExtensions\3000px_Bleu.jpg" width=auto height="300">
