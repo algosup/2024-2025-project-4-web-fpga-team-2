@@ -1,7 +1,6 @@
 # Web FPGA Team 2
 
-
-<img src ="../ReadmeExtensions/3000px_Bleu.jpg">
+<img src ="Documents\ReadmeExtensions\3000px_Bleu.jpg">
 
 
 
@@ -31,24 +30,28 @@ We develop a web interface for an FPGA Simulator. This web interface will be use
 ## 🛠️🧑‍💻 What's a FPGA ?
 An FPGA is a reprogrammable electronic chip that allows users to create custom circuits. Unlike traditional processors (CPUs) that execute instructions, an FPGA can be configured to function as a specialized circuit optimized for a specific task. It is widely used in fields like aerospace, automotive, and telecommunications because it offers high flexibility and speed.
 
+## 🔑 Requirements to Access the Website
+
+To access our website, you need a Chromium-based browser (Edge, Chrome, Opera, etc... ).
+
 ## 🌟 Key Features
 | Feature | Description |
 | ------- | ----------- |
 |         |             |
 
-## 📖 How To Use It ?
+
+## 📖 How to Use It ?
 
 
 ## 📂 Project Document
 
-📄 [**Functional Specifications**](https://github.com/algosup/2024-2025-project-4-web-fpga-team-2/blob/main/Documents/Functional/functionalSpecification.md) <br>
+📄 [**Functional Specifications**](https://github.com/algosup/2024-2025-project-4-web-fpga-team-2/blob/main/Documents/TestPlan/testPlan.mdDocuments/Functional/functionalSpecification.md) <br>
 ⚙️ [**Technical Specifications** ](https://github.com/algosup/2024-2025-project-4-web-fpga-team-2/blob/main/Documents/Technical/technicalSpecification.md) <br>
-🧪 [**Test Plan** ]() <br>
-✅ [**Test Cases**]() <br>
-📜 [ **Code Of Conduct**]() <br>
-📑 [ **Project Charter**]() <br>
-📆 [ **Weekly Reports** ]() <br>
-📌 [ **Post Mortem** ]() <br>    
+🧪 [**Test Plan** ](https://github.com/algosup/2024-2025-project-4-web-fpga-team-2/blob/main/Documents/TestPlan/testPlan.md) <br>
+✅ [**Test Cases Rules**](https://github.com/algosup/2024-2025-project-4-web-fpga-team-2/blob/main/Documents/TestPlan/testCaseRules.md) <br>
+📑 [ **Project Charter**](https://github.com/algosup/2024-2025-project-4-web-fpga-team-2/blob/main/Documents/Management/projectCharter.md) <br>
+📆 [ **Weekly Reports** ](https://github.com/algosup/2024-2025-project-4-web-fpga-team-2/blob/main/Documents/Management/WeeklyReports) <br>
+📌 [ **Post Mortem** ](https://github.com/algosup/2024-2025-project-4-web-fpga-team-2/blob/main/Documents/Management/postMortem.md) <br>    
 
 ## ⚖️ License
 
