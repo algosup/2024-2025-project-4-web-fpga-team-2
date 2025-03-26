@@ -4,6 +4,15 @@
 
 </div>
 
+<p align="center">
+  <a href="#">Overview</a> •
+  <a href="#">What's a FPGA</a> •
+  <a href="#-requirements-to-access-the-website">Requirements</a> •
+  <a href="#">Key Features</a> •
+  <a href="#">How to Use It</a> •
+  <a href="#">Document</a> •
+  <a href="#license">License</a>
+</p>
 
 <div align="center">
     <img src ="Documents\ReadmeExtensions\3000px_Bleu.jpg" width=auto height="300">
@@ -42,7 +51,11 @@ To access our website, you need a Chromium-based browser (Edge, Chrome, Opera, e
 ## 🌟 Key Features
 | Feature | Description |
 | ------- | ----------- |
-|         |             |
+|Friendly interface|Intuitive, easy-to-use UI for seamless navigation and interaction.|
+|Account system|possibility of logging on as teacher or student|
+|Load .v and .sdf files|The teacher can upload the Verilog file for display on the student's side.|
+|Connection between Teacher's side and Student's side|If the teacher uploads a file or deletes the current schema, it will modify the interface on the student side.|
+|Display an animated schematic with values|A schematic of the various components of the file will be displayed in a simplified way and with animations representing the current flowing between the various circuit components.|
 
 
 ## 📖 How to Use It ?
@@ -54,9 +67,9 @@ To access our website, you need a Chromium-based browser (Edge, Chrome, Opera, e
 ⚙️ [**Technical Specifications** ](https://github.com/algosup/2024-2025-project-4-web-fpga-team-2/blob/main/Documents/Technical/technicalSpecification.md) <br>
 🧪 [**Test Plan** ](https://github.com/algosup/2024-2025-project-4-web-fpga-team-2/blob/main/Documents/TestPlan/testPlan.md) <br>
 ✅ [**Test Cases Rules**](https://github.com/algosup/2024-2025-project-4-web-fpga-team-2/blob/main/Documents/TestPlan/testCaseRules.md) <br>
-📑 [ **Project Charter**](https://github.com/algosup/2024-2025-project-4-web-fpga-team-2/blob/main/Documents/Management/projectCharter.md) <br>
+📑 [ **Management Artifacts**](https://github.com/algosup/2024-2025-project-4-web-fpga-team-2/blob/main/Documents/Management/ManagementArtifacts) <br>
 📆 [ **Weekly Reports** ](https://github.com/algosup/2024-2025-project-4-web-fpga-team-2/blob/main/Documents/Management/WeeklyReports) <br>
-📌 [ **Post Mortem** ](https://github.com/algosup/2024-2025-project-4-web-fpga-team-2/blob/main/Documents/Management/postMortem.md) <br>    
+📌 [ **Post Mortem** ](https://github.com/algosup/2024-2025-project-4-web-fpga-team-2/blob/main/Documents/Management/postMortem.md) <br>
 
 ## ⚖️ License
 
