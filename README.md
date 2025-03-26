@@ -1,7 +1,8 @@
 # Web FPGA Team 2
 
-<img src ="Documents\ReadmeExtensions\3000px_Bleu.jpg">
-
+<div style="text-align: center;">
+<img src ="Documents\ReadmeExtensions\3000px_Bleu.jpg" width=auto height="300">
+</div>
 
 
 
