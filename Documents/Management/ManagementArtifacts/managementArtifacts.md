@@ -59,9 +59,7 @@ A MoSCoW table is used to prioritize requirements based on their importance and 
 
 Key Performance Indicators (KPIs) are used to measure project performance in percentage terms. They enable to assess the progress of tasks and anticipate the need for assistance or resources.
 
-You can find the KPIs' explanation [here]().
-
-You can also find the KPIs' table [here]().
+You can also find the KPIs' table [here](https://docs.google.com/spreadsheets/d/1IzNeeq6BHiJQUQX-DqInGMWjPvM-9AiJ3GWgXlKIHhs/edit?usp=sharing).
 
 ### 3.2 Calculations
 
