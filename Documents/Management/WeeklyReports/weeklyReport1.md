@@ -20,7 +20,7 @@ They also starting to create the schematics (asking by the client) thanks to thi
 
 ### Templates
 
-The templates were written such as these for the issues (for the Quality Assurance), and for all the documents.
+Templates have been drawn up for all issues (for quality assurance) and for all documents.
 
 ## Management Planing
 
@@ -41,7 +41,7 @@ The templates were written such as these for the issues (for the Quality Assuran
 
 ### Gantt Chart
 
-A Gantt Chart was started, to precisely indicate the amount of time that a task has to be done after consultations with the team. It also indicates all the deadlines (materialized by scares).
+A Gantt Chart was started, to precisely indicate the amount of time that a task has to be done after consultations with the team. It also indicates all the deadlines (materialized by squares).
 
 ![Gantt Chart](../Images/gantt_Chart.png)
 
