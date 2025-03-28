@@ -25,7 +25,7 @@ We develop a web interface for an FPGA Simulator. This web interface will be use
 <br>
 <details>
 
-<summary><b> 👤 Contributor </b></summary>
+<summary><b> 👤 Contributors </b></summary>
 <br>
 
 | Photo                                                                                                           | Role               | Name              | Contact                                                                                                                                                                                                                                                                                                     |
