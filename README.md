@@ -46,7 +46,7 @@ An FPGA is a reprogrammable electronic chip that allows users to create custom c
 
 ## 🔑 Requirements to Access the Website
 
-To access our website, you need a Chromium-based browser (Edge, Chrome, Opera, etc... ).
+To access our website, you need a Chromium-based browser (Edge, Chrome, Opera, etc... ) or Firefox.
 
 ## 🌟 Key Features
 | Feature | Description |
