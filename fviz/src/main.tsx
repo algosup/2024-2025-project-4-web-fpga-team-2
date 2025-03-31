@@ -8,3 +8,12 @@ createRoot(document.getElementById('root')!).render(
     <App />
   </StrictMode>,
 )
+
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/service-worker.ts").then(() => {
+    console.log("Service Worker Registered");
+  });
+}
+
+
+

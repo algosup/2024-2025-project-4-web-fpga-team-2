@@ -1,35 +1,62 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from "react";
+import TeacherPage from "./pages/TeacherPage";
+import StudentPage from "./pages/StudentPage";
+import "./App.css";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [role, setRole] = useState<"teacher" | "student" | null>(null);
+  const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("");
+
+  const handleTeacherLogin = () => {
+    if (password === "securepass") { // Change this password as needed
+      setRole("teacher");
+    } else {
+      alert("Incorrect password!");
+    }
+  };
+
+  const handleStudentLogin = () => {
+    if (username.trim() !== "") {
+      setRole("student");
+    } else {
+      alert("Please enter a username.");
+    }
+  };
+
+  if (role === "teacher") return <TeacherPage />;
+  if (role === "student") return <StudentPage username={username} />;
 
   return (
-    <>
+    <div className="app-container">
+      <h1>Welcome to PWA Education App</h1>
+      <h2>Select Your Role</h2>
+
+      {/* Teacher Login */}
+      <div style={{ marginBottom: "20px" }}>
+        <h3>Teacher Login</h3>
+        <input
+          type="password"
+          placeholder="Enter password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+        <button onClick={handleTeacherLogin}>Enter</button>
+      </div>
+
+      {/* Student Login */}
       <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+        <h3>Student Login</h3>
+        <input
+          type="text"
+          placeholder="Enter username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+        />
+        <button onClick={handleStudentLogin}>Enter</button>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </div>
+  );
 }
 
-export default App
+export default App;
