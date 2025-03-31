@@ -6,12 +6,12 @@
 
 ### Documents
 
-The technical specification is from now on 100% complete. The QA almost finish his test cases (90%) and the Technical Leader also wrote in this entirety the README for the repository (95%). The customer also answered to the questions we asked him last week and we are now more enlightened on certain aspects of the code (such as the Input with a Constant 0 value).
+The technical specification is from now on 100% complete. The QA almost finish his test cases (90%) and the Technical Leader also wrote in this almost entirety the README for the repository (95%). The customer also answered to the questions we asked him last week and we are now more enlightened on certain aspects of the code (such as the Input with a Constant 0 value).
 
 ### Website
 
 Some upgrades have been made to the circuit visualizer. Basically, before, the "real" names were displayed on the schemas, so as they were indicated in the uploaded files (more often, humanly unreadable because they are too long and meaningless). <br>
-Now, with the last update, the names have been shorted to be more readable and more understand their utility. We can consider the visualizer as 85% complete for now.
+Now, with the last update, the names have been shorted to be more readable and to understand more their utility. We can consider the visualizer as 85% complete for now.
 
 ## Management Planing
 
