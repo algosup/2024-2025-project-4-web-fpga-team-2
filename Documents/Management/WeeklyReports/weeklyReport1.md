@@ -55,6 +55,11 @@ All the time dedicated to the project is currently recorded in a Google Sheet to
 
 ![Screenshot of the Table](../Images/project_Hours_Tracking_Table.png)
 
+### Avoid issues
+
+To avoid problems regarding the multiples merge which will take place during all the project, I developed a GitHub workflow that will automatically merge the main branch into all the under branches when a push is made on the main branch. <br>
+This will allow to avoid merge conflicts and to have a clean history of the project.
+
 ## Key Goals for Week 2
 
 - Moving forward on the Functional and the Test Plan.
