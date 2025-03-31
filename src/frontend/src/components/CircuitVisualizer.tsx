@@ -530,6 +530,7 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
     svg.selectAll<SVGPathElement, unknown>("path.data-flow-connection")
       .each(function () {
         const wire = this.getAttribute("data-wire") || "";
+
         let color = "red";
         if (wire.toLowerCase().includes("clk")) {
           color = "yellow";
@@ -583,9 +584,6 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
         <button onClick={() => setIsRunning(r => !r)} style={{ marginRight: "1rem" }}>
           {isRunning ? "Pause" : "Run"}
         </button>
-        {/* <button onClick={() => setShowInterconnects(s => !s)} style={{ marginRight: "1rem" }}>
-        {showInterconnects ? "Hide Interconnects" : "Show Interconnects"}
-      </button> */}
         <span style={{ marginRight: "1rem" }}>Clock Cycle: {clockCycle}</span>
         <label style={{ marginRight: "0.5rem" }}>Animation Speed: {animationSpeed.toFixed(1)}x</label>
         <input
