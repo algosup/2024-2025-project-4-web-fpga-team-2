@@ -126,7 +126,7 @@ The web page is the final product of the project. It is the result of the work o
   - Tool bar editing the rendered schema;
   - An Export option;
   - A Share option;
-  - Account system.
+  - Account system;
   - Back-end.
 
 <br>
@@ -167,7 +167,7 @@ $$
 
 ## 4. Weekly Reports
 
-Each week, a survey is sent to the team members to know the progress of the project as well as their mood regarding this latest. It is important to anticipate any problems that may arise and to ensure that the project is progressing as planned. You can find by following the links below:
+Each week, a survey is sent to the team members to know the progress of the project as well as their mood regarding to this latest. It is important to anticipate any problems that may arise and to ensure that the project is progressing as planned. You can find by following the links below:
 
 - [Weekly Report 1](../WeeklyReports/weeklyReport1.md)
 - [Weekly Report 2](../WeeklyReports/weeklyReport2.md)
