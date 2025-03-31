@@ -24,11 +24,11 @@
 
 ## Introduction
 
-This document is a set of the rules that must be followed by Team 2. This is important for all the members to adhere to these rules for the seemliness and the good harmony of the Team. This code will also help to have a positive and productive work environment.
+This document is a ruleset that must be followed by Team 2. This is important for all members to adhere to these rules for the seemliness and the good harmony of the Team. This code will also help to have a positive and productive work environment.
 
 ## Expected Behaviors
 
-Inasmuch as a project manager, I think that a good behavior encourage a respectful and collaborative work from all members.
+As a project manager, I think that a good behavior encourage a respectful and collaborative work from all members.
 
 ### 1. Professionalism and respect
 
@@ -70,7 +70,7 @@ Inasmuch as a project manager, I think that a good behavior encourage a respectf
 ### 2. Plagiarism and Dishonesty
 
 - Do not falsifying data or plagiarism work without the agreement of his creator.
-- Let leak or sharing sensitive information directly related to the project without specific permission.
+- Do not let leak or sharing sensitive information directly related to the project without specific permission.
 
 ## Consequences of unprofessional behavior
 
