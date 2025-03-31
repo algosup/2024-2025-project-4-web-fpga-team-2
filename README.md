@@ -1,9 +1,22 @@
+<div align="center">
+
 # Web FPGA Team 2
 
+</div>
 
-<img src ="../ReadmeExtensions/3000px_Bleu.jpg">
+<p align="center">
+  <a href="#️overview">Overview</a> •
+  <a href="#️-whats-a-fpga-">What's a FPGA</a> •
+  <a href="#-requirements-to-access-the-website">Requirements</a> •
+  <a href="#-key-features">Key Features</a> •
+  <a href="#-how-to-use-it-">How to Use It</a> •
+  <a href="#-project-documents">Documents</a> •
+  <a href="#️-license">License</a>
+</p>
 
-
+<div align="center">
+    <img src ="Documents\ReadmeExtensions\3000px_Bleu.jpg" width=auto height="300">
+</div>
 
 
 ## 🖥️⚡Overview
@@ -12,7 +25,7 @@ We develop a web interface for an FPGA Simulator. This web interface will be use
 <br>
 <details>
 
-<summary><b> 👤 Contributor </b></summary>
+<summary><b> 👤 Contributors </b></summary>
 <br>
 
 | Photo                                                                                                           | Role               | Name              | Contact                                                                                                                                                                                                                                                                                                     |
@@ -31,24 +44,32 @@ We develop a web interface for an FPGA Simulator. This web interface will be use
 ## 🛠️🧑‍💻 What's a FPGA ?
 An FPGA is a reprogrammable electronic chip that allows users to create custom circuits. Unlike traditional processors (CPUs) that execute instructions, an FPGA can be configured to function as a specialized circuit optimized for a specific task. It is widely used in fields like aerospace, automotive, and telecommunications because it offers high flexibility and speed.
 
+## 🔑 Requirements to Access the Website
+
+To access our website, you need a Chromium-based browser (Edge, Chrome, Opera, etc... ) or Firefox.
+
 ## 🌟 Key Features
 | Feature | Description |
 | ------- | ----------- |
-|         |             |
+|Friendly interface|Intuitive, easy-to-use UI for seamless navigation and interaction.|
+|Account system|possibility of logging on as teacher or student|
+|Load .v and .sdf files|The teacher can upload the Verilog file for display on the student's side.|
+|Connection between Teacher's side and Student's side|If the teacher uploads a file or deletes the current schema, it will modify the interface on the student side.|
+|Display an animated schematic with values|A schematic of the various components of the file will be displayed in a simplified way and with animations representing the current flowing between the various circuit components.|
 
-## 📖 How To Use It ?
 
+## 📖 How to Use It ?
+you can access the website by clicking on this [link](https://algosup.github.io/2024-2025-project-4-web-fpga-team-2/).
 
-## 📂 Project Document
+## 📂 Project Documents
 
 📄 [**Functional Specifications**](https://github.com/algosup/2024-2025-project-4-web-fpga-team-2/blob/main/Documents/Functional/functionalSpecification.md) <br>
 ⚙️ [**Technical Specifications** ](https://github.com/algosup/2024-2025-project-4-web-fpga-team-2/blob/main/Documents/Technical/technicalSpecification.md) <br>
-🧪 [**Test Plan** ]() <br>
-✅ [**Test Cases**]() <br>
-📜 [ **Code Of Conduct**]() <br>
-📑 [ **Project Charter**]() <br>
-📆 [ **Weekly Reports** ]() <br>
-📌 [ **Post Mortem** ]() <br>    
+🧪 [**Test Plan** ](https://github.com/algosup/2024-2025-project-4-web-fpga-team-2/blob/main/Documents/TestPlan/testPlan.md) <br>
+✅ [**Test Cases Rules**](https://github.com/algosup/2024-2025-project-4-web-fpga-team-2/blob/main/Documents/TestPlan/testCaseRules.md) <br>
+📑 [ **Management Artifacts**](https://github.com/algosup/2024-2025-project-4-web-fpga-team-2/blob/main/Documents/Management/ManagementArtifacts) <br>
+📆 [ **Weekly Reports** ](https://github.com/algosup/2024-2025-project-4-web-fpga-team-2/blob/main/Documents/Management/WeeklyReports) <br>
+📌 [ **Post Mortem** ](https://github.com/algosup/2024-2025-project-4-web-fpga-team-2/blob/main/Documents/Management/postMortem.md) <br>
 
 ## ⚖️ License
 
