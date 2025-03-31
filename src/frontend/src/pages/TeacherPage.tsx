@@ -11,7 +11,7 @@ interface Circuit {
   jsonFile: string;
 }
 
-function TeacherPage() {
+function TeacherPage({ onReturn }: { onReturn: () => void }) {
   const [circuits, setCircuits] = useState<Circuit[]>([]);
   const [selectedCircuit, setSelectedCircuit] = useState<Circuit | null>(null);
   const [circuitName, setCircuitName] = useState<string>("");
@@ -215,9 +215,9 @@ function TeacherPage() {
     }
     setLoading(false);
   };
-  
   return (
     <div className="teacher-page">
+      <button onClick={onReturn} className="return-button">Return</button>
       <h1 className="teacher-header">
         Teacher's Dashboard
       </h1>
