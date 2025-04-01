@@ -22,7 +22,6 @@ function TeacherPage({ onReturn }: { onReturn: () => void }) {
   const [loading, setLoading] = useState<boolean>(false);
   const [selectedCircuits, setSelectedCircuits] = useState<Set<string>>(new Set());
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
-  const [sendingToStudents, setSendingToStudents] = useState<boolean>(false);
 
 
   // Separate state for each file type:

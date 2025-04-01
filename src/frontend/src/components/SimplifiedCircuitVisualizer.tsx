@@ -105,7 +105,7 @@ function buildSimplifiedConnections(circuitData: CircuitData): Connection[] {
   });
 
   const simplifiedConnections: Connection[] = [];
-  outMap.forEach((connections, component) => {
+  outMap.forEach((connections) => {
     connections.forEach(conn => {
       const realSource = traceToRealSource(
         conn.from.component,
@@ -306,7 +306,7 @@ const SimplifiedCircuitVisualizer: React.FC<SimplifiedCircuitVisualizerProps> = 
   const [animationSpeed, setAnimationSpeed] = useState<number>(1);
   // Custom port positions for port dragging.
   // Custom port positions for port dragging - accessed via setter
-  const [customPortPositions, setCustomPortPositions] = useState<Record<string, Position>>({});
+
   const [portPositions, setPortPositions] = useState<Record<string, Position>>({});
   const [portConnections, setPortConnections] = useState<Array<{
     portName: string;
@@ -864,10 +864,7 @@ const SimplifiedCircuitVisualizer: React.FC<SimplifiedCircuitVisualizerProps> = 
           [portName]: { x, y }
         }));
 
-        setCustomPortPositions(prev => ({
-          ...prev,
-          [portName]: { x, y }
-        }));
+        
       })
       .on('end', function () {
         d3.select(this).classed('dragging', false);

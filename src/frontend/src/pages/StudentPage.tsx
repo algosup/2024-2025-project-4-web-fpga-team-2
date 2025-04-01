@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import CircuitVisualizer from "../components/CircuitVisualizer";
 import "../styles/pages/StudentPage.css";
 import "../styles/common/layout.css";
@@ -20,10 +20,7 @@ interface StudentPageProps {
 function StudentPage({ username, onReturn }: StudentPageProps) {
   const [circuits, setCircuits] = useState<Circuit[]>([]);
   const [selectedCircuit, setSelectedCircuit] = useState<Circuit | null>(null);
-  const [circuitName, setCircuitName] = useState<string>("");
-  const [circuitDescription, setCircuitDescription] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
-  const [selectedCircuits, setSelectedCircuits] = useState<Set<string>>(new Set());
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
   const prefersDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   const [isDarkTheme, setIsDarkTheme] = useState<boolean>(prefersDarkMode);
