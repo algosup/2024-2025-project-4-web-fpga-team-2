@@ -1,6 +1,9 @@
 import React, { useState, useEffect, DragEvent } from "react";
 import CircuitVisualizer from "../components/CircuitVisualizer";
+import SimplifiedCircuitVisualizer from "../components/SimplifiedCircuitVisualizer";
 import "../styles/pages/TeacherPage.css";
+import "../styles/common/buttons.css";
+import "../styles/common/layout.css";
 
 // Define type for circuit data
 interface Circuit {
@@ -18,6 +21,7 @@ function TeacherPage({ onReturn }: { onReturn: () => void }) {
   const [circuitDescription, setCircuitDescription] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [selectedCircuits, setSelectedCircuits] = useState<Set<string>>(new Set());
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
   const [sendingToStudents, setSendingToStudents] = useState<boolean>(false);
 
 
@@ -215,39 +219,59 @@ function TeacherPage({ onReturn }: { onReturn: () => void }) {
     }
     setLoading(false);
   };
+
+  const [showSimplified, setShowSimplified] = useState<boolean>(false);
+
+  const prefersDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const [isDarkTheme, setIsDarkTheme] = useState<boolean>(prefersDarkMode);
+
+  // Add effect to listen for system theme changes
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+    // Initial check
+    setIsDarkTheme(mediaQuery.matches);
+
+    // Add listener
+    const handler = (e: MediaQueryListEvent) => setIsDarkTheme(e.matches);
+    mediaQuery.addEventListener('change', handler);
+
+    // Clean up
+    return () => mediaQuery.removeEventListener('change', handler);
+  }, []);
+
+
   return (
-    <div className="teacher-page">
-      <button onClick={onReturn} className="return-button">Return</button>
-      <h1 className="teacher-header">
-        Teacher's Dashboard
-      </h1>
+    <div className={`teacher-page ${isDarkTheme ? 'dark-theme' : 'light-theme'}`}>
+      <div className="teacher-header">
+        <img
+          src={"logoHomeFN.png"}
+          alt="Logo"
+          className="header-logo"
+          onClick={onReturn}
+        />
+        <h1>Teacher's Dashboard</h1>
+        <div className="teacher-burger-menu-container">
+          <label className="burger-menu-label">
+            <input
+              type="checkbox"
+              checked={!isSidebarOpen}
+              onChange={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="burger-menu-input"
+            />
+            <span className={`burger-menu-span top ${isSidebarOpen ? "closed" : ""}`}></span>
+            <span className={`burger-menu-span middle ${isSidebarOpen ? "closed" : ""}`}></span>
+            <span className={`burger-menu-span bottom ${isSidebarOpen ? "closed" : ""}`}></span>
+          </label>
+        </div>
+      </div>
+
       <div className="teacher-page-content">
         {/* Left side - Upload, File Previews, and Circuit List */}
         <div className="teacher-sidebar">
           {/* File Upload Section */}
           <div className="upload-section">
             <h3>Upload New Circuit</h3>
-            <div className="form-group">
-              <label htmlFor="circuitName">Circuit Name:</label>
-              <input
-                type="text"
-                id="circuitName"
-                value={circuitName}
-                onChange={(e) => setCircuitName(e.target.value)}
-                className="text-input"
-                placeholder="Enter a name for this circuit"
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="circuitDescription">Description (optional):</label>
-              <textarea
-                id="circuitDescription"
-                value={circuitDescription}
-                onChange={(e) => setCircuitDescription(e.target.value)}
-                className="textarea-input"
-                placeholder="Add a description for this circuit"
-              />
-            </div>
 
             {/* File Previews */}
             {vFile && (
@@ -277,7 +301,40 @@ function TeacherPage({ onReturn }: { onReturn: () => void }) {
               </div>
             )}
 
-            {(!vFile || !sdfFile) && (
+            {/* Show name and description fields ONLY when both files are uploaded */}
+            {vFile && sdfFile ? (
+              <>
+                <div className="form-group">
+                  <label htmlFor="circuitName">Circuit Name:</label>
+                  <input
+                    type="text"
+                    id="circuitName"
+                    value={circuitName}
+                    onChange={(e) => setCircuitName(e.target.value)}
+                    className="text-input"
+                    placeholder="Enter a name for this circuit"
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="circuitDescription">Description (optional):</label>
+                  <textarea
+                    id="circuitDescription"
+                    value={circuitDescription}
+                    onChange={(e) => setCircuitDescription(e.target.value)}
+                    className="textarea-input"
+                    placeholder="Add a description for this circuit"
+                  />
+                </div>
+                <button
+                  onClick={uploadFiles}
+                  disabled={loading}
+                  className="upload-button"
+                >
+                  {loading ? "Uploading..." : "Upload Files"}
+                </button>
+              </>
+            ) : (
+              /* Show drag-drop area when files are missing */
               <div
                 onDragOver={handleDragOver}
                 onDrop={handleDrop}
@@ -309,16 +366,6 @@ function TeacherPage({ onReturn }: { onReturn: () => void }) {
                 </small>
               </div>
             )}
-
-            {vFile && sdfFile && (
-              <button
-                onClick={uploadFiles}
-                disabled={loading}
-                className="upload-button"
-              >
-                {loading ? "Uploading..." : "Upload Files"}
-              </button>
-            )}
           </div>
 
           {/* Circuit List Section */}
@@ -341,13 +388,12 @@ function TeacherPage({ onReturn }: { onReturn: () => void }) {
                 {circuits.map((circuit) => (
                   <li
                     key={circuit.id}
-                    className={`circuit-list-item ${
-                      selectedCircuit?.id === circuit.id
-                        ? "selected"
-                        : selectedCircuits.has(circuit.id)
+                    className={`circuit-list-item ${selectedCircuit?.id === circuit.id
+                      ? "selected"
+                      : selectedCircuits.has(circuit.id)
                         ? "highlight"
                         : ""
-                    }`}
+                      }`}
                   >
                     <div className="circuit-item-content">
                       <div className="circuit-item-main">
@@ -398,12 +444,24 @@ function TeacherPage({ onReturn }: { onReturn: () => void }) {
               <>
                 <div className="current-circuit">
                   <strong>Current Circuit:</strong> {selectedCircuit.name}
+                    <button
+                    onClick={() => setShowSimplified(!showSimplified)}
+                    className="toggle-button"
+                    style={{ float: 'right', marginRight: '10px' }}
+                    >
+                    {showSimplified ? 'Original' : 'Simplified'}
+                    </button>
                 </div>
-                <div className="visualization-area">
-                  <strong className="visualization-title">
-                    {selectedCircuit.name}
-                  </strong>
-                  <CircuitVisualizer jsonFile={selectedCircuit.jsonFile} />
+                <div className="visualization-area" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                  <div style={{ flex: 1, position: 'relative' }}>
+                    <div style={{ marginBottom: '10px' }}>
+                    </div>
+                    {showSimplified ? (
+                      <SimplifiedCircuitVisualizer jsonFile={selectedCircuit.jsonFile} />
+                    ) : (
+                      <CircuitVisualizer jsonFile={selectedCircuit.jsonFile} />
+                    )}
+                  </div>
                 </div>
               </>
             ) : (
@@ -411,6 +469,20 @@ function TeacherPage({ onReturn }: { onReturn: () => void }) {
                 <p>No circuit selected. Please select a circuit from the list.</p>
               </div>
             )}
+          </div>
+        </div>
+        <div className={`teacher-secondary-sidebar ${isSidebarOpen ? 'open' : 'closed'}`}>
+          <div className="secondary-sidebar-header">
+            <h3>My Dashboard</h3>
+          </div>
+          <div className="secondary-sidebar-content">
+            {/* Add whatever content you want in this secondary sidebar */}
+            <ul className="secondary-menu">
+              <li><a href="#">Settings</a></li>
+              <li><a href="#">My Classroom</a></li>
+              <li><a href="#">Help & Documentation</a></li>
+              <li><a href="#">About</a></li>
+            </ul>
           </div>
         </div>
       </div>
