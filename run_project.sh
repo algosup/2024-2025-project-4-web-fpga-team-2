@@ -12,6 +12,7 @@ cd ../..
 echo "Starting frontend..."
 cd src/Frontend || exit
 if [ ! -d "node_modules" ]; then npm install; fi
+if [ ! -d "node_modules/d3" ]; then npm install d3; fi
 # Open localhost in the default browser after a short delay
 (sleep 5 && open "http://localhost:5173") &
 npm run dev
