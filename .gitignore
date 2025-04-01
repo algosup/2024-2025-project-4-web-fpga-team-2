@@ -71,6 +71,7 @@ packages/react-devtools-timeline/dist
 # Ignore circuit JSON files but keep config files
 src/frontend/public/uploads/*.json
 src/backend/uploads/*.json
+src/database/circuits/*.json
 *_circuit.json
 *_netlist.json
 # Then explicitly include important JSON files
@@ -79,3 +80,4 @@ src/backend/uploads/*.json
 !tsconfig.json
 !.eslintrc.json
 !jest.config.json
+.qodo

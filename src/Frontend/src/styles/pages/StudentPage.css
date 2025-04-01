@@ -1,0 +1,314 @@
+/* Student Page Layout */
+.student-page--container {
+  width: 100vw;
+  height: 100vh;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* Header styling - matched with TeacherPage */
+.student-page--header {
+  padding: 0.5rem 1rem;
+  background-color: var(--header-bg);
+  color: var(--header-text);
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2px 4px var(--shadow-color);
+  height: 40px;
+  margin: 0;
+  border-radius: 0;
+  position: relative;
+  z-index: 100;
+  font-size: initial;
+}
+
+.student-page--header h1 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 500;
+  flex: 1; /* Take available space */
+}
+
+/* Header logo styling */
+.header-logo {
+  height: 30px;
+  width: auto;
+  margin-right: 1rem;
+  cursor: pointer;
+}
+
+/* Content area */
+.student-page--content {
+  display: flex;
+  width: 100%;
+  height: calc(100% - 40px);
+  overflow: hidden;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+/* Visualizer area */
+.student-page--visualizer-wrapper {
+  flex: 3;
+  height: 100%;
+  overflow-y: hidden;
+}
+
+.student-page--visualizer-container {
+  height: 100%;
+  padding: 20px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-secondary);
+}
+
+.student-page--empty-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  background-color: var(--bg-accent);
+}
+
+/* Burger Menu - Fixed & Improved */
+.student-page--burger-menu-container {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 200;
+  line-height: 0;
+}
+
+.burger-menu-label {
+  display: block;
+  position: relative;
+  cursor: pointer;
+  width: 30px;
+  height: 20px;
+  padding: 0;
+}
+
+/* Completely hide the checkbox */
+.burger-menu-input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Burger menu bars */
+.burger-menu-span {
+  position: absolute;
+  height: 2px;
+  width: 24px;
+  background-color: white;
+  border-radius: 100px;
+  display: inline-block;
+  transition: 0.3s ease;
+}
+
+/* Normal state positioning */
+.burger-menu-span.top {
+  top: 0;
+}
+
+.burger-menu-span.middle {
+  top: 9px;
+}
+
+.burger-menu-span.bottom {
+  top: 18px;
+}
+
+/* Change from X to arrow animation */
+.burger-menu-span.top.closed {
+  transform: rotate(45deg) translate(4px, 0px);
+  width: 18px; /* Make shorter for arrow */
+}
+
+.burger-menu-span.middle.closed {
+  opacity: 1; /* Keep visible */
+  width: 24px; /* Full width */
+}
+
+.burger-menu-span.bottom.closed {
+  transform: rotate(-45deg) translate(4px, 0px);
+  width: 18px; /* Make shorter for arrow */
+}
+
+/* Additional styles to ensure the spans align properly for the arrow */
+.burger-menu-span.top.closed,
+.burger-menu-span.bottom.closed {
+  left: 8px; /* Offset to create the proper arrow shape */
+}
+
+/* Sidebar - Circuit List */
+.student-page--sidebar {
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: all 0.3s ease-in-out;
+}
+
+.student-page--sidebar.open {
+  flex: 1;
+  max-width: 400px;
+  padding: 0 10px 0 0;
+  opacity: 1;
+  visibility: visible;
+}
+
+.student-page--sidebar.closed {
+  flex: 0;
+  max-width: 0;
+  padding: 0;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.student-page--sidebar-content {
+  padding: 20px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  flex-grow: 1;
+  overflow-y: auto;
+  background-color: var(--bg-secondary);
+}
+
+.student-page--sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  color: var(--text-primary);
+}
+
+/* Refresh button */
+.student-page--refresh-btn {
+  padding: 5px 10px;
+  background-color: var(--btn-primary);
+  color: var(--btn-text);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.student-page--refresh-btn:hover {
+  background-color: var(--btn-primary-hover);
+}
+
+/* Circuit list styling */
+.student-page--circuits-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.student-page--circuit-item {
+  padding: 10px;
+  margin-bottom: 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background-color: var(--bg-tertiary);
+}
+
+/* Circuit item components */
+.student-page--circuit-item-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.student-page--circuit-info {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.student-page--circuit-name {
+  display: block;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text-primary);
+}
+
+.student-page--circuit-date {
+  margin: 5px 0;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.student-page--circuit-description {
+  margin: 5px 0;
+  font-size: 0.9rem;
+  max-height: 40px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  color: var(--text-secondary);
+}
+
+.student-page--circuit-actions {
+  margin-left: 10px;
+}
+
+/* Load button */
+.student-page--load-btn {
+  padding: 5px 10px;
+  background-color: var(--btn-success);
+  color: var(--btn-text);
+  border: none;
+  border-radius: 4px;
+  width: 70px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.student-page--load-btn:hover {
+  background-color: var(--btn-success-hover);
+}
+
+/* Loading indicator */
+.loading-icon {
+  display: inline-block;
+  animation: spin 1s infinite linear;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

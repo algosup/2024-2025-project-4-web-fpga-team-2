@@ -1,14 +1,29 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import TeacherPage from "./pages/TeacherPage";
 import StudentPage from "./pages/StudentPage";
+import "./styles/App.css";
+import "./styles/common/layout.css";
 
 function App() {
   const [role, setRole] = useState<"teacher" | "student" | null>(null);
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
+  const [activeTab, setActiveTab] = useState<"teacher" | "student">("student");
+
+  // Theme detection - same as TeacherPage
+  const prefersDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const [isDarkTheme, setIsDarkTheme] = useState<boolean>(prefersDarkMode);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    setIsDarkTheme(mediaQuery.matches);
+    const handler = (e: MediaQueryListEvent) => setIsDarkTheme(e.matches);
+    mediaQuery.addEventListener('change', handler);
+    return () => mediaQuery.removeEventListener('change', handler);
+  }, []);
 
   const handleTeacherLogin = () => {
-    if (password === "securepass") { // Change this password as needed
+    if (password === "securepass") {
       setRole("teacher");
     } else {
       alert("Incorrect password!");
@@ -23,36 +38,98 @@ function App() {
     }
   };
 
-  if (role === "teacher") return <TeacherPage />;
-  if (role === "student") return <StudentPage username={username} />;
+  // Handle Enter key press
+  const handleKeyPress = (e: React.KeyboardEvent, role: "teacher" | "student") => {
+    if (e.key === "Enter") {
+      role === "teacher" ? handleTeacherLogin() : handleStudentLogin();
+    }
+  };
 
+  if (role === "teacher") return <TeacherPage onReturn={() => setRole(null)} />;
+  if (role === "student") return <StudentPage username={username} onReturn={() => setRole(null)} />;
   return (
-    <div style={{ textAlign: "center", marginTop: "50px", backgroundColor: "#222", color: "white", height: "100vh", width: "100vw" }}>
-      <h1>Welcome to PWA Education App</h1>
-      <h2>Select Your Role</h2>
+    <div className={`app-container ${isDarkTheme ? 'dark-theme' : 'light-theme'}`}>
+      <div className="login-container">
+        <div className="login-logo">
+          <img
+            src="logoHomeFB.png"
+            alt="App Logo"
+            className="light-logo"
+          />
+          <img
+            src="logoHomeFN.png"
+            alt="App Logo"
+            className="dark-logo"
+          />
+        </div>
 
-      {/* Teacher Login */}
-      <div style={{ marginBottom: "20px" }}>
-        <h3>Teacher Login</h3>
-        <input
-          type="password"
-          placeholder="Enter password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <button onClick={handleTeacherLogin}>Enter</button>
-      </div>
+        <h1>FPGA Circuit Visualizer</h1>
+        <p className="app-description">
+          Explore, analyze, and interact with FPGA circuit designs
+        </p>
 
-      {/* Student Login */}
-      <div>
-        <h3>Student Login</h3>
-        <input
-          type="text"
-          placeholder="Enter username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-        />
-        <button onClick={handleStudentLogin}>Enter</button>
+        <div className="login-card">
+          <div className="login-tabs">
+            <button
+              className={activeTab === "student" ? "active" : ""}
+              onClick={() => setActiveTab("student")}
+            >
+              Student
+            </button>
+            <button
+              className={activeTab === "teacher" ? "active" : ""}
+              onClick={() => setActiveTab("teacher")}
+            >
+              Teacher
+            </button>
+          </div>
+
+          <div className="login-form">
+            {activeTab === "teacher" ? (
+              <>
+                <div className="form-group">
+                  <label htmlFor="teacher-password">Teacher Access</label>
+                  <input
+                    id="teacher-password"
+                    type="password"
+                    placeholder="Enter password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    onKeyPress={(e) => handleKeyPress(e, "teacher")}
+                    className="login-input"
+                  />
+                </div>
+                <button
+                  className="login-button"
+                  onClick={handleTeacherLogin}
+                >
+                  Login as Teacher
+                </button>
+              </>
+            ) : (
+              <>
+                <div className="form-group">
+                  <label htmlFor="student-username">Student Access</label>
+                  <input
+                    id="student-username"
+                    type="text"
+                    placeholder="Enter your name"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    onKeyPress={(e) => handleKeyPress(e, "student")}
+                    className="login-input"
+                  />
+                </div>
+                <button
+                  className="login-button"
+                  onClick={handleStudentLogin}
+                >
+                  Enter as Student
+                </button>
+              </>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
