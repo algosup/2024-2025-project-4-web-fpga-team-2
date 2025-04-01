@@ -1,32 +1,3 @@
-# Ignore installed dependencies  
-node_modules/  
-
-# Yarn error log file  
-yarn-error.log  
-
-# Next.js build folder  
-.next/  
-
-# Environment file (often contains secrets)  
-.env  
-
-# Ignore generated service worker and cache files  
-**/public/precache.*.*.js  
-**/public/sw.js  
-**/public/workbox-*.js  
-**/public/worker-*.js  
-**/public/fallback-*.js  
-**/public/precache.*.*.js.map  
-**/public/sw.js.map  
-**/public/workbox-*.js.map  
-**/public/worker-*.js.map  
-**/public/fallback-*.js  
-
-# Ignore lock files in examples (avoids conflicts between package managers)  
-examples/**/yarn.lock  
-examples/**/package-lock.json  
-examples/**/pnpm-lock.yaml  
-
 # macOS and IDE-specific files  
 .DS_STORE  
 .idea  
