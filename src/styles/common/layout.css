@@ -1,0 +1,68 @@
+:root {
+    /* Light theme based on #005191 (deep blue) and white */
+    --bg-primary: #ffffff;
+    --bg-secondary: #f5f9fd;
+    --bg-tertiary: #e6f0f9;
+    --bg-accent: #f0f7ff;
+    --text-primary: #202020;
+    --text-secondary: #303840;
+    --text-muted: #505a64;
+    --border-color: #a0c0e0;
+    --header-bg: #004380;
+    --header-text: #ffffff;
+    --shadow-color: rgba(0, 41, 73, 0.1);
+    --input-bg: #ffffff;
+    --input-border: #7eabd7;
+    --drag-border: #7eabd7;
+    --file-preview-bg: #edf5fc;
+    --btn-primary: #004380;
+    --btn-primary-hover: #00335f;
+    --btn-success: #1d6840;
+    --btn-success-hover: #155031;
+    --btn-danger: #c01f2d;
+    --btn-danger-hover: #9a1824;
+    --btn-text: #ffffff;
+    --select-highlight: #1d6840;
+    --multi-select-highlight: #004380;
+}
+
+.dark-theme {
+    /* === Backgrounds === */
+    --bg-primary: #121212;              /* Deep black */
+    --bg-secondary: #1e1e1e;            /* Layered surfaces */
+    --bg-tertiary: #2a2a2a;             /* Panels/cards */
+    --bg-accent: #333333;               /* Subtle accents */
+  
+    /* === Text === */
+    --text-primary: #ffffff;            /* Crisp white text */
+    --text-secondary: #cccccc;          /* Less emphasis */
+    --text-muted: #c1c1c1;              /* Muted notes */
+  
+    /* === Structure === */
+    --border-color: #444444;
+    --header-bg: #0d0d0d;
+    --header-text: #ffffff;
+    --shadow-color: rgba(0, 0, 0, 0.4);
+  
+    /* === Forms === */
+    --input-bg: #1e1e1e;
+    --input-border: #3a3a3a;
+    --drag-border: #5c5c5c;
+    --file-preview-bg: #252525;
+  
+    /* === Buttons === */
+    --btn-primary: #4a4a4a;
+    --btn-primary-hover: #3a3a3a;
+  
+    --btn-success: #198754;             /* Bootstrap-style green */
+    --btn-success-hover: #28a36c;
+  
+    --btn-danger: #dc3545;              /* Classic red */
+    --btn-danger-hover: #e55362;
+  
+    --btn-text: #ffffff;
+  
+    /* === Selection === */
+    --select-highlight: #198754;
+    --multi-select-highlight: #2e2e2e;
+  }

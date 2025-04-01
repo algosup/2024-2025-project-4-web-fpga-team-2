@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import CircuitVisualizer from "../components/CircuitVisualizer";
 import "../styles/pages/StudentPage.css";
+import "../styles/common/layout.css";
 
 // Define type for circuit data
 interface Circuit {
@@ -11,7 +12,12 @@ interface Circuit {
   jsonFile: string;
 }
 
-function StudentPage() {
+interface StudentPageProps {
+  username: string;
+  onReturn: () => void;
+}
+
+function StudentPage({ username, onReturn }: StudentPageProps) {
   const [circuits, setCircuits] = useState<Circuit[]>([]);
   const [selectedCircuit, setSelectedCircuit] = useState<Circuit | null>(null);
   const [circuitName, setCircuitName] = useState<string>("");
@@ -19,6 +25,9 @@ function StudentPage() {
   const [loading, setLoading] = useState<boolean>(false);
   const [selectedCircuits, setSelectedCircuits] = useState<Set<string>>(new Set());
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
+  const prefersDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const [isDarkTheme, setIsDarkTheme] = useState<boolean>(prefersDarkMode);
+
 
   // Fetch available circuits on component mount
   useEffect(() => {
@@ -46,11 +55,40 @@ function StudentPage() {
     setSelectedCircuit(circuit);
   };
 
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    setIsDarkTheme(mediaQuery.matches);
+    const handler = (e: MediaQueryListEvent) => setIsDarkTheme(e.matches);
+    mediaQuery.addEventListener('change', handler);
+    return () => mediaQuery.removeEventListener('change', handler);
+  }, []);
+
   return (
-    <div className="student-page--container">
-      <h1 className="student-page--header">
-        Student's Circuit Page
-      </h1>
+    <div className={`student-page--container ${isDarkTheme ? 'dark-theme' : 'light-theme'}`}>
+      <div className="student-page--header">
+        <img
+          src={isDarkTheme ? "logoHomeFN.png" : "logoHomeFB.png"}
+          alt="Logo"
+          className="header-logo"
+          onClick={onReturn}
+        />
+        <h1>{username || 'Student'}'s Circuit Page</h1>
+        {/* Burger Menu Button - moved here */}
+        <div className="student-page--burger-menu-container">
+          <label className="burger-menu-label">
+            <input
+              type="checkbox"
+              checked={!isSidebarOpen} // Invert this to match animation direction
+              onChange={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="burger-menu-input"
+            />
+            {/* Invert the animation logic - show arrow when sidebar is OPEN */}
+            <span className={`burger-menu-span top ${isSidebarOpen ? "closed" : ""}`}></span>
+            <span className={`burger-menu-span middle ${isSidebarOpen ? "closed" : ""}`}></span>
+            <span className={`burger-menu-span bottom ${isSidebarOpen ? "closed" : ""}`}></span>
+          </label>
+        </div>
+      </div>
       <div className="student-page--content">
         {/* Right side - Circuit Visualization */}
         <div className="student-page--visualizer-wrapper">
@@ -69,20 +107,7 @@ function StudentPage() {
 
         {/* Left side - Upload, File Previews, and Circuit List */}
         <>
-          {/* Burger Menu Button */}
-          <div className="student-page--burger-menu-container">
-            <label className="burger-menu-label">
-              <input 
-                type="checkbox"
-                checked={!isSidebarOpen}
-                onChange={() => setIsSidebarOpen(!isSidebarOpen)}
-                className="burger-menu-input"
-              />
-              <span className={`burger-menu-span top ${isSidebarOpen ? "open" : "closed"}`}></span>
-              <span className={`burger-menu-span middle ${isSidebarOpen ? "open" : "closed"}`}></span>
-              <span className={`burger-menu-span bottom ${isSidebarOpen ? "open" : "closed"}`}></span>
-            </label>
-          </div>
+
 
           {/* Left side panel */}
           <div className={`student-page--sidebar ${isSidebarOpen ? "open" : "closed"}`}>
