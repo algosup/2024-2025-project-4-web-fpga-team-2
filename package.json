@@ -1,0 +1,14 @@
+{
+    "name": "fpga-web-app",
+    "version": "1.0.0",
+    "description": "FPGA Web Application",
+    "scripts": {
+      "start": "node src/backend/server.js",
+      "build:frontend": "cd src/Frontend && npm install && npm run build",
+      "build:backend": "cd src/backend && npm install",
+      "build": "npm run build:frontend && npm run build:backend"
+    },
+    "engines": {
+      "node": ">=16.0.0"
+    }
+  }

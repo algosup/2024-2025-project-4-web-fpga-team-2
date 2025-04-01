@@ -27,6 +27,11 @@ if (!fs.existsSync(DB_CIRCUITS_DIR)) fs.mkdirSync(DB_CIRCUITS_DIR, { recursive: 
 
 app.use("/uploads", express.static(path.resolve(UPLOADS_DIR)));
 app.use("/database/circuits", express.static(path.resolve(DB_CIRCUITS_DIR)));
+app.use(express.static(path.join(__dirname, '../../src/Frontend/dist')));
+
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../../src/Frontend/dist/index.html'));
+  });
 
 // Create circuits table
 db.serialize(() => {
