@@ -4,9 +4,7 @@
     "description": "FPGA Web Application",
     "scripts": {
       "start": "node src/backend/server.js",
-      "build:frontend": "cd src/Frontend && npm install && npm run build",
-      "build:backend": "cd src/backend && npm install",
-      "build": "npm run build:frontend && npm run build:backend"
+      "build": "cd src/Frontend && npm install && vite build && cd ../../src/backend && npm install"
     },
     "engines": {
       "node": ">=16.0.0"

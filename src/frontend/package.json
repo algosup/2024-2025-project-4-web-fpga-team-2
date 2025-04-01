@@ -6,9 +6,7 @@
   "scripts": {
     "dev": "vite",
     "start": "node src/backend/server.js",
-    "build:frontend": "cd src/Frontend && npm install && npm run build",
-    "build:backend": "cd src/backend && npm install",
-    "build": "npm run build:frontend && npm run build:backend",
+    "build": "vite build", 
     "lint": "eslint .",
     "preview": "vite preview"
   },
