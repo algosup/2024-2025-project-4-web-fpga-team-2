@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import CircuitVisualizer from "../components/CircuitVisualizer";
 import "../styles/pages/StudentPage.css";
 import "../styles/common/layout.css";
+const API_BASE_URL = "https://two024-2025-project-4-web-fpga-team-2.onrender.com";
 
 // Define type for circuit data
 interface Circuit {
@@ -34,7 +35,7 @@ function StudentPage({ username, onReturn }: StudentPageProps) {
   const fetchCircuits = async () => {
     try {
       setLoading(true);
-      const response = await fetch("http://localhost:5001/student-circuits");
+      const response = await fetch(`${API_BASE_URL}/student-circuits`);
       if (response.ok) {
         const data = await response.json();
         setCircuits(data);

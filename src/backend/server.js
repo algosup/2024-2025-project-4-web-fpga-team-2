@@ -14,16 +14,19 @@ app.use(express.json());
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
-const db = new sqlite3.Database("circuit_data.db");
+// Use environment variables with defaults for configuration
+const DB_PATH = process.env.DB_PATH || "circuit_data.db";
+const UPLOADS_DIR = process.env.UPLOADS_DIR || "uploads";
+const DB_CIRCUITS_DIR = process.env.DB_CIRCUITS_DIR || "../database/circuits";
+
+const db = new sqlite3.Database(DB_PATH);
 
 // Ensure necessary directories exist
-const UPLOADS_DIR = "uploads";
-const DB_CIRCUITS_DIR = "../database/circuits";
-if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR);
-if (!fs.existsSync(DB_CIRCUITS_DIR)) fs.mkdirSync(DB_CIRCUITS_DIR);
+if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+if (!fs.existsSync(DB_CIRCUITS_DIR)) fs.mkdirSync(DB_CIRCUITS_DIR, { recursive: true });
 
-app.use("/uploads", express.static(path.join(__dirname, UPLOADS_DIR)));
-app.use("../database/circuits", express.static(path.join(__dirname, DB_CIRCUITS_DIR)));
+app.use("/uploads", express.static(path.resolve(UPLOADS_DIR)));
+app.use("/database/circuits", express.static(path.resolve(DB_CIRCUITS_DIR)));
 
 // Create circuits table
 db.serialize(() => {

@@ -4,6 +4,7 @@ import SimplifiedCircuitVisualizer from "../components/SimplifiedCircuitVisualiz
 import "../styles/pages/TeacherPage.css";
 import "../styles/common/buttons.css";
 import "../styles/common/layout.css";
+const API_BASE_URL = "https://two024-2025-project-4-web-fpga-team-2.onrender.com";
 
 // Define type for circuit data
 interface Circuit {
@@ -36,7 +37,7 @@ function TeacherPage({ onReturn }: { onReturn: () => void }) {
   const fetchCircuits = async () => {
     try {
       setLoading(true);
-      const response = await fetch("http://localhost:5001/circuits");
+      const response = await fetch(`${API_BASE_URL}/circuits`);
       if (response.ok) {
         const data = await response.json();
         setCircuits(data);
@@ -73,7 +74,7 @@ function TeacherPage({ onReturn }: { onReturn: () => void }) {
     setLoading(true);
     try {
       const deletePromises = Array.from(selectedCircuits).map(id =>
-        fetch(`http://localhost:5001/circuits/${id}`, { method: "DELETE" })
+        fetch(`${API_BASE_URL}/circuits/${id}`, { method: "DELETE" })
       );
       const results = await Promise.all(deletePromises);
       const allSuccessful = results.every(res => res.ok);
@@ -150,7 +151,7 @@ function TeacherPage({ onReturn }: { onReturn: () => void }) {
       formData.append("files", sdfFile);
       formData.append("name", circuitName || `Circuit-${new Date().toLocaleString()}`);
       formData.append("description", circuitDescription || "");
-      const response = await fetch("http://localhost:5001/upload", {
+      const response = await fetch(`${API_BASE_URL}/upload`, {
         method: "POST",
         body: formData,
       });
@@ -179,7 +180,7 @@ function TeacherPage({ onReturn }: { onReturn: () => void }) {
     }
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:5001/circuits/${id}`, { method: "DELETE" });
+      const response = await fetch(`${API_BASE_URL}/circuits/${id}`, { method: "DELETE" });
       if (response.ok) {
         setCircuits(circuits.filter(c => c.id !== id));
         if (selectedCircuit && selectedCircuit.id === id) {
@@ -204,7 +205,7 @@ function TeacherPage({ onReturn }: { onReturn: () => void }) {
   const approveCircuit = async (id: string) => {
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:5001/approve/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/approve/${id}`, {
         method: "POST",
       });
       if (response.ok) {
