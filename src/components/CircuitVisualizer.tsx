@@ -114,14 +114,12 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
   const [hoveredNode, setHoveredNode] = useState<PositionedComponent | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const [animationSpeed, setAnimationSpeed] = useState<number>(1);
-  const [animateFlow, setAnimateFlow] = useState<boolean>(false);
   const [clockCycle, setClockCycle] = useState<number>(0);
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const svgWidth = 1200;
-  const svgHeight = 800;
   const svgId = useMemo(() => `circuit-svg-${Math.random().toString(36).substring(7)}`, []);
   const filePath = useMemo(() => jsonPath || jsonFile || '', [jsonPath, jsonFile]);
-  const [showTimingInfo, setShowTimingInfo] = useState<boolean>(false);
+  const [showTimingInfo] = useState<boolean>(false);
   const [timingDetails, setTimingDetails] = useState<TimingDelay[] | null>(null);
 
   // 1) Load JSON data
@@ -358,7 +356,7 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
     if (!circuitData) return [];
     const results: PortConnectionDraw[] = [];
     // For each port, find its position and determine the matching wire.
-    Object.entries(circuitData.ports).forEach(([portName, direction]) => {
+    Object.entries(circuitData.ports).forEach(([portName]) => {
       const portPos = portPositions[portName];
       if (!portPos) return;
       const wire = inferredPortWires[portName];
@@ -479,7 +477,7 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
     d3.selectAll<SVGGElement, unknown>('.draggable')
       .call(
         d3.drag<SVGGElement, unknown>()
-          .on('start', function (event) {
+          .on('start', function () {
             d3.select(this).raise();
           })
           .on('drag', function (event) {
@@ -500,7 +498,7 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
     d3.selectAll<SVGGElement, unknown>('.draggable-port')
       .call(
         d3.drag<SVGGElement, unknown>()
-          .on('start', function (event) {
+          .on('start', function () {
             d3.select(this).raise();
           })
           .on('drag', function (event) {
@@ -551,30 +549,7 @@ const CircuitVisualizer: React.FC<CircuitVisualizerProps> = ({ jsonPath, jsonFil
   if (error) return <div>Error: {error}</div>;
   if (!circuitData) return <div>No circuit data loaded.</div>;
 
-  const renderConnections = () => {
-    if (!circuitData) return null;
-    return circuitData.connections.map((conn: Connection, i: number) => {
-      // For demonstration, compute a dummy bezier path between two fixed points.
-      // (You should replace this with the proper pin positions.)
-      const start = { x: 100, y: 100 };
-      const end = { x: 300, y: 300 };
-      const dx = end.x - start.x;
-      const controlOffset = Math.min(100, Math.abs(dx) / 2);
-      const path = `M${start.x},${start.y} C${start.x + controlOffset},${start.y} ${end.x - controlOffset},${end.y} ${end.x},${end.y}`;
-      return (
-        <path
-          key={`conn-${i}`}
-          className="data-flow-connection"
-          data-wire={conn.wire}
-          d={path}
-          fill="none"
-          stroke="#fff"
-          strokeWidth={1.5}
-          markerEnd="url(#arrowhead)"
-        />
-      );
-    });
-  };
+  
   return (
     <div style={{ color: '#fff' }}>
       <div style={{ marginBottom: "1rem" }}>

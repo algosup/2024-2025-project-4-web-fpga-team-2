@@ -1,5 +1,6 @@
 {
   "name": "frontend",
+  "homepage": "https://algosup.github.io/2024-2025-project-4-web-fpga-team-2/",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -7,10 +8,13 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "dagre": "^0.8.5",
+    "gh-pages": "^6.3.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "vite-plugin-pwa": "^0.21.1"

@@ -35,4 +35,5 @@ export default defineConfig({
       },
     }),
   ],
+  base: "/testingdeploy",
 });

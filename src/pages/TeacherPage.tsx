@@ -4,6 +4,7 @@ import SimplifiedCircuitVisualizer from "../components/SimplifiedCircuitVisualiz
 import "../styles/pages/TeacherPage.css";
 import "../styles/common/buttons.css";
 import "../styles/common/layout.css";
+import API_BASE_URL from '../config';
 
 // Define type for circuit data
 interface Circuit {
@@ -22,7 +23,6 @@ function TeacherPage({ onReturn }: { onReturn: () => void }) {
   const [loading, setLoading] = useState<boolean>(false);
   const [selectedCircuits, setSelectedCircuits] = useState<Set<string>>(new Set());
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
-  const [sendingToStudents, setSendingToStudents] = useState<boolean>(false);
 
 
   // Separate state for each file type:
@@ -37,7 +37,7 @@ function TeacherPage({ onReturn }: { onReturn: () => void }) {
   const fetchCircuits = async () => {
     try {
       setLoading(true);
-      const response = await fetch("http://localhost:5001/circuits");
+      const response = await fetch(`${API_BASE_URL}/circuits`);
       if (response.ok) {
         const data = await response.json();
         setCircuits(data);
@@ -180,7 +180,7 @@ function TeacherPage({ onReturn }: { onReturn: () => void }) {
     }
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:5001/circuits/${id}`, { method: "DELETE" });
+      const response = await fetch(`${API_BASE_URL}/circuits/${id}`, { method: "DELETE" });
       if (response.ok) {
         setCircuits(circuits.filter(c => c.id !== id));
         if (selectedCircuit && selectedCircuit.id === id) {
@@ -205,7 +205,7 @@ function TeacherPage({ onReturn }: { onReturn: () => void }) {
   const approveCircuit = async (id: string) => {
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:5001/approve/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/approve/${id}`, {
         method: "POST",
       });
       if (response.ok) {
@@ -444,13 +444,13 @@ function TeacherPage({ onReturn }: { onReturn: () => void }) {
               <>
                 <div className="current-circuit">
                   <strong>Current Circuit:</strong> {selectedCircuit.name}
-                    <button
+                  <button
                     onClick={() => setShowSimplified(!showSimplified)}
                     className="toggle-button"
                     style={{ float: 'right', marginRight: '10px' }}
-                    >
+                  >
                     {showSimplified ? 'Original' : 'Simplified'}
-                    </button>
+                  </button>
                 </div>
                 <div className="visualization-area" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
                   <div style={{ flex: 1, position: 'relative' }}>
