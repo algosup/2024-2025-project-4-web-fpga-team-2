@@ -8,7 +8,17 @@ const fs = require("fs");
 const sqlite3 = require("sqlite3").verbose();
 
 const app = express();
-app.use(cors());
+const FRONTEND_URL = process.env.FRONTEND_URL || 'https://your-frontend-domain.onrender.com';
+
+app.use(cors({
+    origin: [
+      'https://two024-2025-project-4-web-fpga-team-2.onrender.com',
+      FRONTEND_URL,
+      'http://localhost:5173'
+    ],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true
+  }));
 app.use(express.json());
 
 const server = http.createServer(app);
