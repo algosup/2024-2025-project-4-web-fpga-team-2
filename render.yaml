@@ -2,11 +2,11 @@ services:
   - type: web
     name: webfpga-backend
     env: node
-    buildCommand: cd src/Backend && npm install
-    startCommand: cd src/Backend && npm run server
+    buildCommand: npm install --prefix src/Backend
+    startCommand: npm run server --prefix src/Backend
   - type: static
     name: webfpga-frontend
-    buildCommand: cd src/Frontend && npm install && npm run build
+    buildCommand: npm install --prefix src/Frontend && npm run build --prefix src/Frontend
     publishDir: src/Frontend/dist
     routes:
       - type: rewrite
