@@ -2,8 +2,14 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import { VitePWA } from "vite-plugin-pwa";
+import { resolve } from 'path';
 
 export default defineConfig({
+  root: './', // Explicitly set the root directory
+  build: {
+    outDir: 'dist', // Specify output directory
+    emptyOutDir: true, // Clear the output directory before building
+  },
   plugins: [
     react(),
     VitePWA({
