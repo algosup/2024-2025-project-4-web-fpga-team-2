@@ -5,10 +5,10 @@ import { VitePWA } from "vite-plugin-pwa";
 import { resolve } from 'path';
 
 export default defineConfig({
-  root: './', // Explicitly set the root directory
+  root: resolve(__dirname), // Use absolute path
   build: {
-    outDir: 'dist', // Specify output directory
-    emptyOutDir: true, // Clear the output directory before building
+    outDir: resolve(__dirname, 'dist'),
+    emptyOutDir: true,
   },
   plugins: [
     react(),
@@ -36,7 +36,7 @@ export default defineConfig({
         ],
       },
       devOptions: {
-        enabled: true, // Ensures PWA runs in development
+        enabled: true,
         type: "module",
       },
     }),
