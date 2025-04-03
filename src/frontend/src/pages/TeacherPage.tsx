@@ -151,7 +151,7 @@ function TeacherPage({ onReturn }: { onReturn: () => void }) {
       formData.append("files", sdfFile);
       formData.append("name", circuitName || `Circuit-${new Date().toLocaleString()}`);
       formData.append("description", circuitDescription || "");
-      const response = await fetch(`${API_BASE_URL}/upload`, {
+      const response = await fetch(`${API_BASE_URL}/uploads`, {
         method: "POST",
         body: formData,
       });
