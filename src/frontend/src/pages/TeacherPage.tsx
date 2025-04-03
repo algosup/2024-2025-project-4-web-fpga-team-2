@@ -147,12 +147,15 @@ function TeacherPage({ onReturn }: { onReturn: () => void }) {
     setLoading(true);
     try {
       const formData = new FormData();
-      formData.append("files", vFile);
-      formData.append("files", sdfFile);
-      formData.append("name", circuitName || `Circuit-${new Date().toLocaleString()}`);
+      formData.append("vFile", vFile);     // Use different field names
+      formData.append("sdfFile", sdfFile);
+      formData.append("name", circuitName || `Circuit-${Date.now()}`);
       formData.append("description", circuitDescription || "");
+
+      // Add mode: 'cors' for cross-origin requests
       const response = await fetch(`${API_BASE_URL}/uploads`, {
         method: "POST",
+        mode: 'cors',
         body: formData,
       });
       if (!response.ok) {
@@ -444,13 +447,13 @@ function TeacherPage({ onReturn }: { onReturn: () => void }) {
               <>
                 <div className="current-circuit">
                   <strong>Current Circuit:</strong> {selectedCircuit.name}
-                    <button
+                  <button
                     onClick={() => setShowSimplified(!showSimplified)}
                     className="toggle-button"
                     style={{ float: 'right', marginRight: '10px' }}
-                    >
+                  >
                     {showSimplified ? 'Original' : 'Simplified'}
-                    </button>
+                  </button>
                 </div>
                 <div className="visualization-area" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
                   <div style={{ flex: 1, position: 'relative' }}>
