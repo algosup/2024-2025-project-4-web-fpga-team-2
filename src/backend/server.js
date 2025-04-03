@@ -165,8 +165,8 @@ app.get("/circuits", (req, res) => {
             createdAt: row.created_at,
             description: row.description,
             jsonFile: row.json_path.includes(DB_CIRCUITS_DIR)
-                ? `../database/circuits/${path.basename(row.json_path)}`
-                : `/uploads/${path.basename(row.json_path)}`
+                ? `https://two024-2025-project-4-web-fpga-team-2.onrender.com/database/circuits/${path.basename(row.json_path)}`
+                : `https://two024-2025-project-4-web-fpga-team-2.onrender.com/uploads/${path.basename(row.json_path)}`
         }));
 
         res.json(circuits);
@@ -183,7 +183,7 @@ app.get("/student-circuits", (req, res) => {
             name: row.name,
             createdAt: row.created_at,
             description: row.description,
-            jsonFile: `../database/circuits/${path.basename(row.json_path)}`
+            jsonFile: `https://two024-2025-project-4-web-fpga-team-2.onrender.com/database/circuits/${path.basename(row.json_path)}`
         }));
 
         res.json(circuits);
