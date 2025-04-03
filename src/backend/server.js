@@ -14,7 +14,7 @@ app.use(cors({
     origin: [
       'https://two024-2025-project-4-web-fpga-team-2.onrender.com',
       FRONTEND_URL,
-      'http://localhost:5173'
+      'https://ianlaur.github.io/2024-2025-project-4-web-fpga-team-2-deployment/'
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true
@@ -37,10 +37,10 @@ if (!fs.existsSync(DB_CIRCUITS_DIR)) fs.mkdirSync(DB_CIRCUITS_DIR, { recursive: 
 
 app.use("/uploads", express.static(path.resolve(UPLOADS_DIR)));
 app.use("/database/circuits", express.static(path.resolve(DB_CIRCUITS_DIR)));
-app.use(express.static(path.join(__dirname, '../../src/Frontend/dist')));
+app.use(express.static(path.join(__dirname, '../Frontend/dist')));
 
 app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../../src/Frontend/dist/index.html'));
+    res.sendFile(path.join(__dirname, '../Frontend/dist/index.html'));
   });
 
 // Create circuits table
