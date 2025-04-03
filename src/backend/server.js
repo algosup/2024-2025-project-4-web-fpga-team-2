@@ -12,9 +12,8 @@ const FRONTEND_URL = process.env.FRONTEND_URL || 'https://two024-2025-project-4-
 
 app.use(cors({
     origin: [
-      'https://two024-2025-project-4-web-fpga-team-2.onrender.com',
-      FRONTEND_URL,
-      'https://ianlaur.github.io/2024-2025-project-4-web-fpga-team-2-deployment/'
+      'https://ianlaur.github.io',
+      'https://two024-2025-project-4-web-fpga-team-2.onrender.com'
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true
