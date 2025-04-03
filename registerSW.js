@@ -1,0 +1,1 @@
+if('serviceWorker' in navigator) {window.addEventListener('load', () => {navigator.serviceWorker.register('/2024-2025-project-4-web-fpga-team-2-deployment/sw.js', { scope: '/2024-2025-project-4-web-fpga-team-2-deployment/' })})}

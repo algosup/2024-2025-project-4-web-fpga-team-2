@@ -1,0 +1,645 @@
+.teacher-page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  overflow: hidden;
+}
+
+.header-logo {
+  height: 100%;
+  width: 100%;
+  scale: 1.5;
+  margin-right: 1rem;
+  cursor: pointer;
+}
+
+.teacher-header {
+  padding: 0.5rem 1rem;
+  /* Reduced padding */
+  background-color: var(--header-bg);
+  color: var(--header-text);
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2px 4px var(--shadow-color);
+  height: 40px;
+  position: relative;
+  /* Fixed height */
+}
+
+.teacher-header h1 {
+  margin: 0;
+  font-size: 1.25rem;
+  /* Smaller font size */
+  font-weight: 500;
+}
+
+.return-button {
+  margin-right: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  /* Smaller padding */
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  /* Smaller font size */
+  line-height: 1;
+  transition: background-color 0.2s;
+}
+
+.return-button:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.teacher-page-content {
+  display: flex;
+  flex: 1 1 auto;
+  overflow: hidden;
+  height: calc(100% - 40px);
+  /* Adjust based on new header height */
+}
+
+/* Left panel - Upload & Circuit List */
+.teacher-sidebar {
+  flex: 0 0 350px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  background-color: var(--bg-secondary);
+  border-right: 1px solid var(--border-color);
+}
+
+/* Right panel - Visualization */
+.circuit-visualization {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.visualization-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 1.5rem;
+}
+
+.visualization-header {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+/* Upload Section */
+.upload-section {
+  background-color: var(--bg-tertiary);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 4px var(--shadow-color);
+  box-sizing: border-box;
+}
+
+.upload-section h3 {
+  margin-top: 0;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+
+.form-group {
+  margin-bottom: 0.75rem;
+  width: 100%;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.text-input,
+.textarea-input {
+  width: 100%;
+  max-width: 100%;
+  padding: 0.75rem;
+  background-color: var(--input-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--input-border);
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+  resize: vertical;
+}
+
+.text-input:focus,
+.textarea-input:focus {
+  border-color: var(--btn-primary);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15);
+}
+
+/* Drag and Drop Area */
+.drag-drop-area {
+  border: 2px dashed var(--drag-border);
+  border-radius: 8px;
+  padding: 1rem 1rem;
+  /* Reduced from 2rem to 1rem top/bottom padding */
+  text-align: center;
+  background-color: var(--bg-accent);
+  margin: 0.5rem 0;
+  /* Reduced from 1rem to 0.5rem */
+  transition: border-color 0.2s;
+}
+
+.drag-drop-area:hover {
+  border-color: #a0aec0;
+}
+
+.drag-drop-area p {
+  margin: 0 0 0.5rem;
+  /* Reduced from 1rem to 0.5rem bottom margin */
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  /* Slightly smaller font */
+}
+
+.or-text {
+  display: block;
+  margin: 0.25rem 0;
+  /* Reduced from 0.5rem to 0.25rem */
+  color: var(--text-muted);
+}
+
+.choose-files {
+  display: inline-block;
+  padding: 0.4rem 0.8rem;
+  background-color: var(--bg-tertiary);
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  transition: background-color 0.2s;
+}
+
+.choose-files:hover {
+  background-color: var(--border-color);
+}
+
+.drag-drop-note {
+  display: block;
+  margin-top: 0.5rem;
+  /* Reduced from 0.75rem */
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  line-height: 1.2;
+  /* Add this to make text lines closer */
+}
+
+/* File Preview */
+.file-preview {
+  display: flex;
+  align-items: center;
+  background-color: var(--file-preview-bg);
+  padding: 0.75rem;
+  border-radius: 4px;
+  margin-bottom: 0.75rem;
+}
+
+.file-icon {
+  margin-right: 0.5rem;
+  font-size: 1.25rem;
+}
+
+.file-name {
+  flex: 1;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text-primary);
+}
+
+.remove-button {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0.25rem;
+  border-radius: 50%;
+  line-height: 1;
+  transition: background-color 0.2s;
+}
+
+.remove-button:hover {
+  background-color: var(--border-color);
+  color: var(--text-secondary);
+}
+
+/* Buttons */
+.upload-button,
+.delete-selected-button,
+.load-button,
+.delete-button,
+.approve-button {
+  padding: 0.6rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: background-color 0.2s;
+}
+
+.upload-button {
+  background-color: var(--btn-primary);
+  color: var(--btn-text);
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.upload-button:hover:not(:disabled) {
+  background-color: var(--btn-primary-hover);
+}
+
+.delete-selected-button {
+  background-color: var(--btn-danger);
+  color: var(--btn-text);
+}
+
+.delete-selected-button:hover:not(:disabled) {
+  background-color: var(--btn-danger-hover);
+}
+
+.load-button {
+  background-color: var(--btn-success);
+  color: var(--btn-text);
+}
+
+.load-button:hover:not(:disabled) {
+  background-color: var(--btn-success-hover);
+}
+
+.delete-button {
+  background-color: var(--btn-danger);
+  color: var(--btn-text);
+}
+
+.delete-button:hover:not(:disabled) {
+  background-color: var(--btn-danger-hover);
+}
+
+.approve-button {
+  background-color: var(--btn-primary);
+  color: var(--btn-text);
+}
+
+.approve-button:hover:not(:disabled) {
+  background-color: var(--btn-primary-hover);
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Circuit List Section */
+.circuit-list-section {
+  background-color: var(--bg-secondary);
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px var(--shadow-color);
+  flex: 1;
+  overflow-y: auto;
+}
+
+.circuit-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.circuit-list-header h3 {
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.circuit-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.circuit-list-item {
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 0.75rem;
+  background-color: var(--bg-secondary);
+  box-shadow: 0 2px 4px var(--shadow-color);
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+}
+
+.circuit-list-item:hover {
+  box-shadow: 0 4px 6px var(--shadow-color);
+}
+
+.circuit-list-item.selected {
+  border-color: var(--select-highlight);
+}
+
+.circuit-list-item.highlight {
+  border-color: var(--multi-select-highlight);
+}
+
+.circuit-item-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.circuit-item-main {
+  display: flex;
+  align-items: flex-start;
+  flex: 1;
+  min-width: 0;
+  /* Critical for text truncation in flex containers */
+  max-width: calc(100% - 70px);
+  /* Account for the button column width + spacing */
+  overflow: hidden;
+}
+
+.circuit-checkbox {
+  margin-right: 10px;
+  transform: scale(1.2);
+}
+
+.circuit-info {
+  flex: 1;
+  min-width: 0;
+  /* Critical for text truncation */
+  overflow: hidden;
+  width: 100%;
+  padding-right: 10px;
+  /* Add some spacing between text and buttons */
+}
+
+.circuit-name {
+  display: block;
+  margin-bottom: 0.25rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  /* Use width instead of max-width for stronger containment */
+}
+
+.circuit-date {
+  margin: 0.25rem 0;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.circuit-description {
+  margin: 0.25rem 0;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  width: 100%;
+  /* Use width instead of max-width */
+  word-break: break-word;
+  text-overflow: ellipsis;
+}
+
+.circuit-item-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-left: 0.5rem;
+  /* Slightly smaller margin */
+  flex: 0 0 auto;
+  /* Do not grow or shrink */
+  width: 60px;
+}
+
+.circuit-item-actions button {
+  padding: 0.4rem 0.5rem;
+  /* Smaller padding */
+  font-size: 0.8rem;
+  /* Smaller font */
+  min-width: 60px;
+  /* Set minimum width */
+}
+
+/* Visualization Area */
+.visualization-area {
+  flex-grow: 1;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.visualization-title {
+  padding: 0.75rem 1rem;
+  background-color: var(--bg-accent);
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+.current-circuit {
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background-color: var(--bg-accent);
+  border-radius: 4px;
+  border-left: 4px solid var(--btn-primary);
+  color: var(--text-primary);
+}
+
+.no-selection {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  color: var(--text-muted);
+  font-style: italic;
+  background-color: var(--bg-accent);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+}
+
+
+/* Add these styles for the burger menu */
+
+/* Fix burger menu positioning */
+.teacher-burger-menu-container {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 200;
+  line-height: 0;
+}
+
+.burger-menu-label {
+  display: block;
+  position: relative;
+  cursor: pointer;
+  width: 30px;
+  height: 20px;
+  padding: 0;
+}
+
+/* Hide checkbox */
+.burger-menu-input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Burger menu bars */
+.burger-menu-span {
+  position: absolute;
+  height: 2px;
+  width: 24px;
+  background-color: white;
+  border-radius: 100px;
+  display: inline-block;
+  transition: 0.3s ease;
+}
+
+/* Bar positions */
+.burger-menu-span.top {
+  top: 0;
+}
+
+.burger-menu-span.middle {
+  top: 9px;
+}
+
+.burger-menu-span.bottom {
+  top: 18px;
+}
+
+/* Arrow animation */
+.burger-menu-span.top.closed {
+  transform: rotate(45deg) translate(1px, 7px);
+  width: 16px;
+}
+
+.burger-menu-span.middle.closed {
+  opacity: 0;
+}
+
+.burger-menu-span.bottom.closed {
+  transform: rotate(-45deg) translate(1px, -7px);
+  width: 16px;
+}
+
+.burger-menu-span.top.closed,
+.burger-menu-span.bottom.closed {
+  left: 8px;
+}
+
+.teacher-secondary-sidebar {
+  position: fixed;
+  right: 0;
+  height: calc(100vh - 40px); /* Full height minus header */
+  width: 250px;
+  background-color: var(--bg-secondary);
+  border-left: 1px solid var(--border-color);
+  z-index: 99;
+  transition: transform 0.3s ease;
+  box-shadow: -2px 0 5px var(--shadow-color);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  z-index: 1000;
+}
+
+.teacher-secondary-sidebar.open {
+  transform: translateX(0);
+}
+
+.teacher-secondary-sidebar.closed {
+  transform: translateX(100%); /* Move off-screen */
+}
+
+.secondary-sidebar-header {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.secondary-sidebar-content {
+  padding: 1rem;
+  flex: 1;
+}
+
+.secondary-menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.secondary-menu li {
+  margin-bottom: 1rem;
+}
+
+.secondary-menu a {
+  display: block;
+  padding: 0.5rem;
+  color: var(--text-primary);
+  text-decoration: none;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.secondary-menu a:hover {
+  background-color: var(--bg-accent);
+}
+
+/* Responsive Layout */
+@media (max-width: 1024px) {
+  .teacher-page-content {
+    flex-direction: column;
+  }
+
+  .teacher-sidebar {
+    flex: none;
+    width: 100%;
+    max-height: 50vh;
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .circuit-visualization {
+    flex: none;
+    height: 50vh;
+  }
+}
