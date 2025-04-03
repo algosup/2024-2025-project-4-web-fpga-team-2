@@ -5,6 +5,18 @@ import { VitePWA } from "vite-plugin-pwa";
 import { resolve } from 'path';
 
 export default defineConfig({
+  base: '/2024-2025-project-4-web-fpga-team-2-deployment/',
+  server: {
+    port: 5001,
+    open: true,
+    proxy: {
+      "/api": {
+        target: "https://two024-2025-project-4-web-fpga-team-2.onrender.com",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ""),
+      },
+    },
+  },
   root: resolve(__dirname), // Use absolute path
   build: {
     outDir: resolve(__dirname, 'dist'),

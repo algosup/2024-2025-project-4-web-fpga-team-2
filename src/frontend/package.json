@@ -3,12 +3,15 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "homepage": "https://ianlaur.github.io/2024-2025-project-4-web-fpga-team-2-deployment/",
   "scripts": {
     "dev": "vite",
     "start": "node src/backend/server.js",
     "build": "vite build", 
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "dagre": "^0.8.5",
