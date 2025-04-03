@@ -37,12 +37,19 @@ if (!fs.existsSync(DB_CIRCUITS_DIR)) fs.mkdirSync(DB_CIRCUITS_DIR, { recursive: 
 
 app.use("/uploads", express.static(path.resolve(UPLOADS_DIR)));
 app.use("/database/circuits", express.static(path.resolve(DB_CIRCUITS_DIR)));
-app.use(express.static(path.join(__dirname, '../Frontend/dist')));
-
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../Frontend/dist/index.html'));
+app.get('/', (req, res) => {
+    res.json({ 
+      message: "FPGA Backend API is running",
+      endpoints: [
+        "/circuits - Get all circuits",
+        "/student-circuits - Get approved circuits for students",
+        "/upload - Upload new circuit (POST)",
+        "/approve/:id - Approve a circuit (POST)",
+        "/circuits/:id - Delete a circuit (DELETE)",
+        "/ping - Health check"
+      ]
+    });
   });
-
 // Create circuits table
 db.serialize(() => {
     db.run(`
