@@ -77,6 +77,10 @@ interface SignalPropagation {
   arrivalTime: number;
 }
 
+interface D3SVGSelection extends d3.Selection<SVGElement, unknown, null, undefined> {
+  node(): SVGElement | null;
+}
+
 // ---------------------------------------------------------------------------
 // 2) Helper Functions
 // ---------------------------------------------------------------------------
@@ -405,6 +409,14 @@ const SimplifiedCircuitVisualizer: React.FC<SimplifiedCircuitVisualizerProps> = 
     outputs: Record<number, boolean>,
     lastClock: boolean
   }>>({});
+  const [signalLog, setSignalLog] = useState<Array<{
+    time: number;
+    wire: string;
+    value: boolean;
+    from: string;
+    to: string;
+    color: string;
+  }>>([]);
 
   // This will catch any errors during render
   useEffect(() => {
@@ -853,68 +865,101 @@ const SimplifiedCircuitVisualizer: React.FC<SimplifiedCircuitVisualizerProps> = 
   // Animate pulses on connection paths.
   // -----------------------------------------------------------------------
   function animatePulseOnce(
-    pathElement: SVGPathElement,
+    pathElement: SVGPathElement | null,
     durationMs: number,
     color: string,
     value: boolean,
     delay: number = 0,
-    reverse: boolean = false // Add parameter to control direction
+    reverse: boolean = false
   ) {
     if (!pathElement || !pathElement.parentNode) {
       console.warn("Cannot animate: missing path element or parent");
       return;
     }
 
-    const parent = pathElement.parentNode as SVGElement;
-    const actualDuration = Math.min(Math.max(durationMs, 300), 5000);
-    const signalColor = value ? color : '#555';
-    const length = pathElement.getTotalLength();
+    const parent = pathElement.parentNode;
+    // Use reasonable defaults
+    const actualDuration = Math.min(Math.max(durationMs, 500), 5000);
+    const signalColor = value ? (color || '#ffff00') : '#888';
+
+    let length: number;
+    try {
+      length = pathElement.getTotalLength();
+      if (isNaN(length) || length === 0) {
+        console.warn("Path has zero length, cannot animate");
+        return;
+      }
+    } catch (e) {
+      console.error("Error getting path length:", e);
+      return;
+    }
 
     setTimeout(() => {
       try {
-        const circle = d3.select(parent)
-          .append("circle")
-          .attr("class", "pulse")
-          .attr("r", value ? 6 : 4)
-          .attr("fill", signalColor)
-          .attr("stroke", value ? "white" : "none")
-          .attr("stroke-width", value ? 1.5 : 0)
-          .style("pointer-events", "none")
-          .style("opacity", 0.8);
+        // Highlight the path
+        const pathSelection = d3.select(pathElement)
+          .classed("active-wire", true)
+          .style("stroke", signalColor)
+          .style("stroke-width", "3")
+          .style("stroke-opacity", 1);
 
-        if (isNaN(length) || length === 0) {
-          console.warn("Path has no length, cannot animate");
+        // Add a visible animation effect
+        const parentSelection = d3.select(parent as Element);
+        const circle = parentSelection.append("circle")
+          .attr("r", 6)
+          .attr("fill", signalColor)
+          .attr("stroke", "white")
+          .attr("stroke-width", 2)
+          .style("opacity", 0.8)
+          .style("filter", "drop-shadow(0 0 5px rgba(255, 255, 255, 0.7))");
+
+        // Start position
+        try {
+          const point = reverse ?
+            pathElement.getPointAtLength(length) :
+            pathElement.getPointAtLength(0);
+          circle.attr("cx", point.x).attr("cy", point.y);
+        } catch (e) {
+          console.error("Error getting start point:", e);
           circle.remove();
           return;
         }
 
-        // Set starting position based on direction
-        circle.attr("transform", () => {
-          // Start from end of path if reversed
-          const point = reverse ? pathElement.getPointAtLength(length) : pathElement.getPointAtLength(0);
-          return `translate(${point.x},${point.y})`;
-        });
+        // Animate along the path
+        const steps = 50;
+        let step = 0;
 
-        circle
-          .transition()
-          .duration(actualDuration)
-          .ease(d3.easeLinear)
-          .attrTween("transform", function () {
-            return (t: number) => {
-              try {
-                // For reversed paths, animate from length to 0
-                const point = reverse
-                  ? pathElement.getPointAtLength((1 - t) * length)
-                  : pathElement.getPointAtLength(t * length);
+        const animateStep = () => {
+          if (step >= steps) {
+            // Animation complete
+            circle.remove();
+            pathSelection
+              .transition().duration(300)
+              .style("stroke", null)
+              .style("stroke-opacity", null)
+              .style("stroke-width", null)
+              .on("end", () => pathSelection.classed("active-wire", false));
+            return;
+          }
 
-                return `translate(${point.x},${point.y})`;
-              } catch (e) {
-                console.error("Error in pulse animation:", e);
-                return "translate(0,0)";
-              }
-            };
-          })
-          .on("end", () => circle.remove());
+          const progress = step / steps;
+          try {
+            const pointPosition = reverse ?
+              (1 - progress) * length :
+              progress * length;
+
+            const point = pathElement.getPointAtLength(pointPosition);
+            circle.attr("cx", point.x).attr("cy", point.y);
+          } catch (e) {
+            console.error("Error in animation step:", e);
+          }
+
+          step++;
+          setTimeout(animateStep, actualDuration / steps);
+        };
+
+        // Start animation
+        animateStep();
       } catch (e) {
         console.error("Failed to animate pulse:", e);
       }
@@ -936,7 +981,122 @@ const SimplifiedCircuitVisualizer: React.FC<SimplifiedCircuitVisualizerProps> = 
     let foundPaths = 0;
     let totalPaths = 0;
 
-    // Helper function to create and add propagation entry - MOVED UP
+    // Debug available paths in SVG
+    const availablePaths = svg.selectAll<SVGPathElement, unknown>("path").nodes();
+    console.log(`Total SVG paths available: ${availablePaths.length}`);
+    console.log("Path classes found:", [...new Set(availablePaths.map(p => p.getAttribute('class')))]);
+
+    // Create a more flexible path selector function
+    function findPathElement(wire: string, connection: Connection): SVGPathElement | null {
+      if (!svgRef.current) return null;
+
+      console.log(`Finding path for ${wire} from ${connection.from.component} to ${connection.to.component}`);
+
+      try {
+        // First approach: Try to find a path with matching source and target
+        const sourceSelector = connection.from.component
+          .replace(/([.*+?^=!:${}()|[\]/\\])/g, '\\$1'); // Escape special characters
+
+        const targetSelector = connection.to.component
+          .replace(/([.*+?^=!:${}()|[\]/\\])/g, '\\$1');
+
+        // Try multiple selector approaches
+
+        // 1. Most specific selector - data attributes
+        let path = svgRef.current.querySelector(
+          `path.connection-path[data-from="${sourceSelector}"][data-to="${targetSelector}"]`
+        );
+        if (path instanceof SVGPathElement) {
+          console.log("Found path by source/target data attributes");
+          return path;
+        }
+
+        // 2. By wire
+        if (wire && wire.length > 0) {
+          path = svgRef.current.querySelector(`path.connection-path[data-wire="${wire}"]`);
+          if (path instanceof SVGPathElement) {
+            console.log("Found path by wire attribute");
+            return path;
+          }
+        }
+
+        // 3. By component containment
+        const fromComponent = connection.from.component;
+        const toComponent = connection.to.component;
+
+        const allPaths = Array.from(svgRef.current.querySelectorAll('path.connection-path'));
+
+        // Find path by analyzing d attribute endpoints
+        for (const p of allPaths) {
+          if (!(p instanceof SVGPathElement)) continue;
+
+          try {
+            // Skip paths that are too short (likely decoration)
+            if (p.getTotalLength() < 10) continue;
+
+            // Find components that contain start/end points of this path
+            const startPoint = p.getPointAtLength(0);
+            const endPoint = p.getPointAtLength(p.getTotalLength());
+
+            // Find components that contain these points
+            const fromFound = elementContainsPoint(fromComponent, startPoint);
+            const toFound = elementContainsPoint(toComponent, endPoint);
+
+            if (fromFound && toFound) {
+              console.log("Found path by endpoint geometry analysis");
+              return p;
+            }
+          } catch (e) {
+            console.warn("Error analyzing path:", e);
+          }
+        }
+
+        // 4. Find any unassigned path if all else fails
+        const unassignedPaths = allPaths.filter(
+          p => !p.getAttribute('data-assigned') &&
+            p instanceof SVGPathElement &&
+            p.getTotalLength() >= 10
+        );
+
+        if (unassignedPaths.length > 0) {
+          const path = unassignedPaths[0] as SVGPathElement;
+          path.setAttribute('data-assigned', 'true');
+          console.log("Using unassigned path as fallback");
+          return path;
+        }
+
+        console.warn(`No path found for ${wire} from ${connection.from.component} to ${connection.to.component}`);
+        return null;
+      } catch (e) {
+        console.error("Error finding path element:", e);
+        return null;
+      }
+    }
+    function elementContainsPoint(componentName: string, point: { x: number, y: number }): boolean {
+      if (!svgRef.current) return false;
+
+      // Find the component node
+      const component = svgRef.current.querySelector(`g.component-node[data-id="${componentName}"]`);
+      if (!component) return false;
+
+      // Get bounding box
+      const bbox = component.getBoundingClientRect();
+      const svgRect = svgRef.current.getBoundingClientRect();
+
+      // Adjust for SVG coordinates - FIX THESE VARIABLES
+      const relX = point.x + svgRect.left; // Was using undeclared variables
+      const relY = point.y + svgRect.top;  // Was using undeclared variables
+
+      // Check if point is within component
+      return (
+        relX >= bbox.left &&
+        relX <= bbox.right &&
+        relY >= bbox.top &&
+        relY <= bbox.bottom
+      );
+    }
+
+    // Helper function to create and add propagation entry
     function createPropagationEntry(
       pathElement: SVGPathElement,
       conn: Connection,
@@ -959,6 +1119,9 @@ const SimplifiedCircuitVisualizer: React.FC<SimplifiedCircuitVisualizerProps> = 
         model.set(sourceKey, []);
       }
       model.get(sourceKey)!.push(propagation);
+
+      // Mark the path to help with debugging
+      d3.select(pathElement).classed("path-in-model", true);
     }
 
     // Initialize with input ports
@@ -981,43 +1144,41 @@ const SimplifiedCircuitVisualizer: React.FC<SimplifiedCircuitVisualizerProps> = 
       // Get delay for this wire
       const delay = getDelayForWire(conn.wire, circuitData);
 
-      // Try to find the path element for this connection by wire name
-      const pathElement = svg.select<SVGPathElement>(`path[data-wire="${conn.wire}"]`).node();
+      // Try to find a path element using our new helper function
+      const pathElement = findPathElement(conn.wire, conn);
 
-      if (!pathElement) {
-        // If no path found by wire, try by connection index
-        const altPath = svg.select<SVGPathElement>(`path.connection-path:nth-child(${i + 1})`).node();
-        if (!altPath) {
-          console.warn(`No path found for connection: ${conn.from.component} -> ${conn.to.component} (wire: ${conn.wire})`);
-          return;
-        }
-
-        // Make sure the path is valid (not inside a component)
-        if (altPath.getTotalLength() < 10) {
-          console.warn(`Path for ${conn.wire} is too short, likely inside a component`);
-          return;
-        }
-
-        foundPaths++;
-
-        // Use this alternative path
-        createPropagationEntry(altPath, conn, delay, sourceKey, model);
-      } else {
+      if (pathElement) {
         // Validate the path we found
         if (pathElement.getTotalLength() < 10) {
-          console.warn(`Path for ${conn.wire} is too short, likely inside a component`);
+          console.warn(`Path for ${conn.wire} is too short (${pathElement.getTotalLength()}), likely invalid`);
           return;
         }
 
         foundPaths++;
 
-        // Use the path we found by wire name
+        // Add useful attributes to the path for debugging
+        d3.select(pathElement)
+          .attr("data-wire-from", conn.from.component)
+          .attr("data-wire-to", conn.to.component);
+
+        // Use the path we found
         createPropagationEntry(pathElement, conn, delay, sourceKey, model);
+      } else {
+        console.warn(`No path found for connection: ${conn.from.component} -> ${conn.to.component} (wire: ${conn.wire})`);
       }
     });
 
     console.log(`Path elements found: ${foundPaths}/${totalPaths}`);
-    console.log("Components in model:", Array.from(model.keys()).slice(0, 10));
+    console.log("Components in model:", Array.from(model.keys()));
+
+    // Highlight all path elements in the model for debugging
+    svg.selectAll(".path-in-model")
+      .style("stroke-dasharray", "5,5")
+      .style("stroke-opacity", 0.8)
+      .each(function () {
+        const path = d3.select(this);
+      });
+
     return model;
   }
 
@@ -1045,6 +1206,8 @@ const SimplifiedCircuitVisualizer: React.FC<SimplifiedCircuitVisualizerProps> = 
   function simulateClockCycle(initialInputs: Record<string, boolean>) {
     if (!circuitData || !svgRef.current) return;
 
+    console.log("Simulating clock cycle with realistic timing...");
+
     // Create a propagation model based on circuit topology
     const propagationModel = buildCircuitPropagationModel(
       circuitData,
@@ -1069,11 +1232,25 @@ const SimplifiedCircuitVisualizer: React.FC<SimplifiedCircuitVisualizerProps> = 
       }
     });
 
-    // Set initial input values from ports
-    const currentValues: Record<string, boolean> = {};
+    // Categorize inputs for priority handling
+    const clockSignals: Record<string, boolean> = {};
+    const dataSignals: Record<string, boolean> = {};
+    const otherSignals: Record<string, boolean> = {};
+
     Object.entries(initialInputs).forEach(([port, value]) => {
-      currentValues[port] = value;
-      // Initialize port states if needed
+      const lowercasePort = port.toLowerCase();
+
+      if (lowercasePort.includes('clk') || lowercasePort.includes('clock')) {
+        clockSignals[port] = value;
+      }
+      else if (lowercasePort.includes('d') || lowercasePort.includes('data')) {
+        dataSignals[port] = value;
+      }
+      else {
+        otherSignals[port] = value;
+      }
+
+      // Initialize port states regardless of type
       if (!newComponentStates[port]) {
         newComponentStates[port] = {
           inputs: {},
@@ -1081,12 +1258,15 @@ const SimplifiedCircuitVisualizer: React.FC<SimplifiedCircuitVisualizerProps> = 
           lastClock: false
         };
       } else {
-        // Update port output state
         newComponentStates[port].outputs[0] = value;
       }
     });
 
-    // Queue for signal propagation, with timing
+    console.log("Clock signals:", clockSignals);
+    console.log("Data signals:", dataSignals);
+    console.log("Other signals:", otherSignals);
+
+    // Combined queue for all signal propagation
     const signalQueue: Array<{
       component: string,
       componentType: string,
@@ -1094,15 +1274,18 @@ const SimplifiedCircuitVisualizer: React.FC<SimplifiedCircuitVisualizerProps> = 
       value: boolean,
       time: number,
       wire: string,
-      path: SVGPathElement | null
+      path: SVGPathElement | null,
+      signalType: 'clock' | 'data' | 'other',
+      color: string
     }> = [];
 
-    // Start with input ports
-    Object.entries(initialInputs).forEach(([port, value]) => {
-      // Find outgoing signals from this port
+    // 1. Queue clock signals first (baseline time)
+    Object.entries(clockSignals).forEach(([port, value]) => {
       const outgoing = propagationModel.get(port) || [];
       outgoing.forEach(signal => {
+        // Use SDF delay if realistic timing is enabled
         const delay = useRealisticTiming ? signal.delay : 200;
+
         signalQueue.push({
           component: signal.toComponent,
           componentType: simplifiedComponents.find(c => c.name === signal.toComponent)?.type || '',
@@ -1110,7 +1293,50 @@ const SimplifiedCircuitVisualizer: React.FC<SimplifiedCircuitVisualizerProps> = 
           value,
           time: delay,
           wire: signal.wire,
-          path: signal.path
+          path: signal.path,
+          signalType: 'clock',
+          color: '#ffff00' // Yellow for clock
+        });
+      });
+    });
+
+    // 2. Queue data signals next (they must arrive slightly after clock for proper FF behavior)
+    Object.entries(dataSignals).forEach(([port, value]) => {
+      const outgoing = propagationModel.get(port) || [];
+      outgoing.forEach(signal => {
+        // For data, ensure it arrives after clock for proper D flip-flop behavior
+        const delay = useRealisticTiming ? signal.delay + 50 : 250;
+
+        signalQueue.push({
+          component: signal.toComponent,
+          componentType: simplifiedComponents.find(c => c.name === signal.toComponent)?.type || '',
+          pinIndex: parseInt(signal.toComponent.split(':')[1]) || 0,
+          value,
+          time: delay,
+          wire: signal.wire,
+          path: signal.path,
+          signalType: 'data',
+          color: '#00ffff' // Cyan for data
+        });
+      });
+    });
+
+    // 3. Queue other signals last
+    Object.entries(otherSignals).forEach(([port, value]) => {
+      const outgoing = propagationModel.get(port) || [];
+      outgoing.forEach(signal => {
+        const delay = useRealisticTiming ? signal.delay + 100 : 300;
+
+        signalQueue.push({
+          component: signal.toComponent,
+          componentType: simplifiedComponents.find(c => c.name === signal.toComponent)?.type || '',
+          pinIndex: parseInt(signal.toComponent.split(':')[1]) || 0,
+          value,
+          time: delay,
+          wire: signal.wire,
+          path: signal.path,
+          signalType: 'other',
+          color: getWireColor(signal.wire) // Get appropriate color based on wire name
         });
       });
     });
@@ -1121,20 +1347,38 @@ const SimplifiedCircuitVisualizer: React.FC<SimplifiedCircuitVisualizerProps> = 
     // Used to track which paths we've animated to avoid duplicates
     const animatedPaths = new Set<string>();
 
+    console.log(`Processing ${signalQueue.length} signals in time order`);
+
+    // Process all signal events in order
     while (signalQueue.length > 0) {
-      const { component, componentType, pinIndex, value, time, wire, path } = signalQueue.shift()!;
+      const {
+        component, componentType, pinIndex, value, time, wire, path,
+        signalType, color
+      } = signalQueue.shift()!;
+
+      console.log(`Processing signal: ${wire} -> ${component}:${pinIndex}, value=${value}, type=${signalType}`);
 
       // Ensure component has a state
       if (!newComponentStates[component]) {
-        newComponentStates[component] = {
-          inputs: {},
-          outputs: {},
-          lastClock: false
-        };
+        newComponentStates[component] = { inputs: {}, outputs: {}, lastClock: false };
       }
+
+      // Track the previous state of this input to detect changes
+      const prevValue = newComponentStates[component].inputs[pinIndex];
 
       // Update input state for this component
       newComponentStates[component].inputs[pinIndex] = value;
+
+      // Special handling for clock signals
+      if (signalType === 'clock' || wire.toLowerCase().includes('clk') || wire.toLowerCase().includes('clock')) {
+        const prevClock = newComponentStates[component].lastClock;
+        newComponentStates[component].lastClock = value;
+
+        // For debugging: log clock transitions
+        if (prevClock !== value) {
+          console.log(`Clock transition on ${component}: ${prevClock} -> ${value}`);
+        }
+      }
 
       // Store old outputs to check if they changed
       const oldOutputs = { ...newComponentStates[component].outputs };
@@ -1152,23 +1396,48 @@ const SimplifiedCircuitVisualizer: React.FC<SimplifiedCircuitVisualizerProps> = 
       // Update component state with new outputs
       newComponentStates[component].outputs = outputs;
 
-      // Handle clock state for sequential logic
-      if ((component.toLowerCase().includes('clk') || component.toLowerCase().includes('clock')) &&
-        wire.toLowerCase().includes('clk')) {
-        newComponentStates[component].lastClock = value;
-      }
-
       // Check if any outputs changed
       let outputsChanged = false;
       Object.entries(outputs).forEach(([outPinIdxStr, outValue]) => {
-        // Convert string key to number explicitly
         const outPinIdx = parseInt(outPinIdxStr);
-
-        // Now use the numeric index to access oldOutputs
         if (oldOutputs[outPinIdx] !== outValue) {
           outputsChanged = true;
+          console.log(`Output changed on ${component}: pin ${outPinIdx} = ${outValue}`);
         }
       });
+
+      // If an input changed, we should show the signal animation regardless
+      if (prevValue !== value && path) {
+        const pathId = `${wire}-${component}-${pinIndex}`;
+        if (!animatedPaths.has(pathId)) {
+          console.log(`Animating signal on ${wire} -> ${component}:${pinIndex}`);
+          setSignalLog(prev => [
+            ...prev.slice(-19), // Keep last 20 entries
+            {
+              time: time,
+              wire,
+              value,
+              from: component, // Actually the destination in this case
+              to: component,
+              color
+            }
+          ]);
+          // Determine if we need to reverse path
+          const needsReversal = shouldReversePath(path);
+
+          // Animate with appropriate color based on signal type
+          animatePulseOnce(
+            path,
+            useRealisticTiming ? time : 500,
+            color,
+            value,
+            0,
+            needsReversal
+          );
+
+          animatedPaths.add(pathId);
+        }
+      }
 
       // If outputs changed, propagate to next components
       if (outputsChanged) {
@@ -1176,23 +1445,55 @@ const SimplifiedCircuitVisualizer: React.FC<SimplifiedCircuitVisualizerProps> = 
         const outgoingSignals = propagationModel.get(component) || [];
 
         outgoingSignals.forEach(signal => {
-          // Calculate delay for this signal
+          // Calculate delay for this signal using SDF timing
           const signalDelay = useRealisticTiming ? signal.delay : 200;
           const arrivalTime = time + signalDelay;
-          const needsReversal = shouldReversePath(signal.path);
+
+          // Get output value for this signal
+          let outputPin: number = 0;
+          if (signal.fromComponent === component) {
+            outputPin = 0;
+          } else {
+            // Try to extract a numeric pin index from the component name (e.g., "comp:2" → 2)
+            const pinMatch = String(signal.toComponent).match(/:(\d+)$/);
+            outputPin = pinMatch ? parseInt(pinMatch[1], 10) : 0;
+          }
+          const outputVal = outputs[outputPin] !== undefined ? outputs[outputPin] : outputs[0] || false;
+
+          // Determine signal type and color based on wire name
+          let sigType: 'clock' | 'data' | 'other' = 'other';
+          let sigColor = getWireColor(signal.wire);
+
+          const wireLower = signal.wire.toLowerCase();
+          if (wireLower.includes('clk') || wireLower.includes('clock')) {
+            sigType = 'clock';
+            sigColor = '#ffff00';
+          }
+          else if (wireLower.includes('d') || wireLower.includes('data')) {
+            sigType = 'data';
+            sigColor = '#00ffff';
+          }
 
           // Create a unique path ID to avoid duplicate animations
           const pathId = `${signal.fromComponent}-${signal.toComponent}-${signal.wire}`;
           if (!animatedPaths.has(pathId) && signal.path) {
-            // Animate the signal pulse
-            animatePulseOnce(
-              signal.path,
-              useRealisticTiming ? signalDelay : 1000,
-              getWireColor(signal.wire),
-              outputs[0] || false,  // This is correct
-              time,
-              needsReversal
-            );
+            console.log(`Scheduling animation for ${signal.wire} from ${signal.fromComponent} to ${signal.toComponent}`);
+
+            // Determine if we need to reverse path
+            const needsReversal = shouldReversePath(signal.path);
+
+            // Schedule the animation with accumulated time delay
+            setTimeout(() => {
+              animatePulseOnce(
+                signal.path,
+                useRealisticTiming ? signalDelay : 500,
+                sigColor,
+                outputVal,
+                0,
+                needsReversal
+              );
+            }, time);
+
             animatedPaths.add(pathId);
           }
 
@@ -1202,15 +1503,14 @@ const SimplifiedCircuitVisualizer: React.FC<SimplifiedCircuitVisualizerProps> = 
             componentType: '',
             pinIndex: signal.toComponent.includes(':') ?
               parseInt(signal.toComponent.split(':')[1]) : 0,
-            value: outputs[0], // FIXED: Always use numeric index 0
+            value: outputVal,
             time: arrivalTime,
             wire: signal.wire,
-            path: signal.path
+            path: signal.path,
+            signalType: sigType,
+            color: sigColor
           });
         });
-
-        // Resort queue by time
-        signalQueue.sort((a, b) => a.time - b.time);
       }
     }
 
@@ -1226,33 +1526,84 @@ const SimplifiedCircuitVisualizer: React.FC<SimplifiedCircuitVisualizerProps> = 
     });
     setSignalValues(newSignalValues);
   }
-  // Add this helper function
 
-  function shouldReversePath(path: SVGPathElement): boolean {
+  function shouldReversePath(path: SVGPathElement | null): boolean {
+    if (!path) return false;
+
     try {
-      // A simple heuristic: if the path ends to the left of where it starts,
-      // it's probably going in the wrong direction for typical left-to-right signal flow
-      const start = path.getPointAtLength(0);
-      const end = path.getPointAtLength(path.getTotalLength());
+      const length = path.getTotalLength();
+      if (isNaN(length) || length === 0) return false;
 
-      // For typical LTR circuit layouts, we want signals to move right
-      return end.x < start.x;
+      const start = path.getPointAtLength(0);
+      const end = path.getPointAtLength(length);
+
+      // For paths going right to left, we need to reverse
+      if (end.x < start.x) return true;
+
+      // For paths with small horizontal change but significant vertical change,
+      // look at the path attributes to decide direction
+      if (Math.abs(end.x - start.x) < 30) {
+        // Look at the data attributes to determine direction
+        const fromComponent = path.getAttribute('data-from');
+        const toComponent = path.getAttribute('data-to');
+
+        if (fromComponent && toComponent) {
+          // Find the components in the node positions
+          const fromNode = nodePositions.find(n => n.name === fromComponent);
+          const toNode = nodePositions.find(n => n.name === toComponent);
+
+          // If both components are found, check their X positions
+          if (fromNode && toNode) {
+            // If from is on the right of to, we need to reverse
+            return fromNode.x > toNode.x;
+          }
+        }
+      }
+
+      return false;
     } catch (e) {
       console.error("Error checking path direction:", e);
       return false;
     }
   }
-
   // -----------------------------------------------------------------------
   // Get color for a wire based on its type.
   // -----------------------------------------------------------------------
   function getWireColor(wire: string): string {
     const wireName = wire.toLowerCase();
-    if (wireName.includes('clk')) return '#ffff00'; // Yellow for clock
-    if (wireName.includes('reset')) return '#ff0000'; // Red for reset
-    if (wireName.includes('d')) return '#00ff00'; // Green for data
-    if (wireName.includes('q')) return '#00ffff'; // Cyan for outputs
-    return '#ffffff'; // White default
+
+    // Clock signals - bright yellow
+    if (wireName.includes('clk') || wireName.includes('clock')) {
+      return '#ffff00';
+    }
+
+    // Reset signals - bright red
+    if (wireName.includes('rst') || wireName.includes('reset')) {
+      return '#ff3333';
+    }
+
+    // Data signals - bright cyan
+    if (wireName.includes('d') || wireName.includes('data')) {
+      return '#00ffff';
+    }
+
+    // Output signals - bright green
+    if (wireName.includes('q') || wireName.includes('out')) {
+      return '#33ff33';
+    }
+
+    // Selector signals - bright magenta
+    if (wireName.includes('sel') || wireName.includes('addr')) {
+      return '#ff66ff';
+    }
+
+    // Enable signals - bright orange
+    if (wireName.includes('en') || wireName.includes('ena')) {
+      return '#ff9933';
+    }
+
+    // Default - white
+    return '#ffffff';
   }
 
   // -----------------------------------------------------------------------
@@ -1270,74 +1621,162 @@ const SimplifiedCircuitVisualizer: React.FC<SimplifiedCircuitVisualizerProps> = 
     const name = componentName.toLowerCase();
     const outputs: Record<number, boolean> = { ...previousOutputs };
 
-    // Special handling based on component type
+    // Count how many inputs are set
+    const inputCount = Object.keys(inputStates).length;
+
+    // Default output for empty inputs
+    if (inputCount === 0) {
+      outputs[0] = false;
+      return outputs;
+    }
+
+    // DFF or Flip-Flop behavior
     if (type.includes('dff') || name.includes('dff') || name.includes('flip') || name.includes('flop')) {
-      // D Flip-flop - only changes on clock edge
-      // Find clock input (usually has index 0 or 1)
-      const clockPinIndex = Object.keys(inputStates).find(idx =>
-        parseInt(idx) === 0 || parseInt(idx) === 1
-      );
+      console.log(`Processing DFF ${componentName} with inputs:`, inputStates);
 
-      if (clockPinIndex) {
-        const clock = inputStates[parseInt(clockPinIndex)];
-        const prevClock = lastClock ?? false;
+      // 1. Identify clock pin with better detection
+      let clockPinIndex = -1;
 
-        // Rising edge detected
-        if (clock && !prevClock) {
-          // Find data input (not the clock)
-          const dataPinIndex = Object.keys(inputStates)
-            .find(idx => parseInt(idx) !== parseInt(clockPinIndex));
+      // First try to find explicit clock pins
+      for (const pinIdxStr of Object.keys(inputStates)) {
+        const pinIdx = parseInt(pinIdxStr);
+        const pinName = `pin${pinIdx}`.toLowerCase();
+        const fullName = `${componentName}:${pinIdx}`.toLowerCase();
 
-          if (dataPinIndex) {
-            // On clock rising edge, output takes value of D input
-            const data = inputStates[parseInt(dataPinIndex)];
-            // Usually output is on pin 0
-            outputs[0] = data;
+        if (
+          pinName.includes('clk') ||
+          pinName.includes('clock') ||
+          fullName.includes('clk') ||
+          fullName.includes('clock')
+        ) {
+          clockPinIndex = pinIdx;
+          console.log(`Found clock pin: ${pinIdx}`);
+          break;
+        }
+      }
+
+      // If no explicit clock, use a default (typically pin 0 or 1)
+      if (clockPinIndex === -1) {
+        clockPinIndex = Object.keys(inputStates).length >= 2 ? 1 : 0;
+        console.log(`Using default clock pin: ${clockPinIndex}`);
+      }
+
+      // 2. Identify data pin
+      let dataPinIndex = -1;
+
+      // First try to find explicit data pins
+      for (const pinIdxStr of Object.keys(inputStates)) {
+        const pinIdx = parseInt(pinIdxStr);
+        if (pinIdx === clockPinIndex) continue; // Skip clock pin
+
+        const pinName = `pin${pinIdx}`.toLowerCase();
+        const fullName = `${componentName}:${pinIdx}`.toLowerCase();
+
+        if (
+          pinName.includes('d') ||
+          pinName.includes('data') ||
+          fullName.includes('d:') ||
+          fullName.includes('data')
+        ) {
+          dataPinIndex = pinIdx;
+          console.log(`Found data pin: ${pinIdx}`);
+          break;
+        }
+      }
+
+      // If no explicit data pin, use any non-clock pin
+      if (dataPinIndex === -1) {
+        for (const pinIdxStr of Object.keys(inputStates)) {
+          const pinIdx = parseInt(pinIdxStr);
+          if (pinIdx !== clockPinIndex) {
+            dataPinIndex = pinIdx;
+            console.log(`Using default data pin: ${pinIdx}`);
+            break;
           }
         }
+      }
 
-        // Update clock state
-        return outputs;
+      // 3. Process DFF logic with the identified pins
+      if (clockPinIndex in inputStates) {
+        const clock = inputStates[clockPinIndex];
+        const prevClock = lastClock ?? false;
+
+        console.log(`DFF ${componentName} clock: ${prevClock} -> ${clock}`);
+
+        // Rising edge detection
+        if (clock && !prevClock) {
+          console.log(`Rising edge detected on ${componentName}`);
+
+          // If we found a data pin, capture its value
+          if (dataPinIndex in inputStates) {
+            const dataVal = inputStates[dataPinIndex];
+            console.log(`Capturing data value: ${dataVal}`);
+            outputs[0] = dataVal;
+          }
+        }
       }
     }
+    // Logic gates
     else if (type.includes('and') || name.includes('and')) {
       // AND gate - only true if ALL inputs are true
-      const allInputsTrue = Object.values(inputStates).every(val => val);
-      outputs[0] = allInputsTrue;
+      outputs[0] = Object.values(inputStates).every(val => val);
     }
     else if (type.includes('or') || name.includes('or')) {
-      // OR gate - true if ANY input is true
-      const anyInputTrue = Object.values(inputStates).some(val => val);
-      outputs[0] = anyInputTrue;
+      // Ensure it's not XOR or NOR
+      if (!type.includes('xor') && !type.includes('nor')) {
+        // OR gate - true if ANY input is true
+        outputs[0] = Object.values(inputStates).some(val => val);
+      }
     }
     else if (type.includes('not') || name.includes('not') || name.includes('inv')) {
       // NOT gate - inverts the input
-      outputs[0] = !Object.values(inputStates)[0];
+      const firstInput = Object.values(inputStates)[0];
+      outputs[0] = !firstInput;
     }
-    else if (type.includes('xor')) {
+    else if (type.includes('xor') || name.includes('xor')) {
       // XOR gate - true if odd number of inputs are true
       const trueCount = Object.values(inputStates).filter(val => val).length;
       outputs[0] = trueCount % 2 === 1;
     }
-    else if (type.includes('nand')) {
+    else if (type.includes('nand') || name.includes('nand')) {
       // NAND gate - false only if ALL inputs are true
-      const allInputsTrue = Object.values(inputStates).every(val => val);
-      outputs[0] = !allInputsTrue;
+      outputs[0] = !Object.values(inputStates).every(val => val);
     }
-    else if (type.includes('nor')) {
+    else if (type.includes('nor') || name.includes('nor')) {
       // NOR gate - true only if ALL inputs are false
-      const anyInputTrue = Object.values(inputStates).some(val => val);
-      outputs[0] = !anyInputTrue;
+      outputs[0] = !Object.values(inputStates).some(val => val);
     }
     else if (type.includes('buf') || type.includes('buffer')) {
       // Buffer - passes input to output
       outputs[0] = Object.values(inputStates)[0];
     }
+    else if (type.includes('mux') || name.includes('mux')) {
+      // Simplified multiplexer behavior
+      // Assume first input is selector, other inputs are data
+      const inputs = Object.entries(inputStates).map(([idx, val]) => ({ idx: parseInt(idx), val }));
+      const selector = inputs[0]?.val;
+
+      // Select either second or third input based on selector
+      outputs[0] = selector ? inputs[2]?.val ?? false : inputs[1]?.val ?? false;
+    }
+    else if (name.includes('latch')) {
+      // Simple SR latch behavior
+      const inputs = Object.values(inputStates);
+      if (inputs.length >= 2) {
+        const [s, r] = inputs;
+        if (r) outputs[0] = false;      // Reset dominates
+        else if (s) outputs[0] = true;  // Then Set
+        // Otherwise maintain state
+      }
+    }
     else {
-      // Default passthrough for unknown components
-      // Just pass first input to first output
-      if (Object.keys(inputStates).length > 0) {
+      // For unknown components, try to make a reasonable guess
+      if (inputCount === 1) {
+        // Single input likely means passthrough
         outputs[0] = Object.values(inputStates)[0];
+      } else {
+        // Multiple inputs with unknown function - assume OR as most common case
+        outputs[0] = Object.values(inputStates).some(val => val);
       }
     }
 
@@ -1345,64 +1784,107 @@ const SimplifiedCircuitVisualizer: React.FC<SimplifiedCircuitVisualizerProps> = 
   }
 
   // -----------------------------------------------------------------------
-  // Get delay factor for a wire.
-  // -----------------------------------------------------------------------
-
-
-  // -----------------------------------------------------------------------
   // Animate pulses on clock cycle change.
   // -----------------------------------------------------------------------
+
   useEffect(() => {
     if (!svgRef.current || !circuitData) return;
 
-    // For realistic timing, use our simulation model
-    if (useRealisticTiming) {
-      // Set up sample input values - in a real app you'd get these from user controls
-      const inputValues: Record<string, boolean> = {};
+    console.log("=======================================");
+    console.log(`Clock cycle changed: ${clockCycle}`);
 
-      // Detect clock inputs
-      Object.entries(circuitData.ports)
-        .filter(([portName, direction]) =>
-          direction === 'input' && portName.toLowerCase().includes('clk'))
-        .forEach(([portName]) => {
-          // Toggle clock on each cycle
-          inputValues[portName] = clockCycle % 2 === 0;
+    try {
+      if (useRealisticTiming) {
+        console.log("Using realistic timing simulation");
+
+        // Prepare input values for current cycle
+        const inputValues: Record<string, boolean> = {};
+
+        // Process ports in specific order: reset, clock, data, others
+        const resetPorts: string[] = [];
+        const clockPorts: string[] = [];
+        const dataPorts: string[] = [];
+        const otherPorts: string[] = [];
+
+        // Categorize all input ports
+        Object.entries(circuitData.ports)
+          .filter(([_, direction]) => direction === 'input')
+          .forEach(([portName]) => {
+            const lowerName = portName.toLowerCase();
+
+            if (lowerName.includes('rst') || lowerName.includes('reset')) {
+              resetPorts.push(portName);
+            }
+            else if (lowerName.includes('clk') || lowerName.includes('clock')) {
+              clockPorts.push(portName);
+            }
+            else if (lowerName.includes('d') || lowerName.includes('data')) {
+              dataPorts.push(portName);
+            }
+            else {
+              otherPorts.push(portName);
+            }
+          });
+
+        console.log(`Found ports - Reset: ${resetPorts.length}, Clock: ${clockPorts.length}, Data: ${dataPorts.length}, Other: ${otherPorts.length}`);
+
+        // Set reset signals (active only on first cycle)
+        resetPorts.forEach(port => {
+          inputValues[port] = clockCycle === 0;
+          console.log(`Reset port ${port} = ${inputValues[port]}`);
         });
 
-      // Set other inputs to sample values
-      Object.entries(circuitData.ports)
-        .filter(([portName, direction]) =>
-          direction === 'input' && !portName.toLowerCase().includes('clk'))
-        .forEach(([portName]) => {
-          if (portName.toLowerCase().includes('reset')) {
-            // Reset is typically active low, so high (true) means not reset
-            inputValues[portName] = true;
-          } else if (portName.toLowerCase().includes('d')) {
-            // Toggle D input every other clock cycle
-            inputValues[portName] = Math.floor(clockCycle / 2) % 2 === 0;
-          } else {
-            // Default other inputs to high
-            inputValues[portName] = true;
+        // Set clock signals (toggle on each cycle)
+        clockPorts.forEach(port => {
+          inputValues[port] = clockCycle % 2 === 0;
+          console.log(`Clock port ${port} = ${inputValues[port]}`);
+        });
+
+        // Set data signals (interesting pattern for visualization)
+        dataPorts.forEach((port, idx) => {
+          // Create an interesting data pattern:
+          // - First port toggles every 2 cycles (slower than clock)
+          // - Second port toggles every 3 cycles
+          // - Additional ports use other patterns
+          const cycleOffset = idx * 2; // offset to create different patterns
+          switch (idx % 3) {
+            case 0: // Toggle every 2 cycles
+              inputValues[port] = Math.floor((clockCycle + cycleOffset) / 2) % 2 === 0;
+              break;
+            case 1: // Toggle every 3 cycles
+              inputValues[port] = Math.floor((clockCycle + cycleOffset) / 3) % 2 === 0;
+              break;
+            case 2: // Toggle every 4 cycles with one high, three low
+              inputValues[port] = (clockCycle + cycleOffset) % 4 === 0;
+              break;
           }
+          console.log(`Data port ${port} = ${inputValues[port]}`);
         });
 
-      // Run the simulation
-      simulateClockCycle(inputValues);
-    }
-    // Basic animation for non-realistic timing
-    else {
-      const svg = d3.select(svgRef.current);
-      svg.selectAll<SVGPathElement, unknown>('path.connection-path')
-        .each(function () {
-          const wire = this.getAttribute('data-wire') || '';
-          const color = getWireColor(wire);
-          const baseDuration = 2000;
-          const finalDuration = baseDuration / animationSpeed;
-          animatePulseOnce(this as SVGPathElement, finalDuration, color, true);
+        // Set other signals
+        otherPorts.forEach((port, idx) => {
+          inputValues[port] = ((clockCycle + idx) % 3) !== 0; // Simple pattern
+          console.log(`Other port ${port} = ${inputValues[port]}`);
         });
-    }
-  }, [clockCycle, circuitData, animationSpeed, useRealisticTiming]);
 
+        // Run simulation with these inputs
+        simulateClockCycle(inputValues);
+      }
+      else {
+        const svg = d3.select(svgRef.current);
+        svg.selectAll<SVGPathElement, unknown>('path.connection-path')
+          .each(function () {
+            const wire = this.getAttribute('data-wire') || '';
+            const color = getWireColor(wire);
+            const baseDuration = 2000;
+            const finalDuration = baseDuration / animationSpeed;
+            animatePulseOnce(this as SVGPathElement, finalDuration, color, true);
+          });
+      }
+    } catch (e) {
+      console.error("Error processing clock cycle:", e);
+    }
+  }, [clockCycle, circuitData, useRealisticTiming]);
   // -----------------------------------------------------------------------
   // Auto-increment clock.
   // -----------------------------------------------------------------------
@@ -1550,11 +2032,18 @@ const SimplifiedCircuitVisualizer: React.FC<SimplifiedCircuitVisualizerProps> = 
         console.log("Testing animations directly...");
         const svg = d3.select(svgRef.current);
 
+        // Use explicit cast for TypeScript
         const paths = svg.selectAll<SVGPathElement, unknown>("path.connection-path")
-          .filter(function () {
+          .filter(function (this: SVGPathElement) { // Explicitly type 'this'
             const wire = this.getAttribute('data-wire');
-            // Explicitly ensure we return a boolean value
-            return wire !== null && wire !== "" && this.getTotalLength() >= 10;
+            // Make sure we handle the path length correctly
+            try {
+              const length = this.getTotalLength();
+              return wire !== null && wire !== "" && !isNaN(length) && length >= 10;
+            } catch (e) {
+              console.error("Error getting path length:", e);
+              return false;
+            }
           })
           .nodes();
 
@@ -1563,13 +2052,17 @@ const SimplifiedCircuitVisualizer: React.FC<SimplifiedCircuitVisualizerProps> = 
         // Animate a few paths to test
         paths.slice(0, Math.min(5, paths.length)).forEach((path, i) => {
           console.log(`Testing animation on path ${i}`);
-          // Check if path needs reversal
-          const needsReversal = shouldReversePath(path);
+          try {
+            // Check if path needs reversal
+            const needsReversal = shouldReversePath(path);
 
-          // Use a timeout to stagger animations
-          setTimeout(() => {
-            animatePulseOnce(path, 1000, "#ffff00", true, 0, needsReversal);
-          }, i * 200);
+            // Use a timeout to stagger animations
+            setTimeout(() => {
+              animatePulseOnce(path, 1000, "#ffff00", true, 0, needsReversal);
+            }, i * 200);
+          } catch (e) {
+            console.error(`Failed to animate path ${i}:`, e);
+          }
         });
       }, 1000); // Give SVG time to render
     }
@@ -1626,70 +2119,94 @@ const SimplifiedCircuitVisualizer: React.FC<SimplifiedCircuitVisualizerProps> = 
   return (
     <div className="simplified-circuit-visualizer">
       <div className="controls">
-  <div className="animation-controls">
-    <div className="control-group main-controls">
-      <button 
-        className={`control-button ${isRunning ? 'active' : ''}`}
-        onClick={() => setIsRunning(!isRunning)}
-        title={isRunning ? "Pause animation" : "Run continuous animation"}
-      >
-        {isRunning ? "⏸ Pause" : "▶️ Run"}
-      </button>
-      
-      <button 
-        className="control-button step-button"
-        onClick={() => setClockCycle(c => c + 1)}
-        title="Advance one clock cycle"
-      >
-        ⏭️ Step
-      </button>
-      
-      <div className="cycle-counter">
-        Cycle: <span className="cycle-value">{clockCycle}</span>
-      </div>
-    </div>
-    
-    <div className="control-group speed-controls">
-      <label title="Adjust animation speed">
-        <span className="control-label">Speed:</span>
-        <input
-          type="range"
-          min="0.5"
-          max="5"
-          step="0.5"
-          value={animationSpeed}
-          onChange={(e) => setAnimationSpeed(parseFloat(e.target.value))}
-          className="speed-slider"
-        />
-        <span className="speed-value">{animationSpeed}×</span>
-      </label>
-    </div>
-    
-    <div className="control-group option-controls">
-      <label className="checkbox-label" title="Use accurate timing constraints from circuit data">
-        <input
-          type="checkbox"
-          checked={useRealisticTiming}
-          onChange={() => setUseRealisticTiming(prev => !prev)}
-        />
-        <span>Realistic timing</span>
-      </label>
-      
-      <label className="checkbox-label" title="Show component signal states">
-        <input
-          type="checkbox"
-          checked={showDebug}
-          onChange={() => setShowDebug(prev => !prev)}
-        />
-        <span>Show states</span>
-      </label>
-    </div>
-  </div>
+        <div className="animation-controls">
+          <div className="control-group main-controls">
+            <button
+              className={`control-button ${isRunning ? 'active' : ''}`}
+              onClick={() => setIsRunning(!isRunning)}
+              title={isRunning ? "Pause animation" : "Run continuous animation"}
+            >
+              {isRunning ? "⏸ Pause" : "▶️ Run"}
+            </button>
 
-  {circuitData.module && (
-    <div className="module-name">Module: {circuitData.module}</div>
-  )}
-</div>
+            <button
+              className="control-button step-button"
+              onClick={() => setClockCycle(c => c + 1)}
+              title="Advance one clock cycle"
+            >
+              ⏭️ Step
+            </button>
+            <button
+              className="control-button"
+              onClick={() => {
+                // Test animations on all paths
+                const paths = d3.select(svgRef.current)
+                  .selectAll<SVGPathElement, unknown>("path.connection-path")
+                  .nodes();
+
+                console.log(`Testing animations on ${paths.length} paths`);
+
+                paths.forEach((path, i) => {
+                  setTimeout(() => {
+                    animatePulseOnce(
+                      path,
+                      2000,
+                      "#ffff00",
+                      true,
+                      0,
+                      Math.random() > 0.5
+                    );
+                  }, i * 200);
+                });
+              }}
+            >
+              🔄 Test Animations
+            </button>
+            <div className="cycle-counter">
+              Cycle: <span className="cycle-value">{clockCycle}</span>
+            </div>
+          </div>
+
+          <div className="control-group speed-controls">
+            <label title="Adjust animation speed">
+              <span className="control-label">Speed:</span>
+              <input
+                type="range"
+                min="0.5"
+                max="5"
+                step="0.5"
+                value={animationSpeed}
+                onChange={(e) => setAnimationSpeed(parseFloat(e.target.value))}
+                className="speed-slider"
+              />
+              <span className="speed-value">{animationSpeed}×</span>
+            </label>
+          </div>
+
+          <div className="control-group option-controls">
+          {circuitData.module && (
+          <div className="module-name">Module: {circuitData.module}</div>
+        )}
+            <label className="checkbox-label" title="Use accurate timing constraints from circuit data">
+              <input
+                type="checkbox"
+                checked={useRealisticTiming}
+                onChange={() => setUseRealisticTiming(prev => !prev)}
+              />
+              <span>Realistic timing</span>
+            </label>
+
+            <label className="checkbox-label" title="Show component signal states">
+              <input
+                type="checkbox"
+                checked={showDebug}
+                onChange={() => setShowDebug(prev => !prev)}
+              />
+              <span>Show states</span>
+            </label>
+          </div>
+        </div>
+      </div>
 
       <svg
         id={svgId}
@@ -1728,9 +2245,13 @@ const SimplifiedCircuitVisualizer: React.FC<SimplifiedCircuitVisualizerProps> = 
             const endPos = pinPositions[toComponent.name]?.inputs[conn.to.pinIndex] ||
               { x: toComponent.x - toComponent.width / 2, y: toComponent.y };
 
+            // Generate a unique ID for this connection
+            const pathId = `path-${conn.from.component}-${conn.from.pinIndex}-${conn.to.component}-${conn.to.pinIndex}`;
+
             return (
               <path
                 key={`conn-${i}`}
+                id={pathId}
                 className="connection-path"
                 d={generatePath(startPos, endPos)}
                 stroke="#888"
@@ -1738,23 +2259,43 @@ const SimplifiedCircuitVisualizer: React.FC<SimplifiedCircuitVisualizerProps> = 
                 fill="none"
                 markerEnd="url(#arrowhead)"
                 data-wire={conn.wire}
+                data-from={conn.from.component}
+                data-to={conn.to.component}
+                data-from-pin={conn.from.pinIndex}
+                data-to-pin={conn.to.pinIndex}
+                data-index={i}
               />
             );
           })}
 
           {/* Port connections */}
-          {portConnectionsToDraw.map((conn, i) => (
-            <path
-              key={`port-${i}`}
-              className="connection-path port-connection"
-              d={generatePath(conn.fromPos, conn.toPos)}
-              stroke="#66f"
-              strokeWidth="2"
-              fill="none"
-              markerEnd="url(#arrowhead)"
-              data-wire={conn.wire}
-            />
-          ))}
+          {portConnectionsToDraw.map((conn, i) => {
+            
+            // Get appropriate color based on port type
+            const isClockPort = conn.portName.toLowerCase().includes('clk') || conn.portName.toLowerCase().includes('clock');
+            const isDataPort = conn.portName.toLowerCase().includes('d') || conn.portName.toLowerCase().includes('data');
+            const isResetPort = conn.portName.toLowerCase().includes('rst') || conn.portName.toLowerCase().includes('reset');
+
+            const portColor = isClockPort ? '#ffff00' :
+              isDataPort ? '#00ffff' :
+                isResetPort ? '#ff3333' : '#66f';
+
+            return (
+              <path
+                key={`port-${i}`}
+                className="connection-path port-connection"
+                d={generatePath(conn.fromPos, conn.toPos)}
+                stroke={portColor}
+                strokeWidth="2"
+                strokeDasharray={isClockPort ? "5,3" : "none"} // Make clock lines dashed
+                fill="none"
+                markerEnd="url(#arrowhead)"
+                data-wire={conn.wire}
+                data-port-name={conn.portName}
+                data-port-type={circuitData.ports[conn.portName]}
+              />
+            );
+          })}
 
           {/* Component nodes */}
           {nodePositions.map(node => (
@@ -1846,42 +2387,115 @@ const SimplifiedCircuitVisualizer: React.FC<SimplifiedCircuitVisualizerProps> = 
               })}
             </g>
           ))}
-
           {/* Port nodes */}
-          {Object.entries(portPositions).map(([portName, pos]) => (
-            <g
-              key={portName}
-              className="port-node"
-              data-port={portName}
-              transform={`translate(${pos.x}, ${pos.y})`}
-            >
-              <rect
-                x="-50"
-                y="-20"
-                width="100"
-                height="40"
-                rx="20"
-                ry="20"
-                fill={circuitData.ports[portName] === 'input' ? '#353' : '#533'}
-                stroke={circuitData.ports[portName] === 'input' ? '#5f5' : '#f55'}
-                strokeWidth="2"
-              />
-              <text
-                textAnchor="middle"
-                dominantBaseline="middle"
-                fill="#fff"
-                fontSize="14"
-              >
-                {portName}
-                <tspan x="0" dy="15" fontSize="10">
-                  ({circuitData.ports[portName]})
-                </tspan>
-              </text>
-            </g>
-          ))}
-        </g>
+          {Object.entries(portPositions).map(([portName, pos]) => {
+            // Get state for this port
+            const isInput = circuitData.ports[portName] === 'input';
+            const portState = signalValues[portName];
+            const stateKnown = portState !== undefined;
 
+            return (
+              <g
+                key={portName}
+                className="port-node"
+                data-port={portName}
+                transform={`translate(${pos.x}, ${pos.y})`}
+              >
+                {/* Port background */}
+                <rect
+                  x="-50"
+                  y="-20"
+                  width="100"
+                  height="40"
+                  rx="20"
+                  ry="20"
+                  fill={isInput ? '#353' : '#533'}
+                  stroke={isInput ? '#5f5' : '#f55'}
+                  strokeWidth="2"
+                />
+
+                {/* Port name */}
+                <text
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                  fill="#fff"
+                  fontSize="14"
+                >
+                  {portName}
+                  <tspan x="0" dy="15" fontSize="10">
+                    ({circuitData.ports[portName]})
+                  </tspan>
+                </text>
+
+                {/* Port state indicator */}
+                {stateKnown && (
+                  <circle
+                    cx={isInput ? -40 : 40}
+                    cy="0"
+                    r="10"
+                    fill={portState ? "#5f5" : "#555"}
+                    stroke="#fff"
+                    strokeWidth="1"
+                  >
+                    <title>{portState ? "HIGH (1)" : "LOW (0)"}</title>
+                  </circle>
+                )}
+              </g>
+
+            );
+          })}
+          
+        </g>
+        
+        <div className="signal-log-container">
+          <h4>Signal Flow Log</h4>
+          <div className="signal-log">
+            {signalLog.map((entry, i) => (
+              <div
+                key={i}
+                className="signal-entry"
+                style={{
+                  borderLeft: `4px solid ${entry.color}`,
+                  opacity: Math.max(0.5, 1 - (signalLog.length - 1 - i) * 0.1)
+                }}
+              >
+                <span className="signal-time">{entry.time.toFixed(0)}ms</span>
+                <span className="signal-wire">{entry.wire}</span>
+                <span className="signal-value" style={{ color: entry.value ? '#5f5' : '#f55' }}>
+                  {entry.value ? '1' : '0'}
+                </span>
+                <span className="signal-path">{entry.from} → {entry.to}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="circuit-legend">
+          <h4>Signal Types</h4>
+          <div className="legend-items">
+            <div className="legend-item">
+              <div className="color-box" style={{ backgroundColor: "#ffff00" }}></div>
+              <span>Clock</span>
+            </div>
+            <div className="legend-item">
+              <div className="color-box" style={{ backgroundColor: "#00ffff" }}></div>
+              <span>Data</span>
+            </div>
+            <div className="legend-item">
+              <div className="color-box" style={{ backgroundColor: "#33ff33" }}></div>
+              <span>Output</span>
+            </div>
+            <div className="legend-item">
+              <div className="color-box" style={{ backgroundColor: "#ff3333" }}></div>
+              <span>Reset</span>
+            </div>
+            <div className="legend-item">
+              <div className="color-box" style={{ backgroundColor: "#ff66ff" }}></div>
+              <span>Select</span>
+            </div>
+          </div>
+        </div>
       </svg>
+      
     </div>
   );
 };
