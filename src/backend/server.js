@@ -78,7 +78,7 @@ wss.on("connection", (ws) => {
 });
 
 // Upload Circuit (Temporary Storage)
-app.post("/uploads", upload.array("files", 2), async (req, res) => {
+app.post("/upload", upload.array("files", 2), async (req, res) => {
     if (!req.files || req.files.length !== 2) {
         return res.status(400).json({ error: "Please upload exactly one .v file and one .sdf file." });
     }
