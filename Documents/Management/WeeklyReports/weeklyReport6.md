@@ -6,7 +6,7 @@
 
 ### Documents
 
-All the documents are finished and are now in the main branch. The only thing that is missing is the Post Mortem file, which is not finished yet. The Post Mortem file will be finished by Friday 25th March.
+All the documents are finished and are now in the main branch. The only thing that is missing is the Post Mortem file, which is not finished yet. The Post Mortem file will be finished by Friday, March 25th.
 
 ### Website
 
@@ -20,4 +20,4 @@ Like the previous week, all the KPIs are now stored in a Google Sheet. The KPIs'
 
 ### Management Documents
 
-All the management documents are written except for the Post Mortem file that is missing, because it is not finished yet. It will be written by Friday 25th March.
+All the management documents have been written, except for the Post-Mortem file, which is still missing because it has not been completed yet. It will be finalized by Friday, March 25th.
