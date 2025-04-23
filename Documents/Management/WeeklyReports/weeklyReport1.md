@@ -1,6 +1,6 @@
 # Weekly Report 1 - Team 2: "Web FPGA"
 
-# 1st Week: 03/24/25 - 03/28/25
+# 1st Week: 02/24/25 - 02/28/25
 
 ## Overview
 
