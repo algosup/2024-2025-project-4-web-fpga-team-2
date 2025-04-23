@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://ianlaur.github.io/2024-2025-project-4-web-fpga-team-2-deployment/",
+  "homepage": "https://algosup.github.io/2024-2025-project-4-web-fpga-team-2/",
   "scripts": {
     "dev": "vite",
     "start": "node src/backend/server.js",
