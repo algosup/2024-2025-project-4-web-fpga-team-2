@@ -1,0 +1,1 @@
+if('serviceWorker' in navigator) navigator.serviceWorker.register('/2024-2025-project-4-web-fpga-team-2-deployment/dev-sw.js?dev-sw', { scope: '/2024-2025-project-4-web-fpga-team-2-deployment/', type: 'classic' })

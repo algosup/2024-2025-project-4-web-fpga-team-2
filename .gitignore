@@ -1,3 +1,32 @@
+# Ignore installed dependencies  
+node_modules/  
+
+# Yarn error log file  
+yarn-error.log  
+
+# Next.js build folder  
+.next/  
+
+# Environment file (often contains secrets)  
+.env  
+
+# Ignore generated service worker and cache files  
+**/public/precache.*.*.js  
+**/public/sw.js  
+**/public/workbox-*.js  
+**/public/worker-*.js  
+**/public/fallback-*.js  
+**/public/precache.*.*.js.map  
+**/public/sw.js.map  
+**/public/workbox-*.js.map  
+**/public/worker-*.js.map  
+**/public/fallback-*.js  
+
+# Ignore lock files in examples (avoids conflicts between package managers)  
+examples/**/yarn.lock  
+examples/**/package-lock.json  
+examples/**/pnpm-lock.yaml  
+
 # macOS and IDE-specific files  
 .DS_STORE  
 .idea  
@@ -38,3 +67,17 @@ packages/react-devtools-fusebox/dist
 packages/react-devtools-inline/dist  
 packages/react-devtools-shell/dist  
 packages/react-devtools-timeline/dist  
+
+# Ignore circuit JSON files but keep config files
+src/frontend/public/uploads/*.json
+src/backend/uploads/*.json
+src/database/circuits/*.json
+*_circuit.json
+*_netlist.json
+# Then explicitly include important JSON files
+!package.json
+!package-lock.json
+!tsconfig.json
+!.eslintrc.json
+!jest.config.json
+.qodo
