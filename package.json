@@ -1,0 +1,12 @@
+{
+    "name": "fpga-web-app",
+    "version": "1.0.0",
+    "description": "FPGA Web Application",
+    "scripts": {
+      "start": "node src/backend/server.js",
+      "build": "cd ./src/Frontend && npm install && npx vite --version && npx vite build --debug && cd ../../src/backend && npm install"
+    },
+    "engines": {
+      "node": ">=16.0.0"
+    }
+}
