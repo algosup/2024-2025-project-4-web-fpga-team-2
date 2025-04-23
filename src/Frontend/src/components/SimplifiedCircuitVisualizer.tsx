@@ -1631,7 +1631,7 @@ const SimplifiedCircuitVisualizer: React.FC<SimplifiedCircuitVisualizerProps> = 
     }
 
     // DFF or Flip-Flop behavior
-    if (type.includes('dff') || name.includes('dff') || name.includes('flip') || name.includes('flop') || name.includes('latch_$dff') || name.includes('latch')) {
+    if (type.includes('dff') || name.includes('dff') || name.includes('flip') || name.includes('flop')) {
       console.log(`Processing DFF ${componentName} with inputs:`, inputStates);
 
       // 1. Identify clock pin with better detection
