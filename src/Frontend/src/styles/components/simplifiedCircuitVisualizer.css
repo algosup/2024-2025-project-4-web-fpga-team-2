@@ -138,7 +138,7 @@
   text-overflow: ellipsis;
   color: #aaa;
 }
-/* Add this to your CSS */
+
 path.connection-path[data-wire*="clk"],
 path.connection-path[data-wire*="clock"] {
   animation: clockPulse 2s infinite;
@@ -150,7 +150,6 @@ path.connection-path[data-wire*="clock"] {
   100% { stroke-opacity: 0.5; stroke-width: 1; }
 }
 
-/* Different colors for data and control lines */
 path.connection-path[data-wire*="d"],
 path.connection-path[data-wire*="data"] {
   filter: drop-shadow(0 0 2px rgba(0, 255, 255, 0.5));
@@ -187,14 +186,12 @@ path.connection-path[data-wire*="out"] {
   filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.7));
 }
 
-/* Make the control button stand out */
 .emergency-test {
   background-color: #f44336 !important;
   color: white !important;
   font-weight: bold;
 }
 
-/* Add to your simplifiedCircuitVisualizer.css */
 path.connection-path {
   stroke-linecap: round;
   transition: stroke 0.3s;
@@ -208,7 +205,6 @@ path.active-wire {
   filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.5));
 }
 
-/* Path styling */
 path.connection-path {
   stroke-linecap: round;
   transition: stroke 0.3s;
