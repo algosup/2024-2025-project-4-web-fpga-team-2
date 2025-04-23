@@ -1,0 +1,452 @@
+{
+  "module": "FF1",
+  "ports": {
+    "\\D": "input",
+    "\\clk": "input",
+    "\\async_reset": "input",
+    "\\Q": "output"
+  },
+  "wires": [
+    "\\D_output_0_0",
+    "\\clk_output_0_0",
+    "\\async_reset_output_0_0",
+    "\\latch_Q_output_0_0",
+    "\\lut_",
+    "\\latch_Q_clock_0_0",
+    "\\Q_input_0_0",
+    "\\latch_Q_input_0_0"
+  ],
+  "components": [
+    {
+      "name": "\\lut_$auto$rtlil.cc:2714:MuxGate$139",
+      "type": "LUT",
+      "originalType": "LUT_K",
+      "inputs": [
+        {
+          "port": "const_0",
+          "wire": "constant_0",
+          "constant": true,
+          "value": 0,
+          "pinIndex": 0
+        },
+        {
+          "wire": "\\lut_$auto$rtlil.cc:2714:MuxGate$139_input_0_3",
+          "pinIndex": 1
+        },
+        {
+          "wire": "\\lut_$auto$rtlil.cc:2714:MuxGate$139_input_0_2",
+          "pinIndex": 2
+        },
+        {
+          "wire": "\\lut_$auto$rtlil.cc:2714:MuxGate$139_input_0_1",
+          "pinIndex": 3
+        },
+        {
+          "port": "const_4",
+          "wire": "constant_0",
+          "constant": true,
+          "value": 0,
+          "pinIndex": 4
+        }
+      ],
+      "outputs": [
+        {
+          "wire": "\\lut_$auto$rtlil.cc:2714:MuxGate$139_output_0_0",
+          "pinIndex": 0
+        }
+      ]
+    },
+    {
+      "name": "\\latch_Q",
+      "type": "DFF",
+      "originalType": "DFF",
+      "inputs": [
+        {
+          "port": "INITIAL_VALUE",
+          "wire": "constant_0",
+          "constant": true,
+          "value": 0,
+          "pinIndex": 0
+        },
+        {
+          "port": "D",
+          "wire": "\\latch_Q_input_0_0",
+          "pinIndex": 1
+        },
+        {
+          "port": "clock",
+          "wire": "\\latch_Q_clock_0_0",
+          "pinIndex": 2
+        }
+      ],
+      "outputs": [
+        {
+          "wire": "\\latch_Q_output_0_0",
+          "pinIndex": 0
+        }
+      ]
+    }
+  ],
+  "interconnects": [
+    {
+      "name": "\\routing_segment_D_output_0_0_to_lut_$auto$rtlil.cc:2714:MuxGate$139_input_0_3",
+      "type": "interconnect",
+      "datain": "\\D_output_0_0",
+      "dataout": "\\lut_$auto$rtlil.cc:2714:MuxGate$139_input_0_3"
+    },
+    {
+      "name": "\\routing_segment_clk_output_0_0_to_latch_Q_clock_0_0",
+      "type": "interconnect",
+      "datain": "\\clk_output_0_0",
+      "dataout": "\\latch_Q_clock_0_0"
+    },
+    {
+      "name": "\\routing_segment_async_reset_output_0_0_to_lut_$auto$rtlil.cc:2714:MuxGate$139_input_0_1",
+      "type": "interconnect",
+      "datain": "\\async_reset_output_0_0",
+      "dataout": "\\lut_$auto$rtlil.cc:2714:MuxGate$139_input_0_1"
+    },
+    {
+      "name": "\\routing_segment_latch_Q_output_0_0_to_lut_$auto$rtlil.cc:2714:MuxGate$139_input_0_2",
+      "type": "interconnect",
+      "datain": "\\latch_Q_output_0_0",
+      "dataout": "\\lut_$auto$rtlil.cc:2714:MuxGate$139_input_0_2"
+    },
+    {
+      "name": "\\routing_segment_latch_Q_output_0_0_to_Q_input_0_0",
+      "type": "interconnect",
+      "datain": "\\latch_Q_output_0_0",
+      "dataout": "\\Q_input_0_0"
+    },
+    {
+      "name": "\\routing_segment_lut_$auto$rtlil.cc:2714:MuxGate$139_output_0_0_to_latch_Q_input_0_0",
+      "type": "interconnect",
+      "datain": "\\lut_$auto$rtlil.cc:2714:MuxGate$139_output_0_0",
+      "dataout": "\\latch_Q_input_0_0"
+    }
+  ],
+  "connections": [
+    {
+      "from": {
+        "component": "\\routing_segment_D_output_0_0_to_lut_$auto$rtlil.cc:2714:MuxGate$139_input_0_3",
+        "type": "interconnect",
+        "port": "out",
+        "pinIndex": 0
+      },
+      "to": {
+        "component": "\\lut_$auto$rtlil.cc:2714:MuxGate$139",
+        "type": "LUT",
+        "pinIndex": 1
+      },
+      "wire": "\\lut_$auto$rtlil.cc:2714:MuxGate$139_input_0_3"
+    },
+    {
+      "from": {
+        "component": "\\routing_segment_clk_output_0_0_to_latch_Q_clock_0_0",
+        "type": "interconnect",
+        "port": "out",
+        "pinIndex": 0
+      },
+      "to": {
+        "component": "\\latch_Q",
+        "type": "DFF",
+        "port": "clock",
+        "pinIndex": 2
+      },
+      "wire": "\\latch_Q_clock_0_0"
+    },
+    {
+      "from": {
+        "component": "\\routing_segment_async_reset_output_0_0_to_lut_$auto$rtlil.cc:2714:MuxGate$139_input_0_1",
+        "type": "interconnect",
+        "port": "out",
+        "pinIndex": 0
+      },
+      "to": {
+        "component": "\\lut_$auto$rtlil.cc:2714:MuxGate$139",
+        "type": "LUT",
+        "pinIndex": 3
+      },
+      "wire": "\\lut_$auto$rtlil.cc:2714:MuxGate$139_input_0_1"
+    },
+    {
+      "from": {
+        "component": "\\latch_Q",
+        "type": "DFF",
+        "port": "out",
+        "pinIndex": 0
+      },
+      "to": {
+        "component": "\\routing_segment_latch_Q_output_0_0_to_lut_$auto$rtlil.cc:2714:MuxGate$139_input_0_2",
+        "type": "interconnect",
+        "port": "in",
+        "pinIndex": 0
+      },
+      "wire": "\\latch_Q_output_0_0"
+    },
+    {
+      "from": {
+        "component": "\\routing_segment_latch_Q_output_0_0_to_lut_$auto$rtlil.cc:2714:MuxGate$139_input_0_2",
+        "type": "interconnect",
+        "port": "out",
+        "pinIndex": 0
+      },
+      "to": {
+        "component": "\\lut_$auto$rtlil.cc:2714:MuxGate$139",
+        "type": "LUT",
+        "pinIndex": 2
+      },
+      "wire": "\\lut_$auto$rtlil.cc:2714:MuxGate$139_input_0_2"
+    },
+    {
+      "from": {
+        "component": "\\latch_Q",
+        "type": "DFF",
+        "port": "out",
+        "pinIndex": 0
+      },
+      "to": {
+        "component": "\\routing_segment_latch_Q_output_0_0_to_Q_input_0_0",
+        "type": "interconnect",
+        "port": "in",
+        "pinIndex": 0
+      },
+      "wire": "\\latch_Q_output_0_0"
+    },
+    {
+      "from": {
+        "component": "\\lut_$auto$rtlil.cc:2714:MuxGate$139",
+        "type": "LUT",
+        "port": "out",
+        "pinIndex": 0
+      },
+      "to": {
+        "component": "\\routing_segment_lut_$auto$rtlil.cc:2714:MuxGate$139_output_0_0_to_latch_Q_input_0_0",
+        "type": "interconnect",
+        "port": "in",
+        "pinIndex": 0
+      },
+      "wire": "\\lut_$auto$rtlil.cc:2714:MuxGate$139_output_0_0"
+    },
+    {
+      "from": {
+        "component": "\\routing_segment_lut_$auto$rtlil.cc:2714:MuxGate$139_output_0_0_to_latch_Q_input_0_0",
+        "type": "interconnect",
+        "port": "out",
+        "pinIndex": 0
+      },
+      "to": {
+        "component": "\\latch_Q",
+        "type": "DFF",
+        "port": "D",
+        "pinIndex": 1
+      },
+      "wire": "\\latch_Q_input_0_0"
+    }
+  ],
+  "pinConnections": [
+    {
+      "from": "\\routing_segment_D_output_0_0_to_lut_$auto$rtlil.cc:2714:MuxGate$139_input_0_3.out",
+      "to": "\\lut_$auto$rtlil.cc:2714:MuxGate$139.undefined",
+      "wire": "\\lut_$auto$rtlil.cc:2714:MuxGate$139_input_0_3"
+    },
+    {
+      "from": "\\routing_segment_clk_output_0_0_to_latch_Q_clock_0_0.out",
+      "to": "\\latch_Q.clock",
+      "wire": "\\latch_Q_clock_0_0"
+    },
+    {
+      "from": "\\routing_segment_async_reset_output_0_0_to_lut_$auto$rtlil.cc:2714:MuxGate$139_input_0_1.out",
+      "to": "\\lut_$auto$rtlil.cc:2714:MuxGate$139.undefined",
+      "wire": "\\lut_$auto$rtlil.cc:2714:MuxGate$139_input_0_1"
+    },
+    {
+      "from": "\\latch_Q.out",
+      "to": "\\routing_segment_latch_Q_output_0_0_to_lut_$auto$rtlil.cc:2714:MuxGate$139_input_0_2.in",
+      "wire": "\\latch_Q_output_0_0"
+    },
+    {
+      "from": "\\routing_segment_latch_Q_output_0_0_to_lut_$auto$rtlil.cc:2714:MuxGate$139_input_0_2.out",
+      "to": "\\lut_$auto$rtlil.cc:2714:MuxGate$139.undefined",
+      "wire": "\\lut_$auto$rtlil.cc:2714:MuxGate$139_input_0_2"
+    },
+    {
+      "from": "\\latch_Q.out",
+      "to": "\\routing_segment_latch_Q_output_0_0_to_Q_input_0_0.in",
+      "wire": "\\latch_Q_output_0_0"
+    },
+    {
+      "from": "\\lut_$auto$rtlil.cc:2714:MuxGate$139.out",
+      "to": "\\routing_segment_lut_$auto$rtlil.cc:2714:MuxGate$139_output_0_0_to_latch_Q_input_0_0.in",
+      "wire": "\\lut_$auto$rtlil.cc:2714:MuxGate$139_output_0_0"
+    },
+    {
+      "from": "\\routing_segment_lut_$auto$rtlil.cc:2714:MuxGate$139_output_0_0_to_latch_Q_input_0_0.out",
+      "to": "\\latch_Q.D",
+      "wire": "\\latch_Q_input_0_0"
+    }
+  ],
+  "summary": {
+    "total_components": 2,
+    "component_types": {
+      "LUT": 1,
+      "DFF": 1
+    },
+    "total_interconnects": 6,
+    "total_ports": 4,
+    "ports_by_type": {
+      "input": 3,
+      "output": 1
+    },
+    "total_connections": 8,
+    "connectivity_matrix": [
+      {
+        "component": "\\lut_$auto$rtlil.cc:2714:MuxGate$139",
+        "type": "LUT",
+        "inputs": [
+          "constant_0",
+          "\\lut_$auto$rtlil.cc:2714:MuxGate$139_input_0_3",
+          "\\lut_$auto$rtlil.cc:2714:MuxGate$139_input_0_2",
+          "\\lut_$auto$rtlil.cc:2714:MuxGate$139_input_0_1",
+          "constant_0"
+        ],
+        "outputs": [
+          "\\lut_$auto$rtlil.cc:2714:MuxGate$139_output_0_0"
+        ],
+        "fanin": 3,
+        "fanout": 1
+      },
+      {
+        "component": "\\latch_Q",
+        "type": "DFF",
+        "inputs": [
+          "constant_0",
+          "\\latch_Q_input_0_0",
+          "\\latch_Q_clock_0_0"
+        ],
+        "outputs": [
+          "\\latch_Q_output_0_0"
+        ],
+        "fanin": 2,
+        "fanout": 2
+      }
+    ]
+  },
+  "timing": {
+    "delays": [
+      {
+        "cellType": "fpga_interconnect",
+        "instance": "routing_segment_D_output_0_0_to_lut_\\$auto\\$rtlil\\.cc\\:2714\\:MuxGate\\$139_input_0_3",
+        "type": "iopath",
+        "inputPort": "datain",
+        "outputPort": "dataout",
+        "rise": {
+          "min": 1693.56,
+          "typ": 1693.56,
+          "max": 1693.56
+        },
+        "fall": {
+          "min": 1693.56,
+          "typ": 1693.56,
+          "max": 1693.56
+        },
+        "max_delay": 1693.56
+      },
+      {
+        "cellType": "fpga_interconnect",
+        "instance": "routing_segment_clk_output_0_0_to_latch_Q_clock_0_0",
+        "type": "iopath",
+        "inputPort": "datain",
+        "outputPort": "dataout",
+        "rise": {
+          "min": 10,
+          "typ": 10,
+          "max": 10
+        },
+        "fall": {
+          "min": 10,
+          "typ": 10,
+          "max": 10
+        },
+        "max_delay": 10
+      },
+      {
+        "cellType": "fpga_interconnect",
+        "instance": "routing_segment_async_reset_output_0_0_to_lut_\\$auto\\$rtlil\\.cc\\:2714\\:MuxGate\\$139_input_0_1",
+        "type": "iopath",
+        "inputPort": "datain",
+        "outputPort": "dataout",
+        "rise": {
+          "min": 463.327,
+          "typ": 463.327,
+          "max": 463.327
+        },
+        "fall": {
+          "min": 463.327,
+          "typ": 463.327,
+          "max": 463.327
+        },
+        "max_delay": 463.327
+      },
+      {
+        "cellType": "fpga_interconnect",
+        "instance": "routing_segment_latch_Q_output_0_0_to_lut_\\$auto\\$rtlil\\.cc\\:2714\\:MuxGate\\$139_input_0_2",
+        "type": "iopath",
+        "inputPort": "datain",
+        "outputPort": "dataout",
+        "rise": {
+          "min": 0,
+          "typ": 0,
+          "max": 0
+        },
+        "fall": {
+          "min": 0,
+          "typ": 0,
+          "max": 0
+        },
+        "max_delay": 0
+      },
+      {
+        "cellType": "fpga_interconnect",
+        "instance": "routing_segment_latch_Q_output_0_0_to_Q_input_0_0",
+        "type": "iopath",
+        "inputPort": "datain",
+        "outputPort": "dataout",
+        "rise": {
+          "min": 2304.7,
+          "typ": 2304.7,
+          "max": 2304.7
+        },
+        "fall": {
+          "min": 2304.7,
+          "typ": 2304.7,
+          "max": 2304.7
+        },
+        "max_delay": 2304.7
+      },
+      {
+        "cellType": "fpga_interconnect",
+        "instance": "routing_segment_lut_\\$auto\\$rtlil\\.cc\\:2714\\:MuxGate\\$139_output_0_0_to_latch_Q_input_0_0",
+        "type": "iopath",
+        "inputPort": "datain",
+        "outputPort": "dataout",
+        "rise": {
+          "min": 96,
+          "typ": 96,
+          "max": 96
+        },
+        "fall": {
+          "min": 96,
+          "typ": 96,
+          "max": 96
+        },
+        "max_delay": 96
+      }
+    ],
+    "summary": {
+      "total_delays": 6,
+      "max_delay": 2304.7,
+      "components_with_timing": 6
+    }
+  }
+}

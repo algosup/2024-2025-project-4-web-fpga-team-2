@@ -1,0 +1,377 @@
+{
+  "module": "FF2_norst",
+  "ports": {
+    "\\D": "input",
+    "\\clk": "input",
+    "\\Q": "output"
+  },
+  "wires": [
+    "\\D_output_0_0",
+    "\\clk_output_0_0",
+    "\\latch_Q_output_0_0",
+    "\\latch_",
+    "\\latch_Q_clock_0_0",
+    "\\Q_input_0_0",
+    "\\latch_Q_input_0_0"
+  ],
+  "components": [
+    {
+      "name": "\\latch_$dff~1^Q~0",
+      "type": "DFF",
+      "originalType": "DFF",
+      "inputs": [
+        {
+          "port": "INITIAL_VALUE",
+          "wire": "constant_0",
+          "constant": true,
+          "value": 0,
+          "pinIndex": 0
+        },
+        {
+          "port": "D",
+          "wire": "\\latch_$dff~1^Q~0_input_0_0",
+          "pinIndex": 1
+        },
+        {
+          "port": "clock",
+          "wire": "\\latch_$dff~1^Q~0_clock_0_0",
+          "pinIndex": 2
+        }
+      ],
+      "outputs": [
+        {
+          "wire": "\\latch_$dff~1^Q~0_output_0_0",
+          "pinIndex": 0
+        }
+      ]
+    },
+    {
+      "name": "\\latch_Q",
+      "type": "DFF",
+      "originalType": "DFF",
+      "inputs": [
+        {
+          "port": "INITIAL_VALUE",
+          "wire": "constant_0",
+          "constant": true,
+          "value": 0,
+          "pinIndex": 0
+        },
+        {
+          "port": "D",
+          "wire": "\\latch_Q_input_0_0",
+          "pinIndex": 1
+        },
+        {
+          "port": "clock",
+          "wire": "\\latch_Q_clock_0_0",
+          "pinIndex": 2
+        }
+      ],
+      "outputs": [
+        {
+          "wire": "\\latch_Q_output_0_0",
+          "pinIndex": 0
+        }
+      ]
+    }
+  ],
+  "interconnects": [
+    {
+      "name": "\\routing_segment_D_output_0_0_to_latch_$dff~1^Q~0_input_0_0",
+      "type": "interconnect",
+      "datain": "\\D_output_0_0",
+      "dataout": "\\latch_$dff~1^Q~0_input_0_0"
+    },
+    {
+      "name": "\\routing_segment_clk_output_0_0_to_latch_$dff~1^Q~0_clock_0_0",
+      "type": "interconnect",
+      "datain": "\\clk_output_0_0",
+      "dataout": "\\latch_$dff~1^Q~0_clock_0_0"
+    },
+    {
+      "name": "\\routing_segment_clk_output_0_0_to_latch_Q_clock_0_0",
+      "type": "interconnect",
+      "datain": "\\clk_output_0_0",
+      "dataout": "\\latch_Q_clock_0_0"
+    },
+    {
+      "name": "\\routing_segment_latch_Q_output_0_0_to_Q_input_0_0",
+      "type": "interconnect",
+      "datain": "\\latch_Q_output_0_0",
+      "dataout": "\\Q_input_0_0"
+    },
+    {
+      "name": "\\routing_segment_latch_$dff~1^Q~0_output_0_0_to_latch_Q_input_0_0",
+      "type": "interconnect",
+      "datain": "\\latch_$dff~1^Q~0_output_0_0",
+      "dataout": "\\latch_Q_input_0_0"
+    }
+  ],
+  "connections": [
+    {
+      "from": {
+        "component": "\\routing_segment_D_output_0_0_to_latch_$dff~1^Q~0_input_0_0",
+        "type": "interconnect",
+        "port": "out",
+        "pinIndex": 0
+      },
+      "to": {
+        "component": "\\latch_$dff~1^Q~0",
+        "type": "DFF",
+        "port": "D",
+        "pinIndex": 1
+      },
+      "wire": "\\latch_$dff~1^Q~0_input_0_0"
+    },
+    {
+      "from": {
+        "component": "\\routing_segment_clk_output_0_0_to_latch_$dff~1^Q~0_clock_0_0",
+        "type": "interconnect",
+        "port": "out",
+        "pinIndex": 0
+      },
+      "to": {
+        "component": "\\latch_$dff~1^Q~0",
+        "type": "DFF",
+        "port": "clock",
+        "pinIndex": 2
+      },
+      "wire": "\\latch_$dff~1^Q~0_clock_0_0"
+    },
+    {
+      "from": {
+        "component": "\\routing_segment_clk_output_0_0_to_latch_Q_clock_0_0",
+        "type": "interconnect",
+        "port": "out",
+        "pinIndex": 0
+      },
+      "to": {
+        "component": "\\latch_Q",
+        "type": "DFF",
+        "port": "clock",
+        "pinIndex": 2
+      },
+      "wire": "\\latch_Q_clock_0_0"
+    },
+    {
+      "from": {
+        "component": "\\latch_Q",
+        "type": "DFF",
+        "port": "out",
+        "pinIndex": 0
+      },
+      "to": {
+        "component": "\\routing_segment_latch_Q_output_0_0_to_Q_input_0_0",
+        "type": "interconnect",
+        "port": "in",
+        "pinIndex": 0
+      },
+      "wire": "\\latch_Q_output_0_0"
+    },
+    {
+      "from": {
+        "component": "\\latch_$dff~1^Q~0",
+        "type": "DFF",
+        "port": "out",
+        "pinIndex": 0
+      },
+      "to": {
+        "component": "\\routing_segment_latch_$dff~1^Q~0_output_0_0_to_latch_Q_input_0_0",
+        "type": "interconnect",
+        "port": "in",
+        "pinIndex": 0
+      },
+      "wire": "\\latch_$dff~1^Q~0_output_0_0"
+    },
+    {
+      "from": {
+        "component": "\\routing_segment_latch_$dff~1^Q~0_output_0_0_to_latch_Q_input_0_0",
+        "type": "interconnect",
+        "port": "out",
+        "pinIndex": 0
+      },
+      "to": {
+        "component": "\\latch_Q",
+        "type": "DFF",
+        "port": "D",
+        "pinIndex": 1
+      },
+      "wire": "\\latch_Q_input_0_0"
+    }
+  ],
+  "pinConnections": [
+    {
+      "from": "\\routing_segment_D_output_0_0_to_latch_$dff~1^Q~0_input_0_0.out",
+      "to": "\\latch_$dff~1^Q~0.D",
+      "wire": "\\latch_$dff~1^Q~0_input_0_0"
+    },
+    {
+      "from": "\\routing_segment_clk_output_0_0_to_latch_$dff~1^Q~0_clock_0_0.out",
+      "to": "\\latch_$dff~1^Q~0.clock",
+      "wire": "\\latch_$dff~1^Q~0_clock_0_0"
+    },
+    {
+      "from": "\\routing_segment_clk_output_0_0_to_latch_Q_clock_0_0.out",
+      "to": "\\latch_Q.clock",
+      "wire": "\\latch_Q_clock_0_0"
+    },
+    {
+      "from": "\\latch_Q.out",
+      "to": "\\routing_segment_latch_Q_output_0_0_to_Q_input_0_0.in",
+      "wire": "\\latch_Q_output_0_0"
+    },
+    {
+      "from": "\\latch_$dff~1^Q~0.out",
+      "to": "\\routing_segment_latch_$dff~1^Q~0_output_0_0_to_latch_Q_input_0_0.in",
+      "wire": "\\latch_$dff~1^Q~0_output_0_0"
+    },
+    {
+      "from": "\\routing_segment_latch_$dff~1^Q~0_output_0_0_to_latch_Q_input_0_0.out",
+      "to": "\\latch_Q.D",
+      "wire": "\\latch_Q_input_0_0"
+    }
+  ],
+  "summary": {
+    "total_components": 2,
+    "component_types": {
+      "DFF": 2
+    },
+    "total_interconnects": 5,
+    "total_ports": 3,
+    "ports_by_type": {
+      "input": 2,
+      "output": 1
+    },
+    "total_connections": 6,
+    "connectivity_matrix": [
+      {
+        "component": "\\latch_$dff~1^Q~0",
+        "type": "DFF",
+        "inputs": [
+          "constant_0",
+          "\\latch_$dff~1^Q~0_input_0_0",
+          "\\latch_$dff~1^Q~0_clock_0_0"
+        ],
+        "outputs": [
+          "\\latch_$dff~1^Q~0_output_0_0"
+        ],
+        "fanin": 2,
+        "fanout": 1
+      },
+      {
+        "component": "\\latch_Q",
+        "type": "DFF",
+        "inputs": [
+          "constant_0",
+          "\\latch_Q_input_0_0",
+          "\\latch_Q_clock_0_0"
+        ],
+        "outputs": [
+          "\\latch_Q_output_0_0"
+        ],
+        "fanin": 2,
+        "fanout": 1
+      }
+    ]
+  },
+  "timing": {
+    "delays": [
+      {
+        "cellType": "fpga_interconnect",
+        "instance": "routing_segment_D_output_0_0_to_latch_\\$dff\\~1\\^Q\\~0_input_0_0",
+        "type": "iopath",
+        "inputPort": "datain",
+        "outputPort": "dataout",
+        "rise": {
+          "min": 407.526,
+          "typ": 407.526,
+          "max": 407.526
+        },
+        "fall": {
+          "min": 407.526,
+          "typ": 407.526,
+          "max": 407.526
+        },
+        "max_delay": 407.526
+      },
+      {
+        "cellType": "fpga_interconnect",
+        "instance": "routing_segment_clk_output_0_0_to_latch_\\$dff\\~1\\^Q\\~0_clock_0_0",
+        "type": "iopath",
+        "inputPort": "datain",
+        "outputPort": "dataout",
+        "rise": {
+          "min": 10,
+          "typ": 10,
+          "max": 10
+        },
+        "fall": {
+          "min": 10,
+          "typ": 10,
+          "max": 10
+        },
+        "max_delay": 10
+      },
+      {
+        "cellType": "fpga_interconnect",
+        "instance": "routing_segment_clk_output_0_0_to_latch_Q_clock_0_0",
+        "type": "iopath",
+        "inputPort": "datain",
+        "outputPort": "dataout",
+        "rise": {
+          "min": 10,
+          "typ": 10,
+          "max": 10
+        },
+        "fall": {
+          "min": 10,
+          "typ": 10,
+          "max": 10
+        },
+        "max_delay": 10
+      },
+      {
+        "cellType": "fpga_interconnect",
+        "instance": "routing_segment_latch_Q_output_0_0_to_Q_input_0_0",
+        "type": "iopath",
+        "inputPort": "datain",
+        "outputPort": "dataout",
+        "rise": {
+          "min": 1090.38,
+          "typ": 1090.38,
+          "max": 1090.38
+        },
+        "fall": {
+          "min": 1090.38,
+          "typ": 1090.38,
+          "max": 1090.38
+        },
+        "max_delay": 1090.38
+      },
+      {
+        "cellType": "fpga_interconnect",
+        "instance": "routing_segment_latch_\\$dff\\~1\\^Q\\~0_output_0_0_to_latch_Q_input_0_0",
+        "type": "iopath",
+        "inputPort": "datain",
+        "outputPort": "dataout",
+        "rise": {
+          "min": 248,
+          "typ": 248,
+          "max": 248
+        },
+        "fall": {
+          "min": 248,
+          "typ": 248,
+          "max": 248
+        },
+        "max_delay": 248
+      }
+    ],
+    "summary": {
+      "total_delays": 5,
+      "max_delay": 1090.38,
+      "components_with_timing": 5
+    }
+  }
+}

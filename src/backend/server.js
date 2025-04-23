@@ -8,23 +8,47 @@ const fs = require("fs");
 const sqlite3 = require("sqlite3").verbose();
 
 const app = express();
-app.use(cors());
+const FRONTEND_URL = process.env.FRONTEND_URL || 'https://two024-2025-project-4-web-fpga-team-2-4ta1.onrender.com';
+
+app.use(cors({
+    origin: [
+      'https://ianlaur.github.io',
+      'https://two024-2025-project-4-web-fpga-team-2.onrender.com'
+    ],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true
+  }));
 app.use(express.json());
 
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
-const db = new sqlite3.Database("circuit_data.db");
+// Use environment variables with defaults for configuration
+const DB_PATH = process.env.DB_PATH || "circuit_data.db";
+const UPLOADS_DIR = process.env.UPLOADS_DIR || "uploads";
+const DB_CIRCUITS_DIR = process.env.DB_CIRCUITS_DIR || "../database/circuits";
+
+const db = new sqlite3.Database(DB_PATH);
 
 // Ensure necessary directories exist
-const UPLOADS_DIR = "uploads";
-const DB_CIRCUITS_DIR = "../database/circuits";
-if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR);
-if (!fs.existsSync(DB_CIRCUITS_DIR)) fs.mkdirSync(DB_CIRCUITS_DIR);
+if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+if (!fs.existsSync(DB_CIRCUITS_DIR)) fs.mkdirSync(DB_CIRCUITS_DIR, { recursive: true });
 
-app.use("/uploads", express.static(path.join(__dirname, UPLOADS_DIR)));
-app.use("../database/circuits", express.static(path.join(__dirname, DB_CIRCUITS_DIR)));
-
+app.use("/uploads", express.static(path.resolve(UPLOADS_DIR)));
+app.use("/database/circuits", express.static(path.resolve(DB_CIRCUITS_DIR)));
+app.get('/', (req, res) => {
+    res.json({ 
+      message: "FPGA Backend API is running",
+      endpoints: [
+        "/circuits - Get all circuits",
+        "/student-circuits - Get approved circuits for students",
+        "/upload - Upload new circuit (POST)",
+        "/approve/:id - Approve a circuit (POST)",
+        "/circuits/:id - Delete a circuit (DELETE)",
+        "/ping - Health check"
+      ]
+    });
+  });
 // Create circuits table
 db.serialize(() => {
     db.run(`
@@ -54,7 +78,7 @@ wss.on("connection", (ws) => {
 });
 
 // Upload Circuit (Temporary Storage)
-app.post("/upload", upload.array("files", 2), async (req, res) => {
+app.post("/uploads", upload.array("files", 2), async (req, res) => {
     if (!req.files || req.files.length !== 2) {
         return res.status(400).json({ error: "Please upload exactly one .v file and one .sdf file." });
     }
@@ -140,8 +164,8 @@ app.get("/circuits", (req, res) => {
             createdAt: row.created_at,
             description: row.description,
             jsonFile: row.json_path.includes(DB_CIRCUITS_DIR)
-                ? `../database/circuits/${path.basename(row.json_path)}`
-                : `/uploads/${path.basename(row.json_path)}`
+                ? `https://two024-2025-project-4-web-fpga-team-2.onrender.com/database/circuits/${path.basename(row.json_path)}`
+                : `https://two024-2025-project-4-web-fpga-team-2.onrender.com/uploads/${path.basename(row.json_path)}`
         }));
 
         res.json(circuits);
@@ -158,7 +182,7 @@ app.get("/student-circuits", (req, res) => {
             name: row.name,
             createdAt: row.created_at,
             description: row.description,
-            jsonFile: `../database/circuits/${path.basename(row.json_path)}`
+            jsonFile: `https://two024-2025-project-4-web-fpga-team-2.onrender.com/database/circuits/${path.basename(row.json_path)}`
         }));
 
         res.json(circuits);
