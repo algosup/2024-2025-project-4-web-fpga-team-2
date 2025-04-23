@@ -108,6 +108,8 @@ It will:
 ## 📖 How to Use It ?
 You can access the website by clicking on this [link](https://algosup.github.io/2024-2025-project-4-web-fpga-team-2/).
 
+> 🧑‍🏫 **Note:** To access the **Teacher page**, you will be prompted for a password. The default password is: **`securepass`**.
+
 ## 📂 Project Documents
 
 📄 [**Functional Specifications**](https://github.com/algosup/2024-2025-project-4-web-fpga-team-2/blob/main/Documents/Functional/functionalSpecification.md) <br>
