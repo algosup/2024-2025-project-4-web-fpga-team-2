@@ -26,3 +26,24 @@ The goal of the project is to create a website that allows users to create and v
 - Final Product - Website
 - Management Documents - Weekly Reports, Gantt Chart, Code of Conduct, Project Charter, etc.
 
+## Feedback
+
+### Tasks Difficulty
+
+The average rating of the difficulty of the tasks is 3.6/5. Globally, the difficulty came from the fact that the subject was not very well known by the team members. Also, the frameworks used were not easy to master in few weeks. <br>
+For the next projects, it would be interesting to set up a kind of training session within the team to have a better knowledge of the frameworks used. Additionally, more than only one hour of the project specifically dedicated to reformulate the need of the client and understanding his expectations would be helpful to have a better understanding of the subject.
+
+### Atmosphere
+
+The atmosphere among all the team members was very good (4.40/5). The team members were very close to each other and the communication was very good. The team members were able to share their ideas and opinions without any problem. The team members were also able to help each other when needed. 
+
+### Management
+
+The management in its entirety was well (4/5). The members found that the things that I set up (such as the GitHub and Slack channels) for the management of the project were very useful. Moreover, they thought that there were a good delegation of the tasks with a good balance of pressure on each member. However, some members felt that I was too stressed and that it showed. <br>
+For the future projects, it would be great to be more relaxed (or at least don't show my stress) about managing a team.
+
+Additionally, regarding organization, the developers found that there was not enough organization of tasks related to the website at the beginning but that things got sorted out over the following weeks.
+
+## General Feedback
+
+This project has a lack of organization at the beginning and some members were not very confident about the subject and how to use the framework of the project. Hopefully, over the weeks, the organization improved and the subject (thanks to some questions ask to the client) was better understood creating and guaranteeing a nice atmosphere for all the project.
