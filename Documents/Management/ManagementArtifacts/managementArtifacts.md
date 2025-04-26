@@ -180,4 +180,4 @@ Each week, a survey is sent to the team members to know the progress of the proj
 
 The management review is a survey that takes place at the end of the project to assess management (in addition to the weekly forms) as a whole. The members are asked to say how they felt about the management of the project.
 <br>
-You can find the management review [here](../ManagementArtifacts/post_Mortem.md).
+You can find the management review [here](../ManagementArtifacts/postMortem.md).
