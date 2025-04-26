@@ -15,7 +15,7 @@ A post mortem is a document that summarizes how a project went, what its strengt
 
 ## Project Description
 
-The goal of the project is to create a website that allows users to create and visualize FPGA circuits. The website should be able to parse both .v and .sdf files to create the circuit and display it in a user-friendly way. It will helps students to understand how the FPGA works through the teacher explanations and the website.
+The goal of the project is to create a website that allows users to create and visualize FPGA circuits. The website should be able to parse both .v and .sdf files to create the circuit and display it in a user-friendly way. It will help students to understand how the FPGA works through the teacher explanations and the website.
 
 ## Milestones
 
@@ -39,11 +39,11 @@ The atmosphere among all the team members was very good (4.40/5). The team membe
 
 ### Management
 
-The management in its entirety was well (4/5). The members found that the things that I set up (such as the GitHub and Slack channels) for the management of the project were very useful. Moreover, they thought that there were a good delegation of the tasks with a good balance of pressure on each member. However, some members felt that I was too stressed and that it showed. <br>
+The management in its entirety was well-managed (4/5). The members found that the things that I set up (such as the GitHub and Slack channels) for the management of the project were very useful. Moreover, they thought that there were a good delegation of the tasks with a good balance of pressure on each member. However, some members felt that I was too stressed and that it showed. <br>
 For the future projects, it would be great to be more relaxed (or at least don't show my stress) about managing a team.
 
 Additionally, regarding organization, the developers found that there was not enough organization of tasks related to the website at the beginning but that things got sorted out over the following weeks.
 
 ## General Feedback
 
-This project has a lack of organization at the beginning and some members were not very confident about the subject and how to use the framework of the project. Hopefully, over the weeks, the organization improved and the subject (thanks to some questions ask to the client) was better understood creating and guaranteeing a nice atmosphere for all the project.
+This project has a lack of organization at the beginning and some members were not very confident about the subject and how to use the framework of the project. Fortunately, as the weeks went by, the organization improved, and the subject (thanks to a few questions posed to the client) was better understood, creating a pleasant atmosphere for the entire project.
